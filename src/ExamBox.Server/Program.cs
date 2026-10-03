@@ -2,7 +2,7 @@ using ExamBox.Data;
 using ExamBox.Services;
 
 // Headless student-portal host (Linux/macOS/servers). The Windows desktop app hosts the same portal itself.
-//   ExamBox.Server [--port 5109] [--data <folder>] [--create-admin <username> <password> "<Full Name>"]
+//   ExamBox.Server [--port 5109] [--data <folder>] [--create-admin <username> <password>]
 var port = 5109; string? data = null;
 for (var i = 0; i < args.Length; i++)
 {
@@ -12,7 +12,7 @@ for (var i = 0; i < args.Length; i++)
         case "--data": data = args[++i]; break;
         case "--create-admin":
             var db0 = new DbFactory(data); db0.Initialize();
-            var r = new AuthService(db0).CreateAdmin(args.ElementAtOrDefault(i + 3) ?? args[i + 1], args[i + 1], null, args[i + 2]);
+            var r = new AuthService(db0).CreateAdmin(args[i + 1], args[i + 2]);
             Console.WriteLine(r.Ok ? "Administrator created." : "Error: " + r.Error);
             return r.Ok ? 0 : 1;
     }

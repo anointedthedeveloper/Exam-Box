@@ -23,10 +23,7 @@ public static class Passwords
         });
     }
 
-    public static string? Validate(string password)
-    {
-        if (password.Length < 8) return "Password must be at least 8 characters.";
-        if (!password.Any(char.IsLetter) || !password.Any(char.IsDigit)) return "Password must contain letters and numbers.";
-        return null;
-    }
+    /// <summary>Only requires a non-empty password; admins decide how strong theirs should be.</summary>
+    public static string? Validate(string password) =>
+        string.IsNullOrEmpty(password) ? "Enter a password." : null;
 }

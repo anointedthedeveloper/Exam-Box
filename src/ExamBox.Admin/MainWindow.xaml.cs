@@ -60,6 +60,9 @@ public partial class MainWindow : Window
     private void SignOut_Click(object sender, RoutedEventArgs e)
     {
         App.CurrentUser = null;
+        // Signing out ends "remember me" auto-sign-in (the username stays pre-filled).
+        App.Settings.RememberedSecret = null;
+        App.Settings.Save();
         ShowAuth();
     }
 }

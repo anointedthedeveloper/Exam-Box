@@ -17,22 +17,22 @@
             <Border x:Name="PortalBanner" Style="{StaticResource Card}" Margin="0,18,0,0" Padding="14,10"/>
 
             <UniformGrid Rows="1" Margin="0,16,0,0">
-                <Border Style="{StaticResource Card}" Margin="0,0,8,0"><StackPanel>
+                <Border Style="{StaticResource Card}" Margin="0,0,8,0"><DockPanel><Border DockPanel.Dock="Right" Width="42" Height="42" CornerRadius="11" Background="{StaticResource BlueLightBrush}" VerticalAlignment="Top"><TextBlock Text="&#xE716;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="{StaticResource BlueBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel>
                     <TextBlock x:Name="StudentsN" Style="{StaticResource StatNumber}"/>
                     <TextBlock Text="Students" FontWeight="SemiBold" Foreground="{StaticResource MutedBrush}"/>
-                    <TextBlock x:Name="StudentsSub" FontSize="12" Foreground="{StaticResource MutedBrush}"/></StackPanel></Border>
-                <Border Style="{StaticResource Card}" Margin="8,0"><StackPanel>
+                    <TextBlock x:Name="StudentsSub" FontSize="12" Foreground="{StaticResource MutedBrush}"/></StackPanel></DockPanel></Border>
+                <Border Style="{StaticResource Card}" Margin="8,0"><DockPanel><Border DockPanel.Dock="Right" Width="42" Height="42" CornerRadius="11" Background="{StaticResource BlueLightBrush}" VerticalAlignment="Top"><TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="{StaticResource BlueBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel>
                     <TextBlock x:Name="ExamsN" Style="{StaticResource StatNumber}"/>
                     <TextBlock Text="Exams" FontWeight="SemiBold" Foreground="{StaticResource MutedBrush}"/>
-                    <TextBlock x:Name="ExamsSub" FontSize="12" Foreground="{StaticResource MutedBrush}"/></StackPanel></Border>
-                <Border Style="{StaticResource Card}" Margin="8,0"><StackPanel>
+                    <TextBlock x:Name="ExamsSub" FontSize="12" Foreground="{StaticResource MutedBrush}"/></StackPanel></DockPanel></Border>
+                <Border Style="{StaticResource Card}" Margin="8,0"><DockPanel><Border DockPanel.Dock="Right" Width="42" Height="42" CornerRadius="11" Background="{StaticResource BlueLightBrush}" VerticalAlignment="Top"><TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="{StaticResource BlueBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel>
                     <TextBlock x:Name="DoneN" Style="{StaticResource StatNumber}"/>
                     <TextBlock Text="Completed attempts" FontWeight="SemiBold" Foreground="{StaticResource MutedBrush}"/>
-                    <TextBlock x:Name="DoneSub" FontSize="12" Foreground="{StaticResource MutedBrush}"/></StackPanel></Border>
-                <Border Style="{StaticResource Card}" Margin="8,0,0,0"><StackPanel>
+                    <TextBlock x:Name="DoneSub" FontSize="12" Foreground="{StaticResource MutedBrush}"/></StackPanel></DockPanel></Border>
+                <Border Style="{StaticResource Card}" Margin="8,0,0,0"><DockPanel><Border DockPanel.Dock="Right" Width="42" Height="42" CornerRadius="11" Background="{StaticResource BlueLightBrush}" VerticalAlignment="Top"><TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="{StaticResource BlueBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel>
                     <TextBlock x:Name="AvgN" Style="{StaticResource StatNumber}"/>
                     <TextBlock Text="Average score" FontWeight="SemiBold" Foreground="{StaticResource MutedBrush}"/>
-                    <TextBlock Text="across submitted exams" FontSize="12" Foreground="{StaticResource MutedBrush}"/></StackPanel></Border>
+                    <TextBlock Text="across submitted exams" FontSize="12" Foreground="{StaticResource MutedBrush}"/></StackPanel></DockPanel></Border>
             </UniformGrid>
 
             <Grid Margin="0,16,0,0">

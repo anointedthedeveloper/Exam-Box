@@ -3,44 +3,70 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1.1*"/>
-            <ColumnDefinition Width="1*" MinWidth="460"/>
+            <ColumnDefinition Width="1.15*"/>
+            <ColumnDefinition Width="1*" MinWidth="480"/>
         </Grid.ColumnDefinitions>
-        <Border Grid.Column="0" Background="{StaticResource HeroBrush}" Padding="60">
-            <StackPanel VerticalAlignment="Center">
-                <Border Background="White" CornerRadius="26" Width="140" Height="140" Padding="6" HorizontalAlignment="Left">
-                    <Image Source="/Assets/logo.png"/>
-                </Border>
-                <TextBlock Text="ExamBox" Foreground="White" FontSize="42" FontWeight="ExtraBold" Margin="0,20,0,4"/>
-                <TextBlock Text="Run exams, manage students and grade results — all in one box." Foreground="#DBE6FF" FontSize="17" TextWrapping="Wrap" MaxWidth="420"/>
-                <TextBlock Text="• Timed multiple-choice exams with instant grading" Foreground="#CFDCFF" Margin="0,22,0,0"/>
-                <TextBlock Text="• Students sit exams from any browser on your network" Foreground="#CFDCFF" Margin="0,6,0,0"/>
-                <TextBlock Text="• Everything stays on this computer" Foreground="#CFDCFF" Margin="0,6,0,0"/>
-            </StackPanel>
+
+        <!-- brand panel -->
+        <Border Grid.Column="0" Background="{StaticResource HeroBrush}" ClipToBounds="True">
+            <Grid>
+                <Ellipse Width="620" Height="620" Fill="White" Opacity="0.06" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-220,-230,0"/>
+                <Ellipse Width="460" Height="460" Fill="White" Opacity="0.05" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-180,0,0,-190"/>
+                <StackPanel VerticalAlignment="Center" Margin="80,0,60,0" HorizontalAlignment="Left">
+                    <Border Background="White" CornerRadius="30" Width="150" Height="150" Padding="8" HorizontalAlignment="Left" Effect="{StaticResource SoftShadow}">
+                        <Image Source="/Assets/logo.png"/>
+                    </Border>
+                    <TextBlock Text="ExamBox" Foreground="White" FontSize="48" FontWeight="ExtraBold" Margin="0,26,0,6"/>
+                    <TextBlock Text="Run exams, manage students and grade results — all in one box."
+                               Foreground="#DBE6FF" FontSize="18" TextWrapping="Wrap" MaxWidth="440" HorizontalAlignment="Left"/>
+                    <StackPanel Margin="0,30,0,0">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <Border Width="30" Height="30" CornerRadius="15" Background="#26FFFFFF"><TextBlock Text="&#xE916;" FontFamily="Segoe MDL2 Assets" Foreground="White" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                            <TextBlock Text="Timed multiple-choice exams with instant grading" Foreground="#E4ECFF" FontSize="15" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <Border Width="30" Height="30" CornerRadius="15" Background="#26FFFFFF"><TextBlock Text="&#xE774;" FontFamily="Segoe MDL2 Assets" Foreground="White" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                            <TextBlock Text="Students sit exams from any browser on your network" Foreground="#E4ECFF" FontSize="15" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Border Width="30" Height="30" CornerRadius="15" Background="#26FFFFFF"><TextBlock Text="&#xE72E;" FontFamily="Segoe MDL2 Assets" Foreground="White" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                            <TextBlock Text="Everything stays on this computer" Foreground="#E4ECFF" FontSize="15" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
         </Border>
+
+        <!-- form -->
         <Border Grid.Column="1" Background="{StaticResource BgBrush}">
             <ScrollViewer VerticalScrollBarVisibility="Auto" VerticalAlignment="Center">
-                <Border Style="{StaticResource Card}" Width="400" Margin="20" Padding="28">
+                <Border Background="White" CornerRadius="18" Width="430" Margin="24" Padding="34,32" Effect="{StaticResource SoftShadow}" BorderBrush="{StaticResource LineBrush}" BorderThickness="1">
                     <StackPanel>
-                        <TextBlock x:Name="Heading" Style="{StaticResource H1}" FontSize="22"/>
-                        <TextBlock x:Name="SubHeading" Style="{StaticResource Muted}" Margin="0,4,0,0"/>
-                        <StackPanel x:Name="NamePanel" Visibility="Collapsed">
-                            <TextBlock Text="Full name" Style="{StaticResource FieldLabel}"/>
-                            <TextBox x:Name="FullName"/>
-                            <TextBlock Text="Email (optional)" Style="{StaticResource FieldLabel}"/>
-                            <TextBox x:Name="Email"/>
-                        </StackPanel>
+                        <TextBlock x:Name="Heading" Style="{StaticResource H1}" FontSize="26"/>
+                        <TextBlock x:Name="SubHeading" Style="{StaticResource Muted}" Margin="0,6,0,6" FontSize="14"/>
+
                         <TextBlock Text="Username" Style="{StaticResource FieldLabel}"/>
                         <TextBox x:Name="Username"/>
+
                         <TextBlock Text="Password" Style="{StaticResource FieldLabel}"/>
-                        <PasswordBox x:Name="Password"/>
+                        <Grid>
+                            <PasswordBox x:Name="Password"/>
+                            <TextBox x:Name="PasswordVisible" Visibility="Collapsed"/>
+                        </Grid>
+                        <CheckBox x:Name="ShowPw" Content="Show password" Margin="0,10,0,0" Checked="ShowPw_Changed" Unchecked="ShowPw_Changed"/>
+
                         <StackPanel x:Name="ConfirmPanel" Visibility="Collapsed">
                             <TextBlock Text="Confirm password" Style="{StaticResource FieldLabel}"/>
                             <PasswordBox x:Name="Confirm"/>
-                            <TextBlock Text="At least 8 characters, with letters and numbers." Style="{StaticResource Muted}" FontSize="12" Margin="0,6,0,0"/>
                         </StackPanel>
-                        <TextBlock x:Name="ErrorText" Style="{StaticResource ErrorText}" Visibility="Collapsed"/>
-                        <Button x:Name="Submit" Style="{StaticResource PrimaryButton}" IsDefault="True" Click="Submit_Click" Margin="0,20,0,0" Padding="16,11"/>
+
+                        <CheckBox x:Name="RememberMe" Content="Remember me" Margin="0,14,0,0"/>
+
+                        <Border x:Name="ErrorBox" Background="{StaticResource ErrBgBrush}" CornerRadius="9" Padding="12,9" Margin="0,16,0,0" Visibility="Collapsed">
+                            <TextBlock x:Name="ErrorText" Foreground="{StaticResource ErrBrush}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                        </Border>
+
+                        <Button x:Name="Submit" Style="{StaticResource PrimaryButton}" IsDefault="True" Click="Submit_Click" Margin="0,22,0,0" Padding="16,12" FontSize="15"/>
                     </StackPanel>
                 </Border>
             </ScrollViewer>

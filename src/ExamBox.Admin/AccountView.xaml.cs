@@ -8,7 +8,7 @@ public partial class AccountView : UserControl
     public AccountView()
     {
         InitializeComponent();
-        Who.Text = $"{App.CurrentUser!.FullName} · {App.CurrentUser.Username}";
+        Who.Text = $"Signed in as {App.CurrentUser!.Username}";
         DataPath.Text = App.Db.DataDir;
     }
 
@@ -18,6 +18,7 @@ public partial class AccountView : UserControl
         if (New.Password != Confirm.Password) { ErrorText.Text = "Passwords do not match."; ErrorText.Visibility = Visibility.Visible; return; }
         var r = App.Auth.ChangePassword(App.CurrentUser!.Id, Current.Password, New.Password);
         if (!r.Ok) { ErrorText.Text = r.Error; ErrorText.Visibility = Visibility.Visible; return; }
+        if (App.Settings.RememberedSecret != null) { App.Settings.RememberedSecret = Secrets.Protect(New.Password); App.Settings.Save(); }
         Current.Clear(); New.Clear(); Confirm.Clear();
         Ui.Info("Password updated.");
     }

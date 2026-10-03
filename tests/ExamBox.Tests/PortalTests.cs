@@ -37,7 +37,7 @@ public class PortalTests
     public async Task Student_portal_end_to_end()
     {
         using var t = new TempDb();
-        t.Auth.CreateAdmin("Ada", "admin", null, "Passw0rdAdmin");
+        t.Auth.CreateAdmin("admin", "Passw0rdAdmin");
         var port = FreePort();
         await using var host = await PortalHost.StartAsync(t.Factory, port);
         var c = new Client($"http://127.0.0.1:{port}");
@@ -65,8 +65,8 @@ public class PortalTests
         var login = await c.Post("/account/login", new() { ["Identifier"] = "s001", ["Password"] = stu.TempPassword }, "/account/login");
         Assert.Contains("/account/changepassword", login.Url);
         Assert.Contains("/account/changepassword", (await c.Get("/portal")).Url);
-        var weak = await c.Post("/account/changepassword", new() { ["CurrentPassword"] = stu.TempPassword, ["NewPassword"] = "short", ["ConfirmPassword"] = "short" });
-        Assert.Contains("at least 8", weak.Html);
+        var mismatch = await c.Post("/account/changepassword", new() { ["CurrentPassword"] = stu.TempPassword, ["NewPassword"] = "abc", ["ConfirmPassword"] = "abd" });
+        Assert.Contains("do not match", mismatch.Html);
         var changed = await c.Post("/account/changepassword", new() { ["CurrentPassword"] = stu.TempPassword, ["NewPassword"] = "StudentPass1", ["ConfirmPassword"] = "StudentPass1" });
         Assert.EndsWith("/portal", changed.Url);
         Assert.Contains("Math 101", changed.Html);

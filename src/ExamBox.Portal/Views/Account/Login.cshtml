@@ -12,7 +12,8 @@
     <label asp-for="Password">Password</label>
     <input asp-for="Password" autocomplete="current-password" />
     <span asp-validation-for="Password" class="field-validation-error"></span>
-    <label class="check"><input type="checkbox" asp-for="RememberMe" /> Keep me signed in</label>
+    <label class="check"><input type="checkbox" data-show-pw="Password" /> Show password</label>
+    <label class="check"><input type="checkbox" asp-for="RememberMe" /> Remember me</label>
     <button class="btn block">Sign in</button>
 </form>
 <p class="muted small" style="margin-top:16px">Your account is created by your administrator. Forgot your password? Ask them to reset it.</p>

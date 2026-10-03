@@ -9,8 +9,8 @@ public sealed record AuthResult(User? User, string? Error);
 /// <summary>Sign-in, lockout and account bootstrap, shared by the desktop app and the student portal.</summary>
 public sealed class AuthService(DbFactory factory)
 {
-    private const int MaxFailures = 5;
-    private static readonly TimeSpan LockFor = TimeSpan.FromMinutes(10);
+    private const int MaxFailures = 10;
+    private static readonly TimeSpan LockFor = TimeSpan.FromMinutes(5);
 
     public bool HasAdmin()
     {
@@ -18,18 +18,17 @@ public sealed class AuthService(DbFactory factory)
         return db.Users.Any(u => u.Role == UserRole.Admin);
     }
 
-    /// <summary>Creates the first administrator. Refused once any administrator exists.</summary>
-    public OpResult<User> CreateAdmin(string fullName, string username, string? email, string password)
+    /// <summary>Creates the first administrator (the username is also the display name). Refused once any administrator exists.</summary>
+    public OpResult<User> CreateAdmin(string username, string password)
     {
         using var db = factory.Create();
         if (db.Users.Any(u => u.Role == UserRole.Admin)) return OpResult<User>.Fail("An administrator already exists.");
-        fullName = fullName?.Trim() ?? ""; username = username?.Trim() ?? "";
-        if (fullName.Length == 0) return OpResult<User>.Fail("Enter your full name.");
+        username = username?.Trim() ?? "";
         if (username.Length == 0) return OpResult<User>.Fail("Enter a username.");
+        if (username.Length > 60) return OpResult<User>.Fail("Username is too long.");
         var err = Passwords.Validate(password ?? "");
         if (err != null) return OpResult<User>.Fail(err);
-        email = string.IsNullOrWhiteSpace(email) ? null : email.Trim();
-        var user = new User { FullName = fullName, Username = username, Email = email, Role = UserRole.Admin, PasswordHash = Passwords.Hash(password!) };
+        var user = new User { FullName = username, Username = username, Role = UserRole.Admin, PasswordHash = Passwords.Hash(password!) };
         db.Users.Add(user);
         db.SaveChanges();
         return OpResult<User>.Success(user);

@@ -23,7 +23,7 @@ Data folder: `%LOCALAPPDATA%\ExamBox` (override with the `EXAMBOX_DATA` environm
 
 ## Features
 
-- Administrator sign-in, hashed passwords, lockout after 5 failed attempts (10 min), deactivated students are signed out immediately.
+- Administrator sign-in with "Remember me" (password stored encrypted for your Windows user only), starts maximised, hashed passwords, any non-empty password allowed, lockout after 10 failed attempts (5 min), deactivated students are signed out immediately.
 - Student management: add, edit, search, deactivate, delete, reset password, exam history.
 - Exams: timed multiple-choice, marks per question, pass mark, publish/unpublish. Questions lock once a student starts.
 - Students: one attempt per exam, server-enforced deadline, automatic grading, answer review.

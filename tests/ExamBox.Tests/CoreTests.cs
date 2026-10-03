@@ -11,22 +11,26 @@ public class CoreTests
     {
         using var t = new TempDb();
         Assert.False(t.Auth.HasAdmin());
-        Assert.False(t.Auth.CreateAdmin("A", "admin", null, "short").Ok);
-        Assert.False(t.Auth.CreateAdmin("A", "admin", null, "onlyletters").Ok);
-        Assert.True(t.Auth.CreateAdmin("Ada", "admin", null, "Passw0rdAdmin").Ok);
+        Assert.False(t.Auth.CreateAdmin("admin", "").Ok);       // password required
+        Assert.False(t.Auth.CreateAdmin("  ", "x").Ok);         // username required
+        var admin = t.Auth.CreateAdmin("admin", "pw");           // no length/complexity rule
+        Assert.True(admin.Ok);
+        Assert.Equal("admin", admin.Value!.FullName);            // username doubles as display name
         Assert.True(t.Auth.HasAdmin());
-        Assert.False(t.Auth.CreateAdmin("B", "admin2", null, "Passw0rdAdmin").Ok);
+        Assert.False(t.Auth.CreateAdmin("admin2", "Passw0rdAdmin").Ok);
     }
 
     [Fact]
     public void Authenticate_enforces_role_case_insensitivity_and_lockout()
     {
         using var t = new TempDb();
-        t.Auth.CreateAdmin("Ada", "admin", null, "Passw0rdAdmin");
+        t.Auth.CreateAdmin("admin", "Passw0rdAdmin");
         Assert.NotNull(t.Auth.Authenticate("ADMIN", "Passw0rdAdmin", UserRole.Admin).User);
         Assert.Null(t.Auth.Authenticate("admin", "Passw0rdAdmin", UserRole.Student).User);
 
-        for (var i = 0; i < 5; i++) Assert.Null(t.Auth.Authenticate("admin", "wrong", UserRole.Admin).User);
+        for (var i = 0; i < 9; i++) Assert.Null(t.Auth.Authenticate("admin", "wrong", UserRole.Admin).User);
+        Assert.NotNull(t.Auth.Authenticate("admin", "Passw0rdAdmin", UserRole.Admin).User);   // 9 failures: still allowed, and success resets the count
+        for (var i = 0; i < 10; i++) Assert.Null(t.Auth.Authenticate("admin", "wrong", UserRole.Admin).User);
         var locked = t.Auth.Authenticate("admin", "Passw0rdAdmin", UserRole.Admin);
         Assert.Null(locked.User);
         Assert.Contains("Too many", locked.Error);
@@ -48,6 +52,8 @@ public class CoreTests
         Assert.NotNull(login.User);
 
         Assert.True(t.Auth.ChangePassword(login.User!.Id, c.Value.TempPassword, "NewPass123").Ok);
+        Assert.True(t.Auth.ChangePassword(login.User.Id, "NewPass123", "abc").Ok);        // short passwords are fine
+        Assert.True(t.Auth.ChangePassword(login.User.Id, "abc", "NewPass123").Ok);
         Assert.False(t.Auth.ChangePassword(login.User.Id, "wrong", "NewPass456").Ok);
         Assert.False(t.Auth.Authenticate("S001", c.Value.TempPassword, UserRole.Student).User != null);
 

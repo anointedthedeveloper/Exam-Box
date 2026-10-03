@@ -20,6 +20,8 @@
         <SolidColorBrush x:Key="WarnBrush" Color="#B36B00"/>
         <SolidColorBrush x:Key="HoverBrush" Color="#F7FAFF"/>
         <SolidColorBrush x:Key="HeaderBgBrush" Color="#FAFBFE"/>
+        <DropShadowEffect x:Key="SoftShadow" BlurRadius="40" ShadowDepth="8" Direction="270" Opacity="0.16" Color="#06309A"/>
+        <DropShadowEffect x:Key="CardShadow" BlurRadius="14" ShadowDepth="2" Direction="270" Opacity="0.07" Color="#0F1B3D"/>
         <LinearGradientBrush x:Key="SidebarBrush" StartPoint="0,0" EndPoint="0,1">
             <GradientStop Color="#0847B8" Offset="0"/>
             <GradientStop Color="#06309A" Offset="1"/>
@@ -149,20 +151,61 @@
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="12"/>
             <Setter Property="Padding" Value="20"/>
+            <Setter Property="Effect" Value="{StaticResource CardShadow}"/>
         </Style>
 
-        <!-- inputs -->
+        <!-- inputs: rounded, with a blue focus ring -->
+        <ControlTemplate x:Key="TextBoxTemplate" TargetType="TextBox">
+            <Border x:Name="Bd" Background="White" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1.5" CornerRadius="9" SnapsToDevicePixels="True">
+                <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" Focusable="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter TargetName="Bd" Property="BorderBrush" Value="#9BBCFF"/>
+                </Trigger>
+                <Trigger Property="IsKeyboardFocused" Value="True">
+                    <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource BlueBrush}"/>
+                </Trigger>
+                <Trigger Property="IsReadOnly" Value="True">
+                    <Setter TargetName="Bd" Property="Background" Value="#F7F9FD"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter TargetName="Bd" Property="Opacity" Value="0.55"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+        <ControlTemplate x:Key="PasswordBoxTemplate" TargetType="PasswordBox">
+            <Border x:Name="Bd" Background="White" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1.5" CornerRadius="9" SnapsToDevicePixels="True">
+                <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" Focusable="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter TargetName="Bd" Property="BorderBrush" Value="#9BBCFF"/>
+                </Trigger>
+                <Trigger Property="IsKeyboardFocused" Value="True">
+                    <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource BlueBrush}"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
         <Style TargetType="TextBox">
-            <Setter Property="Padding" Value="9,8"/>
+            <Setter Property="Template" Value="{StaticResource TextBoxTemplate}"/>
+            <Setter Property="Padding" Value="11,9"/>
             <Setter Property="FontSize" Value="14"/>
-            <Setter Property="BorderBrush" Value="#CDD6EA"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="BorderBrush" Value="#D5DCEC"/>
+            <Setter Property="CaretBrush" Value="{StaticResource BlueBrush}"/>
         </Style>
         <Style TargetType="PasswordBox">
-            <Setter Property="Padding" Value="9,8"/>
+            <Setter Property="Template" Value="{StaticResource PasswordBoxTemplate}"/>
+            <Setter Property="Padding" Value="11,9"/>
             <Setter Property="FontSize" Value="14"/>
-            <Setter Property="BorderBrush" Value="#CDD6EA"/>
+            <Setter Property="BorderBrush" Value="#D5DCEC"/>
+            <Setter Property="CaretBrush" Value="{StaticResource BlueBrush}"/>
+        </Style>
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{StaticResource InkBrush}"/>
+            <Setter Property="FontSize" Value="13"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Cursor" Value="Hand"/>
         </Style>
         <Style TargetType="ComboBox">
             <Setter Property="Padding" Value="9,7"/>

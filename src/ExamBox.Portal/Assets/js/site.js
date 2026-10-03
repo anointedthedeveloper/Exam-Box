@@ -12,3 +12,11 @@ document.querySelectorAll('[data-copy]').forEach(function (b) {
     navigator.clipboard.writeText(b.dataset.copy).then(function () { b.textContent = 'Copied'; });
   });
 });
+
+// "Show password" checkboxes: <input type="checkbox" data-show-pw="InputId">
+document.querySelectorAll('[data-show-pw]').forEach(function (c) {
+  c.addEventListener('change', function () {
+    var i = document.getElementById(c.dataset.showPw);
+    if (i) i.type = c.checked ? 'text' : 'password';
+  });
+});
