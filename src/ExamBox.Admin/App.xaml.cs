@@ -92,8 +92,11 @@ public partial class App : Application
         var remaining = 1300 - (int)clock.ElapsedMilliseconds;
         if (remaining > 0) await Task.Delay(remaining);
         MainWindow = new MainWindow();   // becomes the main window before the splash closes, so closing it can't end the app
+        var drawn = new TaskCompletionSource();
+        MainWindow.ContentRendered += (_, _) => drawn.TrySetResult();
         MainWindow.Show();
-        await splash.FadeOutAsync();     // splash is Topmost: it dissolves to reveal the app
+        await Task.WhenAny(drawn.Task, Task.Delay(2000));   // the app is on screen...
+        splash.Close();                                       // ...so the splash goes immediately
     }
 
     protected override void OnExit(ExitEventArgs e)

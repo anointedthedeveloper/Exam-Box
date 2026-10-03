@@ -5,7 +5,7 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel>
             <Border x:Name="HeroOuter" CornerRadius="24" Background="#0A3A9E" Effect="{StaticResource SoftShadow}">
-                <Border x:Name="HeroBanner" CornerRadius="24" local:Round.Clip="True" MinHeight="330">
+                <Border x:Name="HeroBanner" CornerRadius="24" local:Round.Clip="True" MinHeight="340">
                     <Border.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,0.7">
                             <GradientStop Color="#0A3A9E" Offset="0"/>
@@ -18,8 +18,8 @@
                         <Ellipse Width="300" Height="300" Fill="White" Opacity="0.05" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="300,0,0,-170"/>
                         <Grid Margin="46,0,24,0">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="1*" MinWidth="380"/>
-                                <ColumnDefinition Width="1.35*"/>
+                                <ColumnDefinition Width="1.15*" MinWidth="400"/>
+                                <ColumnDefinition Width="1*"/>
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,30,16,30">
@@ -28,8 +28,8 @@
                                     <TextBlock Text="Exam Admin" Foreground="#DCE8FF" FontSize="15" FontWeight="SemiBold" Margin="10,0,0,0" VerticalAlignment="Center"/>
                                     <TextBlock x:Name="DateText" Foreground="#9FB8F0" FontSize="13" Margin="12,1,0,0" VerticalAlignment="Center"/>
                                 </StackPanel>
-                                <TextBlock Text="Welcome back," Foreground="White" FontSize="46" FontWeight="ExtraBold" Margin="0,12,0,0"/>
-                                <TextBlock x:Name="Greeting" FontSize="46" FontWeight="ExtraBold" TextTrimming="CharacterEllipsis" Margin="0,-6,0,0">
+                                <TextBlock Text="Welcome back," Foreground="White" FontSize="42" FontWeight="ExtraBold" Margin="0,12,0,0"/>
+                                <TextBlock x:Name="Greeting" FontSize="42" FontWeight="ExtraBold" TextTrimming="CharacterEllipsis" Margin="0,-6,0,0">
                                     <TextBlock.Foreground>
                                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
                                             <GradientStop Color="#FFFFFF" Offset="0"/>
@@ -40,37 +40,37 @@
                                 <TextBlock Text="Manage exams, monitor students, and keep everything running smoothly — all from one place."
                                            Foreground="#D3E2FF" FontSize="15" TextWrapping="Wrap" MaxWidth="520" Margin="0,10,0,22" HorizontalAlignment="Left"/>
                                 <WrapPanel>
-                            <Button Style="{StaticResource LightButton}" Click="NewExam_Click" Padding="9,8,20,8" Margin="0,0,12,12">
+                            <Button Style="{StaticResource LightButton}" Click="NewExam_Click" Padding="7,6,16,6" Margin="0,0,10,10">
                                 <StackPanel Orientation="Horizontal">
-                                    <Border Width="36" Height="36" CornerRadius="10" Background="{StaticResource BlueBrush}">
+                                    <Border Width="32" Height="32" CornerRadius="9" Background="{StaticResource BlueBrush}">
                                         <TextBlock Text="&#xE710;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="Create exam" FontSize="15" FontWeight="Bold" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                                    <TextBlock Text="Create exam" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0,0,0"/>
                                 </StackPanel>
                             </Button>
-                            <Button Style="{StaticResource LightButton}" Click="Manage_Click" Padding="9,8,20,8" Margin="0,0,12,12">
+                            <Button Style="{StaticResource LightButton}" Click="Manage_Click" Padding="7,6,16,6" Margin="0,0,10,10">
                                 <StackPanel Orientation="Horizontal">
-                                    <Border Width="36" Height="36" CornerRadius="10" Background="{StaticResource BlueLightBrush}">
+                                    <Border Width="32" Height="32" CornerRadius="9" Background="{StaticResource BlueLightBrush}">
                                         <TextBlock Text="&#xE716;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="{StaticResource BlueBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="Manage students" FontSize="15" FontWeight="Bold" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                                    <TextBlock Text="Manage students" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0,0,0"/>
                                 </StackPanel>
                             </Button>
-                            <Button Style="{StaticResource LightButton}" Click="Results_Click" Padding="9,8,20,8" Margin="0,0,12,12">
+                            <Button Style="{StaticResource LightButton}" Click="Results_Click" Padding="7,6,16,6" Margin="0,0,10,10">
                                 <StackPanel Orientation="Horizontal">
-                                    <Border Width="36" Height="36" CornerRadius="10" Background="{StaticResource BlueLightBrush}">
+                                    <Border Width="32" Height="32" CornerRadius="9" Background="{StaticResource BlueLightBrush}">
                                         <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="{StaticResource BlueBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="View results" FontSize="15" FontWeight="Bold" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                                    <TextBlock Text="View results" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0,0,0"/>
                                 </StackPanel>
                             </Button>
                                 </WrapPanel>
                             </StackPanel>
 
                             <Viewbox Grid.Column="1" StretchDirection="DownOnly" Stretch="Uniform" VerticalAlignment="Bottom" HorizontalAlignment="Right">
-                                <Grid Width="770" Height="330">
-                                    <Image Source="/Assets/admin-hero.png" Width="464" Height="330" HorizontalAlignment="Right" VerticalAlignment="Bottom" Stretch="Uniform"/>
-                                    <Border x:Name="MiniStats" Width="305" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,26,0,0" Background="#F7FFFFFF" CornerRadius="16" Effect="{StaticResource SoftShadow}">
+                                <Grid Width="730" Height="340">
+                                    <Image Source="/Assets/admin-hero.png" Width="418" Height="340" HorizontalAlignment="Right" VerticalAlignment="Bottom" Stretch="Uniform"/>
+                                    <Border x:Name="MiniStats" Width="305" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,30,0,0" Background="#F7FFFFFF" CornerRadius="16" Effect="{StaticResource SoftShadow}">
                                         <Border.RenderTransform><TranslateTransform x:Name="MiniBob"/></Border.RenderTransform>
                                         <Border.Triggers>
                                             <EventTrigger RoutedEvent="FrameworkElement.Loaded">

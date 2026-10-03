@@ -187,6 +187,11 @@
             </Setter>
         </Style>
 
+        <Style TargetType="Image">
+            <Setter Property="RenderOptions.BitmapScalingMode" Value="HighQuality"/>
+            <Setter Property="RenderOptions.EdgeMode" Value="Unspecified"/>
+        </Style>
+
         <!-- text -->
         <Style x:Key="H1" TargetType="TextBlock">
             <Setter Property="FontSize" Value="26"/>

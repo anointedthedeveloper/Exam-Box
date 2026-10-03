@@ -1,4 +1,4 @@
-<Window x:Class="ExamBox.Admin.ExamDialog" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Width="500" SizeToContent="Height" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" ShowInTaskbar="False" Background="{StaticResource PageBackgroundBrush}" FontFamily="Segoe UI">
+<Window UseLayoutRounding="True" SnapsToDevicePixels="True" x:Class="ExamBox.Admin.ExamDialog" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Width="500" SizeToContent="Height" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" ShowInTaskbar="False" Background="{StaticResource PageBackgroundBrush}" FontFamily="Segoe UI">
     <Grid>
         <Canvas IsHitTestVisible="False" ClipToBounds="True">
             <Ellipse Width="340" Height="340" Fill="{StaticResource OrbBlueBrush}" Canvas.Right="-120" Canvas.Top="-130"/>
