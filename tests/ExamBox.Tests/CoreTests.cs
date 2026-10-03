@@ -26,11 +26,16 @@ public class CoreTests
         using var t = new TempDb();
         t.Auth.CreateAdmin("admin", "Passw0rdAdmin");
         Assert.NotNull(t.Auth.Authenticate("ADMIN", "Passw0rdAdmin", UserRole.Admin).User);
-        Assert.Null(t.Auth.Authenticate("admin", "Passw0rdAdmin", UserRole.Student).User);
+        var wrongPortal = t.Auth.Authenticate("admin", "Passw0rdAdmin", UserRole.Student);
+        Assert.Null(wrongPortal.User);
+        Assert.Equal("Invalid ID or password.", wrongPortal.Error);     // does not reveal that this is an admin account
+        Assert.Equal(t.Auth.Authenticate("nobody", "x", UserRole.Student).Error, wrongPortal.Error);
 
         for (var i = 0; i < 9; i++) Assert.Null(t.Auth.Authenticate("admin", "wrong", UserRole.Admin).User);
         Assert.NotNull(t.Auth.Authenticate("admin", "Passw0rdAdmin", UserRole.Admin).User);   // 9 failures: still allowed, and success resets the count
-        for (var i = 0; i < 10; i++) Assert.Null(t.Auth.Authenticate("admin", "wrong", UserRole.Admin).User);
+        AuthResult last = null!;
+        for (var i = 0; i < 10; i++) { last = t.Auth.Authenticate("admin", "wrong", UserRole.Admin); Assert.Null(last.User); }
+        Assert.NotNull(last.LockedUntil);
         var locked = t.Auth.Authenticate("admin", "Passw0rdAdmin", UserRole.Admin);
         Assert.Null(locked.User);
         Assert.Contains("Too many", locked.Error);
@@ -102,5 +107,26 @@ public class CoreTests
         t.Exams.Save(0, "E", null, 5, 50);
         var d = new DashboardService(t.Factory).Get();
         Assert.Equal(1, d.Students); Assert.Equal(1, d.Exams); Assert.Equal(0, d.PublishedExams);
+    }
+}
+
+public class AttemptWarningTests
+{
+    [Fact]
+    public void Warns_when_few_attempts_are_left()
+    {
+        using var t = new TempDb();
+        t.Auth.CreateAdmin("admin", "Passw0rdAdmin");
+        for (var i = 0; i < 6; i++) Assert.DoesNotContain("left", t.Auth.Authenticate("admin", "bad", UserRole.Admin).Error);
+        var r7 = t.Auth.Authenticate("admin", "bad", UserRole.Admin);
+        Assert.Equal(3, r7.AttemptsLeft);
+        Assert.Contains("3 attempts left", r7.Error);
+        t.Auth.Authenticate("admin", "bad", UserRole.Admin);
+        var r9 = t.Auth.Authenticate("admin", "bad", UserRole.Admin);
+        Assert.Contains("1 attempt left", r9.Error);
+        var r10 = t.Auth.Authenticate("admin", "bad", UserRole.Admin);
+        Assert.Contains("locked", r10.Error);
+        // wrong-portal attempts never count toward the lock
+        t.Students.Create(new StudentInput("S", "S1", null, null));
     }
 }

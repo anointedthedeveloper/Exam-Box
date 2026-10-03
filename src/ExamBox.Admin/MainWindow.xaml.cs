@@ -12,6 +12,9 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         Current = this;
+        // Maximise once the native window exists (setting it in XAML together with CenterScreen can size the
+        // window to the whole monitor, hiding the bottom of the UI under the taskbar).
+        SourceInitialized += (_, _) => WindowState = WindowState.Maximized;
         ShowAuth();
     }
 
@@ -45,14 +48,25 @@ public partial class MainWindow : Window
             _ => (NavDashboard, new DashboardView()),
         };
         radio.IsChecked = true;
+        ShowPage(view);
+    }
+
+    /// <summary>Swap the page with a short fade/slide-in.</summary>
+    private void ShowPage(UserControl view)
+    {
         Page.Content = view;
+        var fade = new System.Windows.Media.Animation.DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(260));
+        view.RenderTransform = new System.Windows.Media.TranslateTransform(0, 14);
+        view.BeginAnimation(UIElement.OpacityProperty, fade);
+        view.RenderTransform.BeginAnimation(System.Windows.Media.TranslateTransform.YProperty,
+            new System.Windows.Media.Animation.DoubleAnimation(14, 0, TimeSpan.FromMilliseconds(260)) { EasingFunction = new System.Windows.Media.Animation.CubicEase { EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut } });
     }
 
     /// <summary>Open one exam's detail page (keeps "Exams" highlighted).</summary>
     public void OpenExam(int id)
     {
         NavExams.IsChecked = true;
-        Page.Content = new ExamDetailView(id);
+        ShowPage(new ExamDetailView(id));
     }
 
     private void Nav_Click(object sender, RoutedEventArgs e) => Go((string)((RadioButton)sender).Tag);

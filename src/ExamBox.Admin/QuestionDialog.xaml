@@ -1,9 +1,9 @@
 <Window x:Class="ExamBox.Admin.QuestionDialog" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Width="560" SizeToContent="Height" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" ShowInTaskbar="False" Background="{StaticResource BgBrush}" FontFamily="Segoe UI">
     <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="720">
         <StackPanel Margin="26">
-            <TextBlock x:Name="Heading" Style="{StaticResource H2}"/>
+            <StackPanel Orientation="Horizontal"><Border Style="{StaticResource IconBadge}"><TextBlock Text="&#xE897;" Style="{StaticResource IconGlyph}"/></Border><TextBlock x:Name="Heading" Style="{StaticResource H2}" VerticalAlignment="Center" Margin="12,0,0,0"/></StackPanel>
             <TextBlock Text="Question" Style="{StaticResource FieldLabel}"/>
-            <TextBox x:Name="QText" AcceptsReturn="True" TextWrapping="Wrap" Height="80" VerticalScrollBarVisibility="Auto" VerticalContentAlignment="Top"/>
+            <TextBox x:Name="QText" Style="{StaticResource MultiLineTextBox}" Height="90"/>
             <TextBlock Text="Option A" Style="{StaticResource FieldLabel}"/>
             <TextBox x:Name="OptA"/>
             <TextBlock Text="Option B" Style="{StaticResource FieldLabel}"/>

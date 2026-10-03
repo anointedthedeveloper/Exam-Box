@@ -31,7 +31,11 @@
                     <DataGridTextColumn Header="LAST LOGIN" Binding="{Binding LastLogin}" Width="150"/>
                 </DataGrid.Columns>
             </DataGrid>
-            <TextBlock x:Name="Empty" Style="{StaticResource Muted}" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" Visibility="Collapsed"/>
+            <StackPanel x:Name="Empty" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed">
+                <Border Style="{StaticResource IllustrationPanel}" Width="320" HorizontalAlignment="Center"><Image Source="/Assets/slide-devices.png"/></Border>
+                <TextBlock x:Name="EmptyTitle" Text="No students yet" Style="{StaticResource H2}" HorizontalAlignment="Center" Margin="0,18,0,4"/>
+                <TextBlock x:Name="EmptyText" Text="Click “Add student” to create the first one." Style="{StaticResource Muted}" TextAlignment="Center" HorizontalAlignment="Center"/>
+            </StackPanel>
         </Grid>
     </DockPanel>
 </UserControl>

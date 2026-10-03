@@ -6,7 +6,6 @@ public class LoginVm
 {
     [Required(ErrorMessage = "Enter your student ID or email.")] public string Identifier { get; set; } = "";
     [Required(ErrorMessage = "Enter your password.")] public string Password { get; set; } = "";
-    public bool RememberMe { get; set; }
     public string? ReturnUrl { get; set; }
 }
 

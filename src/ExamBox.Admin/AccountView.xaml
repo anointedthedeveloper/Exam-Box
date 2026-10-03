@@ -1,24 +1,42 @@
 <UserControl x:Class="ExamBox.Admin.AccountView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StackPanel>
-        <TextBlock Text="My account" Style="{StaticResource H1}"/>
-        <TextBlock x:Name="Who" Style="{StaticResource Muted}" Margin="0,2,0,20"/>
-        <Border Style="{StaticResource Card}" MaxWidth="460" HorizontalAlignment="Left">
-            <StackPanel>
-                <TextBlock Text="Change password" Style="{StaticResource H2}"/>
-                <TextBlock Text="Current password" Style="{StaticResource FieldLabel}"/>
-                <PasswordBox x:Name="Current"/>
-                <TextBlock Text="New password" Style="{StaticResource FieldLabel}"/>
-                <PasswordBox x:Name="New"/>
-                <TextBlock Text="Confirm new password" Style="{StaticResource FieldLabel}"/>
-                <PasswordBox x:Name="Confirm"/>
-                <TextBlock x:Name="ErrorText" Style="{StaticResource ErrorText}" Visibility="Collapsed"/>
-                <Button Content="Update password" Style="{StaticResource PrimaryButton}" Click="Save_Click" Margin="0,18,0,0" HorizontalAlignment="Left"/>
-            </StackPanel>
-        </Border>
-        <TextBlock Style="{StaticResource Muted}" Margin="0,18,0,0" MaxWidth="460" HorizontalAlignment="Left"
-                   Text="Your data lives in a database file on this computer. Back it up by copying the folder shown below."/>
-        <TextBox x:Name="DataPath" IsReadOnly="True" Margin="0,8,0,0" MaxWidth="460" HorizontalAlignment="Stretch"/>
-    </StackPanel>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+            <TextBlock Text="My account" Style="{StaticResource H1}"/>
+            <TextBlock x:Name="Who" Style="{StaticResource Muted}" Margin="0,2,0,20"/>
+            <WrapPanel>
+                <Border Style="{StaticResource Card}" Width="420" Margin="0,0,20,20">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Border Style="{StaticResource IconBadge}"><TextBlock Text="&#xE192;" Style="{StaticResource IconGlyph}"/></Border>
+                            <TextBlock Text="Change password" Style="{StaticResource H2}" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                        </StackPanel>
+                        <TextBlock Text="Current password" Style="{StaticResource FieldLabel}"/>
+                        <PasswordBox x:Name="Current"/>
+                        <TextBlock Text="New password" Style="{StaticResource FieldLabel}"/>
+                        <PasswordBox x:Name="New"/>
+                        <TextBlock Text="Confirm new password" Style="{StaticResource FieldLabel}"/>
+                        <PasswordBox x:Name="Confirm"/>
+                        <Border x:Name="ErrorBox" Background="{StaticResource ErrBgBrush}" CornerRadius="10" Padding="12,9" Margin="0,16,0,0" Visibility="Collapsed">
+                            <TextBlock x:Name="ErrorText" Foreground="{StaticResource ErrBrush}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                        </Border>
+                        <Button Content="Update password" Style="{StaticResource PrimaryButton}" Click="Save_Click" Margin="0,20,0,0" HorizontalAlignment="Left"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Card}" Width="420" Margin="0,0,0,20">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Border Style="{StaticResource IconBadge}"><TextBlock Text="&#xE8B7;" Style="{StaticResource IconGlyph}"/></Border>
+                            <TextBlock Text="Your data" Style="{StaticResource H2}" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                        </StackPanel>
+                        <TextBlock Style="{StaticResource Muted}" Margin="0,14,0,10"
+                                   Text="Everything lives in a database file on this computer. Back it up by copying this folder."/>
+                        <TextBox x:Name="DataPath" IsReadOnly="True"/>
+                        <Button Content="Open folder" Style="{StaticResource GhostButton}" Click="OpenFolder_Click" Margin="0,16,0,0" HorizontalAlignment="Left"/>
+                    </StackPanel>
+                </Border>
+            </WrapPanel>
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>

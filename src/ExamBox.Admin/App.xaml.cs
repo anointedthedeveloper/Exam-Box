@@ -20,10 +20,15 @@ public partial class App : Application
 
     private Mutex? _single;
 
+    // Gives the taskbar button this app's own identity (and icon) instead of grouping it under the host process.
+    [System.Runtime.InteropServices.DllImport("shell32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
+    private static extern void SetCurrentProcessExplicitAppUserModelID(string appId);
+
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
         DispatcherUnhandledException += OnUnhandled;
+        try { SetCurrentProcessExplicitAppUserModelID("ExamBox.Admin"); } catch { /* cosmetic only */ }
 
         _single = new Mutex(true, "ExamBox.Admin.SingleInstance", out var first);
         if (!first)
@@ -33,13 +38,18 @@ public partial class App : Application
             return;
         }
 
+        var splash = new SplashWindow();
+        splash.Show();
         try
         {
-            Db = new DbFactory();
-            Db.Initialize();
+            splash.SetStatus("Opening your data…");
+            var db = new DbFactory();
+            await Task.Run(db.Initialize);
+            Db = db;
         }
         catch (Exception ex)
         {
+            splash.Close();
             MessageBox.Show("ExamBox could not open its database:\n\n" + ex.Message, "ExamBox", MessageBoxButton.OK, MessageBoxImage.Error);
             Shutdown();
             return;
@@ -50,10 +60,16 @@ public partial class App : Application
         Dashboard = new DashboardService(Db);
         Settings = AppSettings.Load(Db.DataDir);
 
-        MainWindow = new MainWindow();
-        MainWindow.Show();
+        if (Settings.AutoStartServer)
+        {
+            splash.SetStatus("Starting the student portal…");
+            await Portal.StartAsync(Settings.Port);
+        }
 
-        if (Settings.AutoStartServer) await Portal.StartAsync(Settings.Port);
+        splash.SetStatus("Almost ready…");
+        MainWindow = new MainWindow();   // becomes the main window before the splash closes, so closing it can't end the app
+        MainWindow.Show();
+        splash.Close();
     }
 
     protected override void OnExit(ExitEventArgs e)

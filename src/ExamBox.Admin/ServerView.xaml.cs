@@ -51,17 +51,29 @@ public partial class ServerView : UserControl
 
     private async void Toggle_Click(object sender, RoutedEventArgs e)
     {
-        if (App.Portal.Running) { await App.Portal.StopAsync(); return; }
+        if (App.Portal.Running) { SetBusy(true, "Stopping…"); await App.Portal.StopAsync(); SetBusy(false); return; }
         if (!TryPort(out var port)) return;
         App.Settings.Port = port; App.Settings.Save();
+        SetBusy(true, "Starting…");
         await App.Portal.StartAsync(port);
+        SetBusy(false);
     }
 
     private async void Restart_Click(object sender, RoutedEventArgs e)
     {
         if (!TryPort(out var port)) return;
         App.Settings.Port = port; App.Settings.Save();
+        SetBusy(true, "Restarting…");
         await App.Portal.StartAsync(port);
+        SetBusy(false);
+    }
+
+    private void SetBusy(bool on, string? text = null)
+    {
+        Busy.Visibility = on ? Visibility.Visible : Visibility.Collapsed;
+        ToggleBtn.IsEnabled = RestartBtn.IsEnabled = !on;
+        if (on && text != null) StatusText.Text = "● " + text;
+        if (!on) Render();
     }
 
     private void Auto_Changed(object sender, RoutedEventArgs e)

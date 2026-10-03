@@ -1,10 +1,10 @@
 <Window x:Class="ExamBox.Admin.ExamDialog" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Width="500" SizeToContent="Height" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" ShowInTaskbar="False" Background="{StaticResource BgBrush}" FontFamily="Segoe UI">
     <StackPanel Margin="26">
-        <TextBlock x:Name="Heading" Style="{StaticResource H2}"/>
+        <StackPanel Orientation="Horizontal"><Border Style="{StaticResource IconBadge}"><TextBlock Text="&#xE8A5;" Style="{StaticResource IconGlyph}"/></Border><TextBlock x:Name="Heading" Style="{StaticResource H2}" VerticalAlignment="Center" Margin="12,0,0,0"/></StackPanel>
         <TextBlock Text="Title" Style="{StaticResource FieldLabel}"/>
         <TextBox x:Name="ExamTitle"/>
         <TextBlock Text="Instructions / description (optional)" Style="{StaticResource FieldLabel}"/>
-        <TextBox x:Name="Description" AcceptsReturn="True" TextWrapping="Wrap" Height="90" VerticalScrollBarVisibility="Auto" VerticalContentAlignment="Top"/>
+        <TextBox x:Name="Description" Style="{StaticResource MultiLineTextBox}" Height="90"/>
         <Grid Margin="0,0,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>

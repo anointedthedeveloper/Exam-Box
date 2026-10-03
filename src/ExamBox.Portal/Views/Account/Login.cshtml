@@ -1,19 +1,28 @@
 @model LoginVm
 @{ ViewData["Title"] = "Sign in"; }
-<h2>Student sign in</h2>
-<p class="muted">Use the student ID your administrator gave you.</p>
+<div class="auth-head">
+    <img class="auth-logo" src="/assets/img/logo.png" alt="" />
+    <div><h2>Student sign in</h2><p class="muted">Use the student ID your administrator gave you.</p></div>
+</div>
 <partial name="_Flash" />
-<form method="post" asp-action="Login">
-    <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+<form method="post" asp-action="Login" data-loading="Signing you in…">
+    <div asp-validation-summary="ModelOnly" class="form-alert"></div>
     <input type="hidden" asp-for="ReturnUrl" />
     <label asp-for="Identifier">Student ID or email</label>
-    <input asp-for="Identifier" autocomplete="username" autofocus />
+    <div class="input-wrap">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9zm0 2c-4 0-8 2-8 5v1h16v-1c0-3-4-5-8-5z"/></svg>
+        <input asp-for="Identifier" autocomplete="username" autofocus placeholder="e.g. S001" />
+    </div>
     <span asp-validation-for="Identifier" class="field-validation-error"></span>
     <label asp-for="Password">Password</label>
-    <input asp-for="Password" autocomplete="current-password" />
+    <div class="input-wrap">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M17 9V7a5 5 0 0 0-10 0v2H5v12h14V9zm-8-2a3 3 0 0 1 6 0v2H9zm3 10a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg>
+        <input asp-for="Password" autocomplete="current-password" placeholder="Your password" />
+        <button type="button" class="eye" data-show-pw="Password" aria-label="Show or hide password" title="Show or hide password">
+            <svg viewBox="0 0 24 24"><path d="M12 5C7 5 2.7 8.1 1 12c1.7 3.9 6 7 11 7s9.3-3.1 11-7c-1.7-3.9-6-7-11-7zm0 11.5a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9zm0-7a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z"/></svg>
+        </button>
+    </div>
     <span asp-validation-for="Password" class="field-validation-error"></span>
-    <label class="check"><input type="checkbox" data-show-pw="Password" /> Show password</label>
-    <label class="check"><input type="checkbox" asp-for="RememberMe" /> Remember me</label>
-    <button class="btn block">Sign in</button>
+    <button class="btn block lg" style="margin-top:22px"><span class="lbl">Sign in</span><span class="spinner sm"></span></button>
 </form>
-<p class="muted small" style="margin-top:16px">Your account is created by your administrator. Forgot your password? Ask them to reset it.</p>
+<p class="muted small" style="margin-top:18px">Your account is created by your administrator. Forgot your password? Ask them to reset it.</p>

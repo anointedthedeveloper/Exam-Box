@@ -4,13 +4,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ExamBox.Services;
 
-public sealed record AuthResult(User? User, string? Error);
+/// <param name="AttemptsLeft">Set when a wrong password was entered for a real account and few tries remain.</param>
+/// <param name="LockedUntil">Set (UTC) when the account is currently locked.</param>
+public sealed record AuthResult(User? User, string? Error, int? AttemptsLeft = null, DateTime? LockedUntil = null);
 
 /// <summary>Sign-in, lockout and account bootstrap, shared by the desktop app and the student portal.</summary>
 public sealed class AuthService(DbFactory factory)
 {
-    private const int MaxFailures = 10;
-    private static readonly TimeSpan LockFor = TimeSpan.FromMinutes(5);
+    public const int MaxFailures = 10;
+    public const int LockMinutes = 5;
+    /// <summary>Start warning "N attempts left" once this few remain.</summary>
+    public const int WarnWhenLeft = 3;
+    private static readonly TimeSpan LockFor = TimeSpan.FromMinutes(LockMinutes);
 
     public bool HasAdmin()
     {
@@ -37,27 +42,37 @@ public sealed class AuthService(DbFactory factory)
     public AuthResult Authenticate(string identifier, string password, UserRole role)
     {
         var id = (identifier ?? "").Trim();
-        if (id.Length == 0 || string.IsNullOrEmpty(password)) return new(null, "Enter your ID and password.");
+        var who = role == UserRole.Admin ? "username" : "ID";
+        if (id.Length == 0 || string.IsNullOrEmpty(password)) return new(null, $"Enter your {who} and password.");
+        // Identical wording for unknown user, wrong password and wrong account type, so one portal never reveals
+        // that an account exists on the other.
+        var generic = $"Invalid {who} or password.";
         using var db = factory.Create();
         var user = db.Users.FirstOrDefault(u => u.Username == id || u.Email == id);
 
-        if (user != null && user.LockoutEnd > DateTime.UtcNow)
+        if (user != null && user.Role == role && user.LockoutEnd > DateTime.UtcNow)
         {
             var mins = (int)Math.Ceiling((user.LockoutEnd!.Value - DateTime.UtcNow).TotalMinutes);
-            return new(null, $"Too many failed attempts. Try again in {mins} minute(s).");
+            return new(null, $"Too many failed attempts. Try again in {mins} minute(s).", null, user.LockoutEnd);
         }
-        if (user == null || !Passwords.Verify(user.PasswordHash, password))
+        if (user == null || user.Role != role) return new(null, generic);
+
+        if (!Passwords.Verify(user.PasswordHash, password))
         {
-            if (user != null)
+            user.FailedLogins++;
+            if (user.FailedLogins >= MaxFailures)
             {
-                user.FailedLogins++;
-                if (user.FailedLogins >= MaxFailures) { user.LockoutEnd = DateTime.UtcNow + LockFor; user.FailedLogins = 0; }
+                user.LockoutEnd = DateTime.UtcNow + LockFor;
+                user.FailedLogins = 0;
                 db.SaveChanges();
+                return new(null, $"Too many failed attempts. This account is locked for {LockMinutes} minutes.", 0, user.LockoutEnd);
             }
-            return new(null, "Invalid ID or password.");
+            db.SaveChanges();
+            var left = MaxFailures - user.FailedLogins;
+            return left <= WarnWhenLeft
+                ? new(null, $"{generic} {left} attempt{(left == 1 ? "" : "s")} left before a {LockMinutes}-minute lock.", left)
+                : new(null, generic);
         }
-        if (user.Role != role)
-            return new(null, role == UserRole.Admin ? "This is not an administrator account." : "Administrators sign in with the ExamBox desktop app.");
         if (!user.IsActive) return new(null, "This account has been deactivated. Contact your administrator.");
 
         user.FailedLogins = 0; user.LockoutEnd = null; user.LastLoginAt = DateTime.UtcNow;

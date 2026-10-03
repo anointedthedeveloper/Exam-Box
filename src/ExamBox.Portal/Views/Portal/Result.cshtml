@@ -3,15 +3,19 @@
    var picked = Model.Answers.ToDictionary(a => a.QuestionId, a => a.Selected); }
 <div class="page-head"><div><div class="crumbs"><a asp-action="Index">My dashboard</a> /</div><h1>@Model.Exam.Title</h1></div></div>
 <div class="card" style="display:flex;gap:28px;align-items:center;flex-wrap:wrap">
-    <div><div class="score">@Model.Percent%</div><div class="muted">@Model.Score of @Model.TotalMarks marks</div></div>
-    <div style="flex:1;min-width:220px"><span class="badge @(pass ? "ok" : "err")">@(pass ? "Passed" : "Not passed")</span>
-        <p class="muted" style="margin:6px 0 10px">Pass mark: @Model.Exam.PassMarkPercent%</p><div class="progress"><i style="width:@Model.Percent.ToString(System.Globalization.CultureInfo.InvariantCulture)%"></i></div></div>
+    <div class="ring @(pass ? "pass" : "")" style="--p:@Model.Percent.ToString(System.Globalization.CultureInfo.InvariantCulture)"><div>@Model.Percent%</div></div>
+    <div style="flex:1;min-width:220px">
+        <span class="badge @(pass ? "ok" : "err")">@(pass ? "Passed 🎉" : "Not passed")</span>
+        <h2 style="margin:8px 0 2px">@Model.Score of @Model.TotalMarks marks</h2>
+        <p class="muted" style="margin:0">Pass mark: @Model.Exam.PassMarkPercent%</p>
+    </div>
+    <a class="btn ghost" asp-action="Index">Back to dashboard</a>
 </div>
-<h2>Review</h2>
+<h2 class="section-title">Review your answers</h2>
 @foreach (var q in Model.Exam.Questions.OrderBy(q => q.Id))
 {
     n++; picked.TryGetValue(q.Id, out var sel);
-    <div class="q"><div class="q-h"><span>@n. @q.Text</span><span class="badge @(sel == q.CorrectOption ? "ok" : "err")">@(sel == q.CorrectOption ? q.Marks : 0)/@q.Marks</span></div>
+    <div class="q"><div class="q-h"><span><span class="q-num">@n</span>@q.Text</span><span class="badge @(sel == q.CorrectOption ? "ok" : "err")">@(sel == q.CorrectOption ? q.Marks : 0)/@q.Marks</span></div>
     @foreach (var o in q.Options())
     {
         var cls = o.Key == q.CorrectOption ? "right" : (o.Key == sel ? "wrong" : "");

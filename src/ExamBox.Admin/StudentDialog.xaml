@@ -1,6 +1,6 @@
 <Window x:Class="ExamBox.Admin.StudentDialog" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Width="460" SizeToContent="Height" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" ShowInTaskbar="False" Background="{StaticResource BgBrush}" FontFamily="Segoe UI">
     <StackPanel Margin="26">
-        <TextBlock x:Name="Heading" Style="{StaticResource H2}"/>
+        <StackPanel Orientation="Horizontal"><Border Style="{StaticResource IconBadge}"><TextBlock Text="&#xE77B;" Style="{StaticResource IconGlyph}"/></Border><TextBlock x:Name="Heading" Style="{StaticResource H2}" VerticalAlignment="Center" Margin="12,0,0,0"/></StackPanel>
         <TextBlock x:Name="Sub" Style="{StaticResource Muted}" Margin="0,4,0,0"/>
         <TextBlock Text="Full name" Style="{StaticResource FieldLabel}"/>
         <TextBox x:Name="FullName"/>

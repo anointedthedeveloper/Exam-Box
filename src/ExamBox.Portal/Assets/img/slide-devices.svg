@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 360" width="480" height="360">
+<circle cx="240" cy="200" r="150" fill="#fff" opacity=".10"/>
+<circle cx="70" cy="110" r="9" fill="#fff" opacity=".3"/><circle cx="430" cy="300" r="12" fill="#fff" opacity=".25"/><circle cx="395" cy="70" r="7" fill="#ffc84a"/>
+<g fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" opacity=".9"><path d="M200 78a60 60 0 0 1 80 0"/><path d="M218 100a34 34 0 0 1 44 0"/></g><circle cx="240" cy="122" r="7" fill="#fff"/>
+<rect x="85" y="150" width="270" height="160" rx="16" fill="#0847b8" opacity=".35" transform="translate(6 8)"/>
+<rect x="85" y="150" width="270" height="160" rx="16" fill="#fff"/>
+<rect x="100" y="165" width="240" height="130" rx="8" fill="#e8f0ff"/>
+<rect x="100" y="165" width="240" height="22" rx="8" fill="#0b5ff0"/><circle cx="114" cy="176" r="4" fill="#fff"/><circle cx="127" cy="176" r="4" fill="#fff" opacity=".7"/>
+<rect x="116" y="202" width="90" height="12" rx="6" fill="#0b5ff0"/><rect x="116" y="222" width="140" height="9" rx="4.5" fill="#9bbcff"/><rect x="116" y="240" width="110" height="9" rx="4.5" fill="#9bbcff"/>
+<rect x="116" y="260" width="64" height="22" rx="8" fill="#0b5ff0"/><rect x="262" y="202" width="62" height="80" rx="10" fill="#fff"/><path d="M276 250l10 10 20-24" fill="none" stroke="#0f9d58" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M60 310h320l-14 20a14 14 0 0 1-12 7H86a14 14 0 0 1-12-7z" fill="#cfdcff"/>
+<rect x="362" y="190" width="82" height="150" rx="16" fill="#0847b8" opacity=".35" transform="translate(5 7)"/>
+<rect x="362" y="190" width="82" height="150" rx="16" fill="#fff"/><rect x="371" y="206" width="64" height="112" rx="8" fill="#e8f0ff"/>
+<rect x="379" y="216" width="40" height="9" rx="4.5" fill="#0b5ff0"/><circle cx="388" cy="248" r="7" fill="none" stroke="#0b5ff0" stroke-width="3"/><rect x="400" y="244" width="28" height="8" rx="4" fill="#9bbcff"/>
+<circle cx="388" cy="274" r="7" fill="#0b5ff0"/><path d="M384 274l3 3 6-7" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><rect x="400" y="270" width="28" height="8" rx="4" fill="#9bbcff"/></svg>

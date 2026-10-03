@@ -31,7 +31,8 @@ public partial class StudentsView : UserControl
             s.IsActive ? "Active" : "Inactive", s.Attempts.Count(a => a.SubmittedAt != null), Ui.Local(s.LastLoginAt, "Never"))).ToList();
         Count.Text = $"{list.Count} student(s)";
         Empty.Visibility = list.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
-        Empty.Text = string.IsNullOrWhiteSpace(q) ? "No students yet.\nClick “Add student” to create the first one." : "No students match your search.";
+        EmptyTitle.Text = string.IsNullOrWhiteSpace(q) ? "No students yet" : "No matches";
+        EmptyText.Text = string.IsNullOrWhiteSpace(q) ? "Click “Add student” to create the first one." : "No students match your search.";
         UpdateButtons();
     }
 

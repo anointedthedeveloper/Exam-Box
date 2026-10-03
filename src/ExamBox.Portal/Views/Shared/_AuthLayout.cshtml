@@ -8,21 +8,26 @@
     <link rel="stylesheet" href="/assets/css/site.css" />
 </head>
 <body class="auth-body">
+    <div class="topbar"></div>
     <main class="auth-wrap">
         <section class="auth-hero">
-            <img src="/assets/img/logo.webp" alt="ExamBox" class="hero-logo" />
-            <h1>ExamBox</h1>
-            <p>Run exams, manage students and grade results — all in one box.</p>
-            <ul class="hero-points">
-                <li>Timed multiple-choice exams with instant grading</li>
-                <li>Secure student accounts managed by your staff</li>
-                <li>Live dashboards and result reports</li>
-            </ul>
+            <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span>
+            <div class="hero-brand"><img src="/assets/img/logo.png" alt="" /><span>ExamBox</span></div>
+            <div class="slides">
+                <figure class="slide s1"><img src="/assets/img/slide-exams.svg" alt="" /><figcaption><h2>Sit your exam with confidence</h2><p>Clear questions, one attempt, no surprises.</p></figcaption></figure>
+                <figure class="slide s2"><img src="/assets/img/slide-timer.svg" alt="" /><figcaption><h2>Timed and fair</h2><p>A live countdown keeps you on track.</p></figcaption></figure>
+                <figure class="slide s3"><img src="/assets/img/slide-results.svg" alt="" /><figcaption><h2>Instant results</h2><p>See your score and review every answer.</p></figcaption></figure>
+                <figure class="slide s4"><img src="/assets/img/slide-devices.svg" alt="" /><figcaption><h2>Works on any device</h2><p>Use your laptop, tablet or phone.</p></figcaption></figure>
+            </div>
+            <div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i><i class="d4"></i></div>
         </section>
-        <section class="auth-card">
-            @RenderBody()
+        <section class="auth-card-wrap">
+            <div class="auth-card">
+                @RenderBody()
+            </div>
         </section>
     </main>
+    <div class="overlay" id="overlay"><div class="spinner lg"></div><p id="overlayMsg">Please wait…</p></div>
     <script src="/assets/js/site.js"></script>
 </body>
 </html>

@@ -36,7 +36,7 @@ public class AccountController(AuthService auth) : Controller
             ModelState.AddModelError("", r.Error ?? "Sign-in failed.");
             return View(vm);
         }
-        await HttpContext.SignInUserAsync(r.User, vm.RememberMe);
+        await HttpContext.SignInUserAsync(r.User);
         if (r.User.MustChangePassword) return RedirectToAction(nameof(ChangePassword));
         if (!string.IsNullOrEmpty(vm.ReturnUrl) && Url.IsLocalUrl(vm.ReturnUrl)) return LocalRedirect(vm.ReturnUrl);
         return RedirectToAction("Index", "Home");

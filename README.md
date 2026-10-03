@@ -23,7 +23,10 @@ Data folder: `%LOCALAPPDATA%\ExamBox` (override with the `EXAMBOX_DATA` environm
 
 ## Features
 
-- Administrator sign-in with "Remember me" (password stored encrypted for your Windows user only), starts maximised, hashed passwords, any non-empty password allowed, lockout after 10 failed attempts (5 min), deactivated students are signed out immediately.
+- Administrator sign-in: "Remember me" (password stored encrypted for your Windows user only), show-password eye, any non-empty password,
+  warning when few attempts remain, then a 5-minute lock after 10 failures with a live countdown. Starts maximised with a loading splash.
+- The student site never reveals whether an ID belongs to an administrator (same generic error for every failure).
+- Slideshow sign-in screens, illustrations, loaders and page transitions in both the desktop app and the student portal.
 - Student management: add, edit, search, deactivate, delete, reset password, exam history.
 - Exams: timed multiple-choice, marks per question, pass mark, publish/unpublish. Questions lock once a student starts.
 - Students: one attempt per exam, server-enforced deadline, automatic grading, answer review.

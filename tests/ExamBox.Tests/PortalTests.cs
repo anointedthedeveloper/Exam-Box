@@ -44,7 +44,8 @@ public class PortalTests
 
         // embedded static assets are served (this is what makes the exe self-contained)
         Assert.Equal(HttpStatusCode.OK, (await c.Http.GetAsync("/assets/css/site.css")).StatusCode);
-        Assert.Equal(HttpStatusCode.OK, (await c.Http.GetAsync("/assets/img/logo.webp")).StatusCode);
+        foreach (var asset in new[] { "img/logo.png", "img/favicon.ico", "img/slide-exams.svg", "img/slide-devices.svg", "js/site.js" })
+            Assert.Equal(HttpStatusCode.OK, (await c.Http.GetAsync("/assets/" + asset)).StatusCode);
 
         // data an admin would create in the desktop app
         var exam = t.Exams.Save(0, "Math 101", "desc", 5, 50).Value!;
@@ -57,7 +58,9 @@ public class PortalTests
         // unauthenticated -> login; admins cannot use the portal
         Assert.Contains("/account/login", (await c.Get("/portal")).Url);
         var bad = await c.Post("/account/login", new() { ["Identifier"] = "admin", ["Password"] = "Passw0rdAdmin" }, "/account/login");
-        Assert.Contains("desktop app", bad.Html);
+        Assert.Contains("Invalid ID or password", bad.Html);
+        Assert.DoesNotContain("desktop", bad.Html);
+        Assert.DoesNotContain("Administrators sign in", bad.Html);
         var wrong = await c.Post("/account/login", new() { ["Identifier"] = "S001", ["Password"] = "nope" }, "/account/login");
         Assert.Contains("Invalid ID or password", wrong.Html);
 

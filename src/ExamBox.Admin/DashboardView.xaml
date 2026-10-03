@@ -3,16 +3,23 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel>
-            <DockPanel LastChildFill="False">
-                <StackPanel DockPanel.Dock="Left">
-                    <TextBlock Text="Dashboard" Style="{StaticResource H1}"/>
-                    <TextBlock Text="Overview of your students and exams." Style="{StaticResource Muted}"/>
-                </StackPanel>
-                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button Content="New exam" Style="{StaticResource GhostButton}" Click="NewExam_Click"/>
-                    <Button Content="Add student" Style="{StaticResource PrimaryButton}" Click="AddStudent_Click" Margin="0"/>
-                </StackPanel>
-            </DockPanel>
+            <Border Background="{StaticResource HeroBrush}" CornerRadius="18" Padding="32,26" ClipToBounds="True" Effect="{StaticResource SoftShadow}">
+                <Grid>
+                    <Ellipse Width="360" Height="360" Fill="White" Opacity="0.07" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-190,-90,0"/>
+                    <Ellipse Width="220" Height="220" Fill="White" Opacity="0.05" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="260,0,0,-130"/>
+                    <DockPanel>
+                        <Image DockPanel.Dock="Right" Source="/Assets/slide-exams.png" Height="165" Margin="0,-14,10,-18"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock x:Name="Greeting" FontSize="30" FontWeight="ExtraBold" Foreground="White"/>
+                            <TextBlock x:Name="DateText" Foreground="#DBE6FF" FontSize="14" Margin="0,4,0,18"/>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="Add student" Style="{StaticResource LightButton}" Click="AddStudent_Click"/>
+                                <Button Content="New exam" Style="{StaticResource LightButton}" Click="NewExam_Click"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </DockPanel>
+                </Grid>
+            </Border>
 
             <Border x:Name="PortalBanner" Style="{StaticResource Card}" Margin="0,18,0,0" Padding="14,10"/>
 

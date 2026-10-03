@@ -19,6 +19,8 @@ public partial class DashboardView : UserControl
 
     private void Reload()
     {
+        Greeting.Text = $"Welcome back, {App.CurrentUser?.Username}";
+        DateText.Text = DateTime.Now.ToString("dddd, d MMMM yyyy");
         var d = App.Dashboard.Get();
         StudentsN.Text = d.Students.ToString();
         StudentsSub.Text = $"{d.ActiveStudents} active";

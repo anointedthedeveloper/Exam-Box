@@ -1,30 +1,53 @@
 @model StudentDashboardVm
 @{ ViewData["Title"] = "My dashboard"; var done = Model.Completed; }
-<div class="page-head"><div><h1>Hello, @Model.Student.FullName.Split(' ')[0]</h1><p>Student ID <span class="mono">@Model.Student.Username</span></p></div></div>
-<div class="stats">
-    <div class="stat"><div class="n">@Model.Available.Count</div><div class="l">Exams available</div></div>
-    <div class="stat"><div class="n">@done.Count</div><div class="l">Exams completed</div></div>
-    <div class="stat"><div class="n">@(done.Count == 0 ? "—" : Math.Round(done.Average(a => a.Percent), 1) + "%")</div><div class="l">Average score</div></div>
+<div class="hero-banner">
+    <div>
+        <h1>Hello, @Model.Student.FullName.Split(' ')[0] 👋</h1>
+        <p>Here's what's happening with your exams.</p>
+        <div class="chips">
+            <span class="chip">ID: @Model.Student.Username</span>
+            <span class="chip">@Model.Available.Count available</span>
+            <span class="chip">@done.Count completed</span>
+            @if (done.Count > 0) { <span class="chip">Average @(Math.Round(done.Average(a => a.Percent), 1))%</span> }
+        </div>
+    </div>
+    <img src="/assets/img/slide-exams.svg" alt="" />
 </div>
+
 @if (Model.InProgress.Count > 0)
 {
     <div class="callout"><strong>You have an exam in progress.</strong>
     @foreach (var a in Model.InProgress) { <div style="margin-top:8px">@a.Exam!.Title — <a class="btn sm" asp-action="Take" asp-route-id="@a.Id">Resume</a></div> }</div>
 }
-<div class="card flush"><div class="card-h"><h2 style="margin:0">Available exams</h2></div>
-@if (Model.Available.Count == 0) { <div class="empty">No exams available right now. Check back later.</div> }
+
+<h2 class="section-title">Available exams</h2>
+@if (Model.Available.Count == 0)
+{
+    <div class="card empty-card">
+        <div class="illus"><img src="/assets/img/slide-timer.svg" alt="" /></div>
+        <strong>Nothing to take right now</strong>
+        <div>New exams will show up here when your administrator publishes them.</div>
+    </div>
+}
 else
 {
-    <table><thead><tr><th>Exam</th><th>Questions</th><th>Duration</th><th>Pass mark</th><th></th></tr></thead><tbody>
+    <div class="exam-grid">
     @foreach (var e in Model.Available)
     {
-        <tr><td><strong>@e.Title</strong><div class="muted small">@e.Description</div></td><td>@e.Questions.Count</td><td>@e.DurationMinutes min</td><td>@e.PassMarkPercent%</td>
-            <td class="right"><form asp-action="Start" asp-route-examId="@e.Id" method="post" data-confirm="Start '@e.Title'? The timer starts immediately and you only get one attempt."><button class="btn sm">Start exam</button></form></td></tr>
+        <div class="exam-card">
+            <h3>@e.Title</h3>
+            <p>@(string.IsNullOrWhiteSpace(e.Description) ? "No extra instructions." : e.Description)</p>
+            <div class="meta"><span>@e.Questions.Count questions</span><span>@e.DurationMinutes min</span><span>Pass @e.PassMarkPercent%</span></div>
+            <form asp-action="Start" asp-route-examId="@e.Id" method="post" data-confirm="Start '@e.Title'? The timer starts immediately and you only get one attempt." data-loading="Starting your exam…" data-overlay>
+                <button class="btn block"><span class="lbl">Start exam</span><span class="spinner sm"></span></button>
+            </form>
+        </div>
     }
-    </tbody></table>
+    </div>
 }
-</div>
-<div class="card flush"><div class="card-h"><h2 style="margin:0">My results</h2></div>
+
+<h2 class="section-title">My results</h2>
+<div class="card flush">
 @if (done.Count == 0) { <div class="empty">You haven't completed any exams yet.</div> }
 else
 {
@@ -32,7 +55,7 @@ else
     @foreach (var a in done)
     {
         var pass = a.Percent >= a.Exam!.PassMarkPercent;
-        <tr><td>@a.Exam.Title</td><td>@a.Score / @a.TotalMarks (@a.Percent%)</td><td><span class="badge @(pass ? "ok" : "err")">@(pass ? "Pass" : "Fail")</span></td>
+        <tr><td><strong>@a.Exam.Title</strong></td><td>@a.Score / @a.TotalMarks (@a.Percent%)</td><td><span class="badge @(pass ? "ok" : "err")">@(pass ? "Pass" : "Fail")</span></td>
             <td class="muted small"><time datetime="@a.SubmittedAt!.Value.ToString("o")"></time></td>
             <td class="right"><a class="btn ghost sm" asp-action="Result" asp-route-id="@a.Id">Review</a></td></tr>
     }
