@@ -15,12 +15,36 @@
                 </Border>
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock x:Name="StatusText" FontSize="18" FontWeight="Bold"/>
+                        <Border x:Name="StatusPill" CornerRadius="16" Padding="14,6" Background="{StaticResource ErrBgBrush}">
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse x:Name="StatusDot" Width="10" Height="10" Fill="{StaticResource ErrBrush}" VerticalAlignment="Center">
+                                    <Ellipse.Triggers>
+                                        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                            <BeginStoryboard>
+                                                <Storyboard RepeatBehavior="Forever" AutoReverse="True">
+                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1" To="0.25" Duration="0:0:0.9"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </Ellipse.Triggers>
+                                </Ellipse>
+                                <TextBlock x:Name="StatusText" FontSize="15" FontWeight="Bold" Margin="9,0,0,0"/>
+                            </StackPanel>
+                        </Border>
                         <local:Spinner x:Name="Busy" Visibility="Collapsed" Margin="12,0,0,0" Width="18" Height="18"/>
                     </StackPanel>
                     <TextBlock x:Name="ErrorText" Style="{StaticResource ErrorText}" Visibility="Collapsed" Margin="0,6,0,0"/>
                     <TextBlock x:Name="UrlHint" Text="Give students one of these addresses (they must be on the same network or Wi-Fi):" Style="{StaticResource Muted}" Margin="0,14,0,6"/>
-                    <ListBox x:Name="Urls" FontSize="16" FontFamily="Consolas" MaxHeight="150" BorderBrush="{StaticResource LineBrush}"/>
+                    <ListBox x:Name="Urls" ItemContainerStyle="{StaticResource UrlItem}" BorderThickness="0" Background="Transparent" MaxHeight="170" FontSize="15" FontWeight="SemiBold">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE774;" FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource BlueBrush}" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                    <TextBlock Text="{Binding}" FontFamily="Consolas" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
                     <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
                         <Button x:Name="CopyBtn" Content="Copy address" Style="{StaticResource GhostButton}" Click="Copy_Click"/>
                         <Button x:Name="OpenBtn" Content="Open in browser" Style="{StaticResource GhostButton}" Click="Open_Click"/>
@@ -37,7 +61,7 @@
                         <TextBox x:Name="PortBox" Width="110"/>
                         <TextBlock Text="Default 5109. Change it only if another program uses that port." Style="{StaticResource Muted}" VerticalAlignment="Center" Margin="12,0,0,0"/>
                     </StackPanel>
-                    <CheckBox x:Name="AutoStart" Content="Start the student portal automatically when ExamBox opens" Margin="0,16,0,0" Checked="Auto_Changed" Unchecked="Auto_Changed"/>
+                    <CheckBox x:Name="AutoStart" Style="{StaticResource SwitchBox}" Content="Start the student portal automatically when ExamBox opens" Margin="0,18,0,0" Checked="Auto_Changed" Unchecked="Auto_Changed"/>
                     <StackPanel Orientation="Horizontal" Margin="0,18,0,0">
                         <Button x:Name="ToggleBtn" Style="{StaticResource PrimaryButton}" Click="Toggle_Click"/>
                         <Button x:Name="RestartBtn" Content="Apply port &amp; restart" Style="{StaticResource GhostButton}" Click="Restart_Click"/>

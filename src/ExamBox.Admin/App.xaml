@@ -16,10 +16,11 @@
         <SolidColorBrush x:Key="OkBrush" Color="#0F9D58"/>
         <SolidColorBrush x:Key="ErrBrush" Color="#D93025"/>
         <SolidColorBrush x:Key="ErrBgBrush" Color="#FDECEB"/>
+        <SolidColorBrush x:Key="OkBgBrush" Color="#E3F6EC"/>
         <SolidColorBrush x:Key="WarnBgBrush" Color="#FFF4E0"/>
         <SolidColorBrush x:Key="WarnBrush" Color="#B36B00"/>
         <SolidColorBrush x:Key="HoverBrush" Color="#F7FAFF"/>
-        <SolidColorBrush x:Key="HeaderBgBrush" Color="#FAFBFE"/>
+        <SolidColorBrush x:Key="HeaderBgBrush" Color="#99EEF3FF"/>
         <DropShadowEffect x:Key="SoftShadow" BlurRadius="40" ShadowDepth="8" Direction="270" Opacity="0.16" Color="#06309A"/>
         <DropShadowEffect x:Key="CardShadow" BlurRadius="14" ShadowDepth="2" Direction="270" Opacity="0.07" Color="#0F1B3D"/>
         <LinearGradientBrush x:Key="SidebarBrush" StartPoint="0,0" EndPoint="0,1">
@@ -151,26 +152,32 @@
 
         <!-- sidebar navigation -->
         <Style x:Key="NavButton" TargetType="RadioButton">
-            <Setter Property="Foreground" Value="#CFDCFF"/>
+            <Setter Property="Foreground" Value="#C4D4FF"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Padding" Value="12,10"/>
-            <Setter Property="Margin" Value="0,0,0,4"/>
+            <Setter Property="Padding" Value="14,11"/>
+            <Setter Property="Margin" Value="0,0,0,5"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="RadioButton">
-                        <Border x:Name="Bd" Background="Transparent" CornerRadius="9" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter VerticalAlignment="Center"/>
-                        </Border>
+                        <Grid>
+                            <Border x:Name="Bd" Background="Transparent" BorderBrush="Transparent" BorderThickness="1" CornerRadius="12" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter VerticalAlignment="Center"/>
+                            </Border>
+                            <Border x:Name="Accent" Width="4" Height="22" CornerRadius="2" Background="White" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="-1,0,0,0" Opacity="0"/>
+                        </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#22FFFFFF"/>
+                                <Setter TargetName="Bd" Property="Background" Value="#1AFFFFFF"/>
+                                <Setter Property="Foreground" Value="White"/>
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="White"/>
-                                <Setter Property="Foreground" Value="{StaticResource BlueDarkBrush}"/>
+                                <Setter TargetName="Bd" Property="Background" Value="#33FFFFFF"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="#59FFFFFF"/>
+                                <Setter TargetName="Accent" Property="Opacity" Value="1"/>
+                                <Setter Property="Foreground" Value="White"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -277,7 +284,7 @@
             <Setter Property="CaretBrush" Value="{StaticResource BlueBrush}"/>
         </Style>
 
-        <!-- modern checkbox -->
+        <!-- modern checkbox: the tick is stretched to the box so it is always centred -->
         <Style TargetType="CheckBox">
             <Setter Property="Foreground" Value="{StaticResource InkBrush}"/>
             <Setter Property="FontSize" Value="13"/>
@@ -287,8 +294,12 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="CheckBox">
                         <StackPanel Orientation="Horizontal" Background="Transparent">
-                            <Border x:Name="Box" Width="20" Height="20" CornerRadius="6" BorderThickness="1.5" BorderBrush="#B8C3DD" Background="White" VerticalAlignment="Center">
-                                <Path x:Name="Tick" Data="M4.5,10.5 L8.5,14.5 L15.5,6" Stroke="White" StrokeThickness="2.2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Visibility="Collapsed"/>
+                            <Border x:Name="Box" Width="22" Height="22" CornerRadius="7" BorderThickness="1.5" BorderBrush="#B8C3DD" Background="White" VerticalAlignment="Center">
+                                <Path x:Name="Tick" Data="M0,4.5 L3.6,8 L10,0.8" Stretch="Uniform" Margin="5.5" Stroke="White" StrokeThickness="2.4"
+                                      StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Opacity="0"
+                                      HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                                    <Path.RenderTransform><ScaleTransform x:Name="TickScale" ScaleX="0.4" ScaleY="0.4"/></Path.RenderTransform>
+                                </Path>
                             </Border>
                             <ContentPresenter Margin="10,0,0,0" VerticalAlignment="Center" RecognizesAccessKey="True"/>
                         </StackPanel>
@@ -297,7 +308,83 @@
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="Box" Property="Background" Value="{StaticResource BlueBrush}"/>
                                 <Setter TargetName="Box" Property="BorderBrush" Value="{StaticResource BlueBrush}"/>
-                                <Setter TargetName="Tick" Property="Visibility" Value="Visible"/>
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="Tick" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.12"/>
+                                            <DoubleAnimation Storyboard.TargetName="TickScale" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.18"><DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction></DoubleAnimation>
+                                            <DoubleAnimation Storyboard.TargetName="TickScale" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.18"><DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction></DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="Tick" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.08"/>
+                                            <DoubleAnimation Storyboard.TargetName="TickScale" Storyboard.TargetProperty="ScaleX" To="0.4" Duration="0:0:0.08"/>
+                                            <DoubleAnimation Storyboard.TargetName="TickScale" Storyboard.TargetProperty="ScaleY" To="0.4" Duration="0:0:0.08"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- toggle switch (a checkbox that looks like a switch) -->
+        <Style x:Key="SwitchBox" TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{StaticResource InkBrush}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <StackPanel Orientation="Horizontal" Background="Transparent">
+                            <Grid Width="46" Height="26" VerticalAlignment="Center">
+                                <Border x:Name="Track" CornerRadius="13" Background="#C9D3EA"/>
+                                <Ellipse x:Name="Thumb" Width="20" Height="20" Fill="White" HorizontalAlignment="Left" Margin="3,0,0,0">
+                                    <Ellipse.RenderTransform><TranslateTransform x:Name="Move" X="0"/></Ellipse.RenderTransform>
+                                    <Ellipse.Effect><DropShadowEffect BlurRadius="4" ShadowDepth="1" Opacity="0.25"/></Ellipse.Effect>
+                                </Ellipse>
+                            </Grid>
+                            <ContentPresenter Margin="12,0,0,0" VerticalAlignment="Center" RecognizesAccessKey="True"/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Track" Property="Background" Value="{StaticResource BlueBrush}"/>
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard><Storyboard><DoubleAnimation Storyboard.TargetName="Move" Storyboard.TargetProperty="X" To="20" Duration="0:0:0.16"><DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction></DoubleAnimation></Storyboard></BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard><Storyboard><DoubleAnimation Storyboard.TargetName="Move" Storyboard.TargetProperty="X" To="0" Duration="0:0:0.16"><DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction></DoubleAnimation></Storyboard></BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- address list rows -->
+        <Style x:Key="UrlItem" TargetType="ListBoxItem">
+            <Setter Property="Foreground" Value="{StaticResource InkBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="Bd" CornerRadius="11" Padding="14,11" Background="#B3FFFFFF" BorderBrush="#DDE5F7" BorderThickness="1.5">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Bd" Property="Background" Value="{StaticResource BlueLightBrush}"/></Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource BlueLightBrush}"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource BlueBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -398,9 +485,9 @@
             <Setter Property="HeadersVisibility" Value="Column"/>
             <Setter Property="GridLinesVisibility" Value="Horizontal"/>
             <Setter Property="HorizontalGridLinesBrush" Value="{StaticResource LineBrush}"/>
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="RowBackground" Value="White"/>
-            <Setter Property="BorderBrush" Value="{StaticResource LineBrush}"/>
+            <Setter Property="Background" Value="{StaticResource GlassBrush}"/>
+            <Setter Property="RowBackground" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="{StaticResource GlassBorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="RowHeight" Value="42"/>
             <Setter Property="FontSize" Value="14"/>
@@ -416,10 +503,10 @@
             <Setter Property="BorderThickness" Value="0,0,0,1"/>
         </Style>
         <Style TargetType="DataGridRow">
-            <Setter Property="Background" Value="White"/>
+            <Setter Property="Background" Value="Transparent"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{StaticResource HoverBrush}"/>
+                    <Setter Property="Background" Value="#99FFFFFF"/>
                 </Trigger>
                 <Trigger Property="IsSelected" Value="True">
                     <Setter Property="Background" Value="{StaticResource BlueLightBrush}"/>

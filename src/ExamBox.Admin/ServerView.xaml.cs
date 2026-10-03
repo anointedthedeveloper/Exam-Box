@@ -23,8 +23,9 @@ public partial class ServerView : UserControl
     private void Render()
     {
         var running = App.Portal.Running;
-        StatusText.Text = running ? "● Running" : "● Stopped";
-        StatusText.Foreground = (Brush)FindResource(running ? "OkBrush" : "ErrBrush");
+        StatusText.Text = running ? "Running" : "Stopped";
+        StatusText.Foreground = StatusDot.Fill = (Brush)FindResource(running ? "OkBrush" : "ErrBrush");
+        StatusPill.Background = (Brush)FindResource(running ? "OkBgBrush" : "ErrBgBrush");
         ToggleBtn.Content = running ? "Stop portal" : "Start portal";
         RestartBtn.IsEnabled = running;
         ErrorText.Visibility = App.Portal.Error != null ? Visibility.Visible : Visibility.Collapsed;
@@ -72,7 +73,7 @@ public partial class ServerView : UserControl
     {
         Busy.Visibility = on ? Visibility.Visible : Visibility.Collapsed;
         ToggleBtn.IsEnabled = RestartBtn.IsEnabled = !on;
-        if (on && text != null) StatusText.Text = "● " + text;
+        if (on && text != null) StatusText.Text = text;
         if (!on) Render();
     }
 

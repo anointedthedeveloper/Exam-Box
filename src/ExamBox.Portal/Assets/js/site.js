@@ -69,3 +69,12 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     requestAnimationFrame(step);
   });
 }
+
+// Caps Lock hint under password fields that have a #caps element.
+(function () {
+  var caps = document.getElementById('caps'), pw = document.getElementById('Password');
+  if (!caps || !pw) return;
+  function check(e) { caps.classList.toggle('show', !!(e.getModifierState && e.getModifierState('CapsLock'))); }
+  pw.addEventListener('keydown', check); pw.addEventListener('keyup', check);
+  pw.addEventListener('blur', function () { caps.classList.remove('show'); });
+})();

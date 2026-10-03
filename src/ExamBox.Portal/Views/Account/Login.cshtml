@@ -22,7 +22,12 @@
             <svg viewBox="0 0 24 24"><path d="M12 5C7 5 2.7 8.1 1 12c1.7 3.9 6 7 11 7s9.3-3.1 11-7c-1.7-3.9-6-7-11-7zm0 11.5a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9zm0-7a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z"/></svg>
         </button>
     </div>
+    <div class="caps" id="caps">⇪ Caps Lock is on</div>
     <span asp-validation-for="Password" class="field-validation-error"></span>
     <button class="btn block lg" style="margin-top:22px"><span class="lbl">Sign in</span><span class="spinner sm"></span></button>
 </form>
 <p class="muted small" style="margin-top:18px">Your account is created by your administrator. Forgot your password? Ask them to reset it.</p>
+<div class="secure-note">
+    <svg viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5 3.4 9.7 8 11 4.6-1.3 8-6 8-11V5l-8-3zm-1 14-4-4 1.4-1.4L11 13.2l4.6-4.6L17 10l-6 6z"/></svg>
+    <span>For your security you'll be signed out when you close the browser or ExamBox restarts.</span>
+</div>
