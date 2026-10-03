@@ -242,3 +242,26 @@ th{background:rgba(250,251,254,.55)}tbody tr:hover{background:rgba(232,240,255,.
 .secure-note svg{width:18px;height:18px;fill:#fff;flex:none}
 .slide figcaption p{color:#e6f4ff}
 .dots i{background:rgba(255,255,255,.4)}
+
+/* ===================== v5: sign-in always fits the viewport ===================== */
+.auth-body{min-height:100vh;min-height:100dvh}
+.auth-wrap{height:100vh;height:100dvh;min-height:0;overflow:hidden}
+.auth-hero{min-height:0;padding:clamp(16px,4vh,34px) clamp(20px,3vw,48px)}
+.slides{min-height:0}
+.slide img{width:auto;max-width:78%;max-height:42vh}
+.auth-card-wrap{min-height:0;overflow-y:auto;align-items:flex-start;padding:clamp(12px,3vh,28px)}
+.auth-card{margin:auto;max-height:100%;overflow-y:auto;padding:clamp(18px,4vh,36px) clamp(18px,3vw,34px)}
+/* shrink gracefully on short screens (laptops with big browser toolbars, small windows) */
+@media (max-height:780px){
+  .auth-head p,.slide figcaption p{display:none}
+  .slide figcaption h2{font-size:1.35rem;margin:10px 0 0}
+  .auth-card label{margin-top:10px}
+  .auth-card .btn.lg{padding:11px 16px}
+}
+@media (max-height:660px){
+  .auth-card .muted.small,.secure-note{display:none}
+  .hero-brand img{width:42px;height:42px;padding:7px}
+  .dots{display:none}
+  .auth-logo{width:46px!important;height:46px!important}
+}
+@media (max-height:520px){.slides{display:none}}

@@ -49,30 +49,30 @@
 
                 <Grid x:Name="Slides" Margin="40,100,40,90">
                     <Grid.RenderTransform><TranslateTransform x:Name="Bob"/></Grid.RenderTransform>
-                    <StackPanel x:Name="Slide0" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="1" RenderTransformOrigin="0.5,0.5">
+                    <Viewbox StretchDirection="DownOnly" Stretch="Uniform"><StackPanel x:Name="Slide0" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="1" RenderTransformOrigin="0.5,0.5">
                         <StackPanel.RenderTransform><TranslateTransform x:Name="Shift0"/></StackPanel.RenderTransform>
                         <Image Source="/Assets/admin-students.png" Width="420" Stretch="Uniform"/>
                         <TextBlock Text="Manage every student" Foreground="White" FontSize="26" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,14,0,4"/>
                         <TextBlock Text="Add, search and reset accounts in seconds." Foreground="#C9D8FF" FontSize="15" HorizontalAlignment="Center"/>
-                    </StackPanel>
-                    <StackPanel x:Name="Slide1" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0" RenderTransformOrigin="0.5,0.5">
+                    </StackPanel></Viewbox>
+                    <Viewbox StretchDirection="DownOnly" Stretch="Uniform"><StackPanel x:Name="Slide1" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0" RenderTransformOrigin="0.5,0.5">
                         <StackPanel.RenderTransform><TranslateTransform x:Name="Shift1"/></StackPanel.RenderTransform>
                         <Image Source="/Assets/admin-exams.png" Width="420" Stretch="Uniform"/>
                         <TextBlock Text="Build exams your way" Foreground="White" FontSize="26" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,14,0,4"/>
                         <TextBlock Text="Questions, timers and pass marks, published in a click." Foreground="#C9D8FF" FontSize="15" HorizontalAlignment="Center"/>
-                    </StackPanel>
-                    <StackPanel x:Name="Slide2" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0" RenderTransformOrigin="0.5,0.5">
+                    </StackPanel></Viewbox>
+                    <Viewbox StretchDirection="DownOnly" Stretch="Uniform"><StackPanel x:Name="Slide2" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0" RenderTransformOrigin="0.5,0.5">
                         <StackPanel.RenderTransform><TranslateTransform x:Name="Shift2"/></StackPanel.RenderTransform>
                         <Image Source="/Assets/admin-analytics.png" Width="420" Stretch="Uniform"/>
                         <TextBlock Text="Results at a glance" Foreground="White" FontSize="26" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,14,0,4"/>
                         <TextBlock Text="Live dashboards and one-click CSV export." Foreground="#C9D8FF" FontSize="15" HorizontalAlignment="Center"/>
-                    </StackPanel>
-                    <StackPanel x:Name="Slide3" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0" RenderTransformOrigin="0.5,0.5">
+                    </StackPanel></Viewbox>
+                    <Viewbox StretchDirection="DownOnly" Stretch="Uniform"><StackPanel x:Name="Slide3" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0" RenderTransformOrigin="0.5,0.5">
                         <StackPanel.RenderTransform><TranslateTransform x:Name="Shift3"/></StackPanel.RenderTransform>
                         <Image Source="/Assets/admin-secure.png" Width="420" Stretch="Uniform"/>
                         <TextBlock Text="Private by design" Foreground="White" FontSize="26" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,14,0,4"/>
                         <TextBlock Text="Everything stays on this computer." Foreground="#C9D8FF" FontSize="15" HorizontalAlignment="Center"/>
-                    </StackPanel>
+                    </StackPanel></Viewbox>
                 </Grid>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,44">
@@ -87,7 +87,7 @@
         <!-- form -->
         <Border Grid.Column="1">
             <Grid>
-                <ScrollViewer VerticalScrollBarVisibility="Auto" VerticalAlignment="Center">
+                <Viewbox Stretch="Uniform" StretchDirection="DownOnly" VerticalAlignment="Center">
                     <Border Background="{StaticResource FrostBrush}" CornerRadius="22" Width="440" Margin="24" Padding="36,32,36,22" Effect="{StaticResource SoftShadow}" BorderBrush="#B3FFFFFF" BorderThickness="1.5">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal">
@@ -166,7 +166,7 @@
                             </Border>
                         </StackPanel>
                     </Border>
-                </ScrollViewer>
+                </Viewbox>
             </Grid>
         </Border>
     </Grid>
