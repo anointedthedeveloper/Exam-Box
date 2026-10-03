@@ -21,16 +21,17 @@ public partial class DashboardView : UserControl
 
     private void Reload()
     {
-        Greeting.Text = $"Welcome back, {App.CurrentUser?.Username}";
-        DateText.Text = DateTime.Now.ToString("dddd, d MMMM yyyy");
+        Greeting.Text = App.CurrentUser?.Username ?? "Admin";
+        DateText.Text = "· " + DateTime.Now.ToString("dddd, d MMMM");
         var d = App.Dashboard.Get();
-        Anim.CountUp(StudentsN, d.Students);
-        StudentsSub.Text = $"{d.ActiveStudents} active";
-        Anim.CountUp(ExamsN, d.Exams);
-        ExamsSub.Text = $"{d.PublishedExams} published";
-        Anim.CountUp(DoneN, d.Completed);
-        DoneSub.Text = $"{d.Attempts - d.Completed} in progress";
-        if (d.Completed == 0) AvgN.Text = "—"; else Anim.CountUp(AvgN, d.AvgPercent, 1, "%");
+        Anim.CountUp(StatPublished, d.PublishedExams);
+        StatPublishedSub.Text = $"of {d.Exams} exam(s)";
+        Anim.CountUp(StatStudents, d.Students);
+        StatStudentsSub.Text = $"{d.ActiveStudents} active";
+        Anim.CountUp(StatCompleted, d.Completed);
+        StatCompletedSub.Text = $"{d.Attempts - d.Completed} in progress";
+        if (d.Completed == 0) StatAvg.Text = "—"; else Anim.CountUp(StatAvg, d.AvgPercent, 1, "%");
+        StatAvgSub.Text = "across submitted exams";
         RecentGrid.ItemsSource = d.Recent.Select(a => new RecentRow(a.Student!.FullName, a.Exam!.Title, $"{a.Percent}%", a.Percent >= a.Exam.PassMarkPercent ? "Pass" : "Fail")).ToList();
         NewGrid.ItemsSource = d.NewStudents.Select(s => new NewRow(s.FullName, s.FullName.Length > 0 ? s.FullName[..1].ToUpperInvariant() : "?", s.Department ?? "No department", s.Username)).ToList();
         RecentEmpty.Visibility = d.Recent.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
@@ -40,8 +41,7 @@ public partial class DashboardView : UserControl
         if (!_animated)
         {
             _animated = true;
-            Anim.Stagger(new FrameworkElement[] { HeroBanner, PortalBanner, Checklist, Stat0, Stat1, Stat2, Stat3, Lists });
-            foreach (var card in new FrameworkElement[] { Stat0, Stat1, Stat2, Stat3 }) Anim.HoverLift(card);
+            Anim.Stagger(new FrameworkElement[] { HeroOuter, PortalBanner, Checklist, Lists });
         }
     }
 
@@ -64,6 +64,8 @@ public partial class DashboardView : UserControl
 
     private void AddStudent_Click(object sender, RoutedEventArgs e) => MainWindow.Current.Go("students", openAdd: true);
     private void NewExam_Click(object sender, RoutedEventArgs e) => MainWindow.Current.Go("exams", openAdd: true);
+    private void Manage_Click(object sender, RoutedEventArgs e) => MainWindow.Current.Go("students");
+    private void Results_Click(object sender, RoutedEventArgs e) => MainWindow.Current.Go("exams");
 
     /// <summary>Onboarding: shown until students, an exam, a published exam and the portal are all in place.</summary>
     private void BuildChecklist(DashboardStats d)
