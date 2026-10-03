@@ -26,6 +26,11 @@
             <GradientStop Color="#0847B8" Offset="0"/>
             <GradientStop Color="#06309A" Offset="1"/>
         </LinearGradientBrush>
+        <LinearGradientBrush x:Key="AdminHeroBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#061544" Offset="0"/>
+            <GradientStop Color="#0A3A9E" Offset="0.6"/>
+            <GradientStop Color="#1565F0" Offset="1"/>
+        </LinearGradientBrush>
         <LinearGradientBrush x:Key="HeroBrush" StartPoint="0,0" EndPoint="1,1">
             <GradientStop Color="#06309A" Offset="0"/>
             <GradientStop Color="#0B5FF0" Offset="0.65"/>
@@ -151,6 +156,13 @@
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="12"/>
             <Setter Property="Padding" Value="20"/>
+            <Setter Property="Effect" Value="{StaticResource CardShadow}"/>
+        </Style>
+
+        <Style x:Key="LogoBadge" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="14"/>
+            <Setter Property="Padding" Value="9"/>
             <Setter Property="Effect" Value="{StaticResource CardShadow}"/>
         </Style>
 

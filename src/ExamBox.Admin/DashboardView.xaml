@@ -8,7 +8,7 @@
                     <Ellipse Width="360" Height="360" Fill="White" Opacity="0.07" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-190,-90,0"/>
                     <Ellipse Width="220" Height="220" Fill="White" Opacity="0.05" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="260,0,0,-130"/>
                     <DockPanel>
-                        <Image DockPanel.Dock="Right" Source="/Assets/slide-exams.png" Height="165" Margin="0,-14,10,-18"/>
+                        <Image DockPanel.Dock="Right" Source="/Assets/admin-analytics.png" Height="170" Margin="0,-14,10,-18"/>
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock x:Name="Greeting" FontSize="30" FontWeight="ExtraBold" Foreground="White"/>
                             <TextBlock x:Name="DateText" Foreground="#DBE6FF" FontSize="14" Margin="0,4,0,18"/>

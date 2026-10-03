@@ -25,6 +25,11 @@ public partial class AuthView : UserControl
         SubHeading.Text = _setup ? "Create your administrator account." : "Sign in to manage students and exams.";
         ConfirmPanel.Visibility = _setup ? Visibility.Visible : Visibility.Collapsed;
         SubmitText.Text = _setup ? "Create account" : "Sign in";
+        StrengthPanel.Visibility = _setup ? Visibility.Visible : Visibility.Collapsed;
+        ForgotLink.Visibility = _setup ? Visibility.Collapsed : Visibility.Visible;
+        VersionText.Text = "v" + (System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3) ?? "1.0.0");
+        RenderPortal();
+        UpdateHints();
 
         if (!_setup && App.Settings.RememberedUser != null)
         {
@@ -36,11 +41,12 @@ public partial class AuthView : UserControl
         _lockTimer.Tick += (_, _) => TickLock();
         Loaded += (_, _) =>
         {
+            App.Portal.Changed += RenderPortal;
             _slideTimer.Start();
             if (!_setup && !_autoTried && TryAutoSignIn()) return;
             (string.IsNullOrEmpty(Username.Text) ? Username : (Control)Password).Focus();
         };
-        Unloaded += (_, _) => { _slideTimer.Stop(); _lockTimer.Stop(); };
+        Unloaded += (_, _) => { _slideTimer.Stop(); _lockTimer.Stop(); App.Portal.Changed -= RenderPortal; };
     }
 
     // ---------- slideshow ----------
@@ -67,6 +73,62 @@ public partial class AuthView : UserControl
             Dots[i].Background = on ? Brushes.White : new SolidColorBrush(Color.FromArgb(0x59, 255, 255, 255));
         }
     }
+
+    // ---------- small form helpers ----------
+    private void UpdateHints()
+    {
+        UserHint.Visibility = Username.Text.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
+        PassHint.Visibility = PasswordText.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
+        ConfirmHint.Visibility = Confirm.Password.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
+        if (_setup) { UpdateStrength(); UpdateMatch(); }
+    }
+
+    private void Field_Changed(object sender, TextChangedEventArgs e) { if (IsLoaded || sender != null) UpdateHints(); }
+    private void Password_Changed(object sender, RoutedEventArgs e) => UpdateHints();
+    private void Confirm_Changed(object sender, RoutedEventArgs e) => UpdateHints();
+
+    private void Caps_Check(object sender, RoutedEventArgs e) => CapsHint.Visibility = System.Windows.Input.Keyboard.IsKeyToggled(System.Windows.Input.Key.CapsLock) ? Visibility.Visible : Visibility.Collapsed;
+    private void Caps_Key(object sender, System.Windows.Input.KeyEventArgs e) => Caps_Check(sender, e);
+
+    /// <summary>Guidance only: any non-empty password is accepted.</summary>
+    private void UpdateStrength()
+    {
+        var pw = PasswordText;
+        var score = pw.Length == 0 ? 0 : (pw.Length >= 8 ? 1 : 0) + (pw.Length >= 12 ? 1 : 0)
+            + (pw.Any(char.IsUpper) && pw.Any(char.IsLower) ? 1 : 0) + (pw.Any(char.IsDigit) ? 1 : 0) + (pw.Any(c => !char.IsLetterOrDigit(c)) ? 1 : 0);
+        var level = pw.Length == 0 ? 0 : score <= 1 ? 1 : score <= 3 ? 2 : 3;
+        var color = level switch { 1 => "ErrBrush", 2 => "WarnBrush", _ => "OkBrush" };
+        var segs = new[] { Seg0, Seg1, Seg2 };
+        for (var i = 0; i < 3; i++) segs[i].Background = (Brush)FindResource(i < level ? color : "LineBrush");
+        StrengthText.Text = level switch
+        {
+            0 => "Choose any password you'll remember. Longer is safer.",
+            1 => "Weak — still allowed, but easy to guess.",
+            2 => "Okay — adding length or symbols makes it stronger.",
+            _ => "Strong password."
+        };
+    }
+
+    private void UpdateMatch()
+    {
+        if (Confirm.Password.Length == 0) { MatchText.Visibility = Visibility.Collapsed; return; }
+        var ok = Confirm.Password == PasswordText;
+        MatchText.Text = ok ? "✓  Passwords match" : "✕  Passwords do not match yet";
+        MatchText.Foreground = (Brush)FindResource(ok ? "OkBrush" : "ErrBrush");
+        MatchText.Visibility = Visibility.Visible;
+    }
+
+    private void RenderPortal()
+    {
+        var running = App.Portal.Running;
+        PortalDot.Fill = (Brush)FindResource(running ? "OkBrush" : "ErrBrush");
+        PortalText.Text = running ? $"Student portal running · {PortalHost.ReachableUrls(App.Portal.Port).First()}" : "Student portal stopped";
+    }
+
+    private void Forgot_Click(object sender, RoutedEventArgs e) =>
+        Ui.Info("Passwords are stored securely and can't be viewed, but you can set a new administrator password.\n\n" +
+                "1. Close ExamBox.\n2. Open Command Prompt in the folder that contains ExamBox.exe.\n3. Run:\n\n      ExamBox.exe --reset-admin YourNewPassword\n\n" +
+                "Your students and exams are not affected.");
 
     // ---------- password visibility ----------
     private string PasswordText => ShowPw.IsChecked == true ? PasswordVisible.Text : Password.Password;

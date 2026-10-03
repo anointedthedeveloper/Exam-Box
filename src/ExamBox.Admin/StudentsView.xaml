@@ -32,7 +32,7 @@
                 </DataGrid.Columns>
             </DataGrid>
             <StackPanel x:Name="Empty" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed">
-                <Border Style="{StaticResource IllustrationPanel}" Width="320" HorizontalAlignment="Center"><Image Source="/Assets/slide-devices.png"/></Border>
+                <Border Style="{StaticResource IllustrationPanel}" Width="320" HorizontalAlignment="Center"><Image Source="/Assets/admin-students.png"/></Border>
                 <TextBlock x:Name="EmptyTitle" Text="No students yet" Style="{StaticResource H2}" HorizontalAlignment="Center" Margin="0,18,0,4"/>
                 <TextBlock x:Name="EmptyText" Text="Click “Add student” to create the first one." Style="{StaticResource Muted}" TextAlignment="Center" HorizontalAlignment="Center"/>
             </StackPanel>

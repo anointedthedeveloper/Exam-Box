@@ -110,6 +110,23 @@ public class CoreTests
     }
 }
 
+public class RecoveryTests
+{
+    [Fact]
+    public void Reset_admin_password_unlocks_and_replaces_password()
+    {
+        using var t = new TempDb();
+        Assert.False(t.Auth.ResetAdminPassword("x").Ok);                       // no admin yet
+        t.Auth.CreateAdmin("admin", "old");
+        for (var i = 0; i < 10; i++) t.Auth.Authenticate("admin", "bad", UserRole.Admin);   // lock it
+        Assert.False(t.Auth.ResetAdminPassword("").Ok);
+        var r = t.Auth.ResetAdminPassword("fresh");
+        Assert.True(r.Ok); Assert.Equal("admin", r.Value);
+        Assert.NotNull(t.Auth.Authenticate("admin", "fresh", UserRole.Admin).User);
+        Assert.Null(t.Auth.Authenticate("admin", "old", UserRole.Admin).User);
+    }
+}
+
 public class AttemptWarningTests
 {
     [Fact]

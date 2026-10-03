@@ -80,6 +80,20 @@ public sealed class AuthService(DbFactory factory)
         return new(user, null);
     }
 
+    /// <summary>Recovery for a forgotten administrator password (run locally via <c>ExamBox.exe --reset-admin</c>).</summary>
+    public OpResult<string> ResetAdminPassword(string newPassword)
+    {
+        var err = Passwords.Validate(newPassword ?? "");
+        if (err != null) return OpResult<string>.Fail(err);
+        using var db = factory.Create();
+        var admin = db.Users.Where(u => u.Role == UserRole.Admin).OrderBy(u => u.Id).FirstOrDefault();
+        if (admin == null) return OpResult<string>.Fail("No administrator account exists yet.");
+        admin.PasswordHash = Passwords.Hash(newPassword!);
+        admin.MustChangePassword = false; admin.FailedLogins = 0; admin.LockoutEnd = null;
+        db.SaveChanges();
+        return OpResult<string>.Success(admin.Username);
+    }
+
     public OpResult ChangePassword(int userId, string current, string next)
     {
         using var db = factory.Create();

@@ -28,6 +28,26 @@ public partial class App : Application
     {
         base.OnStartup(e);
         DispatcherUnhandledException += OnUnhandled;
+
+        // Recovery: ExamBox.exe --reset-admin <new password>
+        var ri = Array.IndexOf(e.Args, "--reset-admin");
+        if (ri >= 0)
+        {
+            try
+            {
+                var rdb = new DbFactory();
+                rdb.Initialize();
+                var rr = new AuthService(rdb).ResetAdminPassword(e.Args.ElementAtOrDefault(ri + 1) ?? "");
+                MessageBox.Show(rr.Ok ? $"The password for administrator “{rr.Value}” has been reset. You can now open ExamBox and sign in." : "Could not reset: " + rr.Error,
+                    "ExamBox", MessageBoxButton.OK, rr.Ok ? MessageBoxImage.Information : MessageBoxImage.Warning);
+            }
+            catch (Exception ex) { MessageBox.Show("Could not reset: " + ex.Message, "ExamBox", MessageBoxButton.OK, MessageBoxImage.Error); }
+            Shutdown();
+            return;
+        }
+
+        // Every window (main, dialogs) gets a title bar in the app's blue.
+        EventManager.RegisterClassHandler(typeof(Window), FrameworkElement.LoadedEvent, new RoutedEventHandler((s, _) => TitleBar.Apply((Window)s)));
         try { SetCurrentProcessExplicitAppUserModelID("ExamBox.Admin"); } catch { /* cosmetic only */ }
 
         _single = new Mutex(true, "ExamBox.Admin.SingleInstance", out var first);

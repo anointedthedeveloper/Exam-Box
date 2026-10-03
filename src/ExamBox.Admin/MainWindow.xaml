@@ -23,10 +23,10 @@
                     </StackPanel>
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="8,0,0,22">
-                            <Border Background="White" CornerRadius="10" Width="40" Height="40" Padding="2">
+                            <Border Style="{StaticResource LogoBadge}" Width="46" Height="46" CornerRadius="13" Padding="8">
                                 <Image Source="/Assets/logo.png"/>
                             </Border>
-                            <TextBlock Text="ExamBox" Foreground="White" FontSize="21" FontWeight="ExtraBold" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                            <TextBlock Text="ExamBox" Foreground="White" FontSize="21" FontWeight="ExtraBold" VerticalAlignment="Center" Margin="12,0,0,0"/>
                         </StackPanel>
                         <RadioButton x:Name="NavDashboard" Tag="dashboard" GroupName="nav" Style="{StaticResource NavButton}" Click="Nav_Click"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE80F;" FontFamily="Segoe MDL2 Assets" FontSize="15" Width="28" VerticalAlignment="Center"/><TextBlock Text="Dashboard" VerticalAlignment="Center"/></StackPanel></RadioButton>
                         <RadioButton x:Name="NavStudents" Tag="students" GroupName="nav" Style="{StaticResource NavButton}" Click="Nav_Click"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE716;" FontFamily="Segoe MDL2 Assets" FontSize="15" Width="28" VerticalAlignment="Center"/><TextBlock Text="Students" VerticalAlignment="Center"/></StackPanel></RadioButton>

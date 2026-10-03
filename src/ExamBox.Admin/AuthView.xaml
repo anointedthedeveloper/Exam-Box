@@ -11,6 +11,7 @@
                     <DoubleAnimation Storyboard.TargetName="BlobMove2" Storyboard.TargetProperty="X" From="0" To="52" Duration="0:0:9" DecelerationRatio="0.4" AccelerationRatio="0.4"/>
                     <DoubleAnimation Storyboard.TargetName="BlobMove2" Storyboard.TargetProperty="Y" From="0" To="-44" Duration="0:0:9" DecelerationRatio="0.4" AccelerationRatio="0.4"/>
                     <DoubleAnimation Storyboard.TargetName="BlobMove3" Storyboard.TargetProperty="Y" From="0" To="-60" Duration="0:0:6" DecelerationRatio="0.4" AccelerationRatio="0.4"/>
+                    <DoubleAnimation Storyboard.TargetName="Bob" Storyboard.TargetProperty="Y" From="0" To="-12" Duration="0:0:3" DecelerationRatio="0.5" AccelerationRatio="0.5"/>
                 </Storyboard>
             </BeginStoryboard>
         </EventTrigger>
@@ -21,13 +22,13 @@
             <ColumnDefinition Width="1*" MinWidth="480"/>
         </Grid.ColumnDefinitions>
 
-        <!-- brand panel with moving shapes and a slideshow -->
-        <Border Grid.Column="0" Background="{StaticResource HeroBrush}" ClipToBounds="True">
+        <!-- admin brand panel: deeper navy than the student site, with its own illustrations -->
+        <Border Grid.Column="0" Background="{StaticResource AdminHeroBrush}" ClipToBounds="True">
             <Grid>
-                <Ellipse Width="640" Height="640" Fill="White" Opacity="0.06" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-230,-240,0">
+                <Ellipse Width="640" Height="640" Fill="White" Opacity="0.05" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-230,-240,0">
                     <Ellipse.RenderTransform><TranslateTransform x:Name="BlobMove1"/></Ellipse.RenderTransform>
                 </Ellipse>
-                <Ellipse Width="460" Height="460" Fill="White" Opacity="0.05" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-180,0,0,-190">
+                <Ellipse Width="460" Height="460" Fill="#3D8BFF" Opacity="0.10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-180,0,0,-190">
                     <Ellipse.RenderTransform><TranslateTransform x:Name="BlobMove2"/></Ellipse.RenderTransform>
                 </Ellipse>
                 <Ellipse Width="150" Height="150" Fill="White" Opacity="0.05" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="260,300,0,0">
@@ -35,37 +36,41 @@
                 </Ellipse>
 
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="48,38,0,0">
-                    <Border Background="White" CornerRadius="13" Width="48" Height="48" Padding="4">
+                    <Border Style="{StaticResource LogoBadge}" Width="56" Height="56" CornerRadius="16">
                         <Image Source="/Assets/logo.png"/>
                     </Border>
-                    <TextBlock Text="ExamBox" Foreground="White" FontSize="24" FontWeight="ExtraBold" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                    <StackPanel Margin="14,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="ExamBox" Foreground="White" FontSize="24" FontWeight="ExtraBold"/>
+                        <TextBlock Text="ADMINISTRATION" Foreground="#9FB8F0" FontSize="11" FontWeight="Bold"/>
+                    </StackPanel>
                 </StackPanel>
 
                 <Grid x:Name="Slides" Margin="40,100,40,90">
-                <StackPanel x:Name="Slide0" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="1" RenderTransformOrigin="0.5,0.5">
-                    <StackPanel.RenderTransform><TranslateTransform x:Name="Shift0"/></StackPanel.RenderTransform>
-                    <Image Source="/Assets/slide-exams.png" Width="400" Stretch="Uniform"/>
-                    <TextBlock Text="Build and publish exams" Foreground="White" FontSize="26" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,14,0,4"/>
-                    <TextBlock Text="Add questions, set the timer, publish in a click." Foreground="#DBE6FF" FontSize="15" HorizontalAlignment="Center"/>
-                </StackPanel>
-                <StackPanel x:Name="Slide1" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0" RenderTransformOrigin="0.5,0.5">
-                    <StackPanel.RenderTransform><TranslateTransform x:Name="Shift1"/></StackPanel.RenderTransform>
-                    <Image Source="/Assets/slide-timer.png" Width="400" Stretch="Uniform"/>
-                    <TextBlock Text="Timed and fair" Foreground="White" FontSize="26" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,14,0,4"/>
-                    <TextBlock Text="Server-enforced deadlines, one attempt each." Foreground="#DBE6FF" FontSize="15" HorizontalAlignment="Center"/>
-                </StackPanel>
-                <StackPanel x:Name="Slide2" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0" RenderTransformOrigin="0.5,0.5">
-                    <StackPanel.RenderTransform><TranslateTransform x:Name="Shift2"/></StackPanel.RenderTransform>
-                    <Image Source="/Assets/slide-results.png" Width="400" Stretch="Uniform"/>
-                    <TextBlock Text="Instant results" Foreground="White" FontSize="26" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,14,0,4"/>
-                    <TextBlock Text="Automatic grading, scores and CSV export." Foreground="#DBE6FF" FontSize="15" HorizontalAlignment="Center"/>
-                </StackPanel>
-                <StackPanel x:Name="Slide3" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0" RenderTransformOrigin="0.5,0.5">
-                    <StackPanel.RenderTransform><TranslateTransform x:Name="Shift3"/></StackPanel.RenderTransform>
-                    <Image Source="/Assets/slide-devices.png" Width="400" Stretch="Uniform"/>
-                    <TextBlock Text="Students use any browser" Foreground="White" FontSize="26" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,14,0,4"/>
-                    <TextBlock Text="Laptop, tablet or phone on your network." Foreground="#DBE6FF" FontSize="15" HorizontalAlignment="Center"/>
-                </StackPanel>
+                    <Grid.RenderTransform><TranslateTransform x:Name="Bob"/></Grid.RenderTransform>
+                    <StackPanel x:Name="Slide0" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="1" RenderTransformOrigin="0.5,0.5">
+                        <StackPanel.RenderTransform><TranslateTransform x:Name="Shift0"/></StackPanel.RenderTransform>
+                        <Image Source="/Assets/admin-students.png" Width="420" Stretch="Uniform"/>
+                        <TextBlock Text="Manage every student" Foreground="White" FontSize="26" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,14,0,4"/>
+                        <TextBlock Text="Add, search and reset accounts in seconds." Foreground="#C9D8FF" FontSize="15" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel x:Name="Slide1" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0" RenderTransformOrigin="0.5,0.5">
+                        <StackPanel.RenderTransform><TranslateTransform x:Name="Shift1"/></StackPanel.RenderTransform>
+                        <Image Source="/Assets/admin-exams.png" Width="420" Stretch="Uniform"/>
+                        <TextBlock Text="Build exams your way" Foreground="White" FontSize="26" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,14,0,4"/>
+                        <TextBlock Text="Questions, timers and pass marks, published in a click." Foreground="#C9D8FF" FontSize="15" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel x:Name="Slide2" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0" RenderTransformOrigin="0.5,0.5">
+                        <StackPanel.RenderTransform><TranslateTransform x:Name="Shift2"/></StackPanel.RenderTransform>
+                        <Image Source="/Assets/admin-analytics.png" Width="420" Stretch="Uniform"/>
+                        <TextBlock Text="Results at a glance" Foreground="White" FontSize="26" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,14,0,4"/>
+                        <TextBlock Text="Live dashboards and one-click CSV export." Foreground="#C9D8FF" FontSize="15" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel x:Name="Slide3" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0" RenderTransformOrigin="0.5,0.5">
+                        <StackPanel.RenderTransform><TranslateTransform x:Name="Shift3"/></StackPanel.RenderTransform>
+                        <Image Source="/Assets/admin-secure.png" Width="420" Stretch="Uniform"/>
+                        <TextBlock Text="Private by design" Foreground="White" FontSize="26" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,14,0,4"/>
+                        <TextBlock Text="Everything stays on this computer." Foreground="#C9D8FF" FontSize="15" HorizontalAlignment="Center"/>
+                    </StackPanel>
                 </Grid>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,44">
@@ -78,57 +83,91 @@
         </Border>
 
         <!-- form -->
-        <Border Grid.Column="1" Background="{StaticResource BgBrush}">
-            <ScrollViewer VerticalScrollBarVisibility="Auto" VerticalAlignment="Center">
-                <Border Background="White" CornerRadius="20" Width="440" Margin="24" Padding="36,34" Effect="{StaticResource SoftShadow}" BorderBrush="{StaticResource LineBrush}" BorderThickness="1">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Border Width="56" Height="56" CornerRadius="14" Background="{StaticResource BlueLightBrush}" Padding="7">
-                                <Image Source="/Assets/logo.png"/>
-                            </Border>
-                            <StackPanel Margin="14,0,0,0" VerticalAlignment="Center">
-                                <TextBlock x:Name="Heading" Style="{StaticResource H1}" FontSize="24"/>
-                                <TextBlock x:Name="SubHeading" Style="{StaticResource Muted}" FontSize="13"/>
+        <Border Grid.Column="1" Background="{StaticResource BgBrush}" ClipToBounds="True">
+            <Grid>
+                <Ellipse Width="520" Height="520" Fill="{StaticResource BlueLightBrush}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-260,-200,0" Opacity="0.8"/>
+                <Ellipse Width="320" Height="320" Fill="{StaticResource BlueLightBrush}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-140,0,0,-150" Opacity="0.6"/>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" VerticalAlignment="Center">
+                    <Border Background="White" CornerRadius="20" Width="440" Margin="24" Padding="36,32,36,22" Effect="{StaticResource SoftShadow}" BorderBrush="{StaticResource LineBrush}" BorderThickness="1">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Border Width="58" Height="58" CornerRadius="16" Background="{StaticResource BlueLightBrush}" Padding="9">
+                                    <Image Source="/Assets/logo.png"/>
+                                </Border>
+                                <StackPanel Margin="14,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock x:Name="Heading" Style="{StaticResource H1}" FontSize="24"/>
+                                    <TextBlock x:Name="SubHeading" Style="{StaticResource Muted}" FontSize="13"/>
+                                </StackPanel>
                             </StackPanel>
-                        </StackPanel>
 
-                        <TextBlock Text="Username" Style="{StaticResource FieldLabel}" Margin="0,24,0,6"/>
-                        <Grid>
-                            <TextBox x:Name="Username" Padding="42,11,12,11"/>
-                            <TextBlock Text="&#xE77B;" Style="{StaticResource IconGlyph}" FontSize="16" Foreground="#8B97B5" HorizontalAlignment="Left" Margin="14,0,0,0" IsHitTestVisible="False"/>
-                        </Grid>
-
-                        <TextBlock Text="Password" Style="{StaticResource FieldLabel}" Margin="0,16,0,6"/>
-                        <Grid>
-                            <PasswordBox x:Name="Password" Padding="42,11,44,11"/>
-                            <TextBox x:Name="PasswordVisible" Padding="42,11,44,11" Visibility="Collapsed"/>
-                            <TextBlock Text="&#xE72E;" Style="{StaticResource IconGlyph}" FontSize="16" Foreground="#8B97B5" HorizontalAlignment="Left" Margin="14,0,0,0" IsHitTestVisible="False"/>
-                            <ToggleButton x:Name="ShowPw" Style="{StaticResource EyeToggle}" HorizontalAlignment="Right" Margin="0,0,6,0" ToolTip="Show or hide password" Checked="ShowPw_Changed" Unchecked="ShowPw_Changed"/>
-                        </Grid>
-
-                        <StackPanel x:Name="ConfirmPanel" Visibility="Collapsed">
-                            <TextBlock Text="Confirm password" Style="{StaticResource FieldLabel}" Margin="0,16,0,6"/>
+                            <TextBlock Text="Username" Style="{StaticResource FieldLabel}" Margin="0,24,0,6"/>
                             <Grid>
-                                <PasswordBox x:Name="Confirm" Padding="42,11,12,11"/>
-                                <TextBlock Text="&#xE73E;" Style="{StaticResource IconGlyph}" FontSize="16" Foreground="#8B97B5" HorizontalAlignment="Left" Margin="14,0,0,0" IsHitTestVisible="False"/>
+                                <TextBox x:Name="Username" Padding="42,11,12,11" TextChanged="Field_Changed"/>
+                                <TextBlock Text="&#xE77B;" Style="{StaticResource IconGlyph}" FontSize="16" Foreground="#8B97B5" HorizontalAlignment="Left" Margin="14,0,0,0" IsHitTestVisible="False"/>
+                                <TextBlock x:Name="UserHint" Text="Enter your username" Foreground="#A3AECA" FontSize="14" VerticalAlignment="Center" Margin="43,0,0,0" IsHitTestVisible="False"/>
                             </Grid>
-                        </StackPanel>
 
-                        <CheckBox x:Name="RememberMe" Content="Remember me" Margin="2,18,0,0" HorizontalAlignment="Left"/>
+                            <TextBlock Text="Password" Style="{StaticResource FieldLabel}" Margin="0,16,0,6"/>
+                            <Grid>
+                                <PasswordBox x:Name="Password" Padding="42,11,44,11" PasswordChanged="Password_Changed" GotKeyboardFocus="Caps_Check" KeyUp="Caps_Key"/>
+                                <TextBox x:Name="PasswordVisible" Padding="42,11,44,11" Visibility="Collapsed" TextChanged="Field_Changed" GotKeyboardFocus="Caps_Check" KeyUp="Caps_Key"/>
+                                <TextBlock Text="&#xE72E;" Style="{StaticResource IconGlyph}" FontSize="16" Foreground="#8B97B5" HorizontalAlignment="Left" Margin="14,0,0,0" IsHitTestVisible="False"/>
+                                <TextBlock x:Name="PassHint" Text="Enter your password" Foreground="#A3AECA" FontSize="14" VerticalAlignment="Center" Margin="43,0,0,0" IsHitTestVisible="False"/>
+                                <ToggleButton x:Name="ShowPw" Style="{StaticResource EyeToggle}" HorizontalAlignment="Right" Margin="0,0,6,0" ToolTip="Show or hide password" Checked="ShowPw_Changed" Unchecked="ShowPw_Changed"/>
+                            </Grid>
+                            <TextBlock x:Name="CapsHint" Text="&#x21EA;  Caps Lock is on" Foreground="{StaticResource WarnBrush}" FontSize="12" FontWeight="SemiBold" Margin="2,8,0,0" Visibility="Collapsed"/>
 
-                        <Border x:Name="ErrorBox" CornerRadius="10" Padding="14,11" Margin="0,18,0,0" Visibility="Collapsed" Background="{StaticResource ErrBgBrush}">
-                            <TextBlock x:Name="ErrorText" Foreground="{StaticResource ErrBrush}" FontWeight="SemiBold" TextWrapping="Wrap"/>
-                        </Border>
-
-                        <Button x:Name="Submit" Style="{StaticResource PrimaryButton}" IsDefault="True" Click="Submit_Click" Margin="0,22,0,0" Padding="16,13" FontSize="15">
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <local:Spinner x:Name="Busy" Foreground="White" Width="18" Height="18" Visibility="Collapsed" Margin="0,0,10,0"/>
-                                <TextBlock x:Name="SubmitText"/>
+                            <StackPanel x:Name="StrengthPanel" Visibility="Collapsed" Margin="0,10,0,0">
+                                <Grid Height="5">
+                                    <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="5"/><ColumnDefinition/><ColumnDefinition Width="5"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                                    <Border x:Name="Seg0" Grid.Column="0" CornerRadius="3" Background="{StaticResource LineBrush}"/>
+                                    <Border x:Name="Seg1" Grid.Column="2" CornerRadius="3" Background="{StaticResource LineBrush}"/>
+                                    <Border x:Name="Seg2" Grid.Column="4" CornerRadius="3" Background="{StaticResource LineBrush}"/>
+                                </Grid>
+                                <TextBlock x:Name="StrengthText" Style="{StaticResource Muted}" FontSize="12" Margin="2,6,0,0"/>
                             </StackPanel>
-                        </Button>
-                    </StackPanel>
-                </Border>
-            </ScrollViewer>
+
+                            <StackPanel x:Name="ConfirmPanel" Visibility="Collapsed">
+                                <TextBlock Text="Confirm password" Style="{StaticResource FieldLabel}" Margin="0,16,0,6"/>
+                                <Grid>
+                                    <PasswordBox x:Name="Confirm" Padding="42,11,12,11" PasswordChanged="Confirm_Changed"/>
+                                    <TextBlock Text="&#xE73E;" Style="{StaticResource IconGlyph}" FontSize="16" Foreground="#8B97B5" HorizontalAlignment="Left" Margin="14,0,0,0" IsHitTestVisible="False"/>
+                                    <TextBlock x:Name="ConfirmHint" Text="Type it again" Foreground="#A3AECA" FontSize="14" VerticalAlignment="Center" Margin="43,0,0,0" IsHitTestVisible="False"/>
+                                </Grid>
+                                <TextBlock x:Name="MatchText" FontSize="12" FontWeight="SemiBold" Margin="2,6,0,0" Visibility="Collapsed"/>
+                            </StackPanel>
+
+                            <Grid Margin="2,18,0,0">
+                                <CheckBox x:Name="RememberMe" Content="Remember me" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="ForgotLink" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="13">
+                                    <Hyperlink Click="Forgot_Click" TextDecorations="None" Foreground="{StaticResource BlueBrush}" FontWeight="SemiBold">Forgot password?</Hyperlink>
+                                </TextBlock>
+                            </Grid>
+
+                            <Border x:Name="ErrorBox" CornerRadius="10" Padding="14,11" Margin="0,18,0,0" Visibility="Collapsed" Background="{StaticResource ErrBgBrush}">
+                                <TextBlock x:Name="ErrorText" Foreground="{StaticResource ErrBrush}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                            </Border>
+
+                            <Button x:Name="Submit" Style="{StaticResource PrimaryButton}" IsDefault="True" Click="Submit_Click" Margin="0,20,0,0" Padding="16,13" FontSize="15">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <local:Spinner x:Name="Busy" Foreground="White" Width="18" Height="18" Visibility="Collapsed" Margin="0,0,10,0"/>
+                                    <TextBlock x:Name="SubmitText"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Border BorderBrush="{StaticResource LineBrush}" BorderThickness="0,1,0,0" Margin="0,22,0,0" Padding="0,12,0,0">
+                                <DockPanel>
+                                    <TextBlock x:Name="VersionText" DockPanel.Dock="Right" FontSize="12" Foreground="{StaticResource MutedBrush}"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Ellipse x:Name="PortalDot" Width="9" Height="9" Fill="#B8C3DD" VerticalAlignment="Center"/>
+                                        <TextBlock x:Name="PortalText" FontSize="12" Foreground="{StaticResource MutedBrush}" Margin="8,0,0,0" TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                </DockPanel>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                </ScrollViewer>
+            </Grid>
         </Border>
     </Grid>
 </UserControl>

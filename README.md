@@ -25,6 +25,7 @@ Data folder: `%LOCALAPPDATA%\ExamBox` (override with the `EXAMBOX_DATA` environm
 
 - Administrator sign-in: "Remember me" (password stored encrypted for your Windows user only), show-password eye, any non-empty password,
   warning when few attempts remain, then a 5-minute lock after 10 failures with a live countdown. Starts maximised with a loading splash.
+- Forgotten admin password: close ExamBox and run `ExamBox.exe --reset-admin NewPassword` (students and exams are untouched).
 - The student site never reveals whether an ID belongs to an administrator (same generic error for every failure).
 - Slideshow sign-in screens, illustrations, loaders and page transitions in both the desktop app and the student portal.
 - Student management: add, edit, search, deactivate, delete, reset password, exam history.

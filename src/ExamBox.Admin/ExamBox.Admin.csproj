@@ -25,6 +25,7 @@
     <Resource Include="Assets\logo.png" />
     <Resource Include="Assets\logo.ico" />
     <Resource Include="Assets\slide-*.png" />
+    <Resource Include="Assets\admin-*.png" />
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
   </ItemGroup>
 </Project>

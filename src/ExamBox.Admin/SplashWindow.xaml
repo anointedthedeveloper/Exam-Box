@@ -10,7 +10,7 @@
             <Ellipse Width="320" Height="320" Fill="White" Opacity="0.07" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-130,-110,0"/>
             <Ellipse Width="240" Height="240" Fill="White" Opacity="0.05" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-90,0,0,-100"/>
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <Border Background="White" CornerRadius="24" Width="104" Height="104" Padding="8" HorizontalAlignment="Center">
+                <Border Style="{StaticResource LogoBadge}" CornerRadius="26" Width="116" Height="116" Padding="18" HorizontalAlignment="Center">
                     <Image Source="/Assets/logo.png"/>
                 </Border>
                 <TextBlock Text="ExamBox" Foreground="White" FontSize="32" FontWeight="ExtraBold" HorizontalAlignment="Center" Margin="0,16,0,0"/>
