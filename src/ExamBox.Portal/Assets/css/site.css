@@ -209,10 +209,10 @@ th{background:rgba(250,251,254,.55)}tbody tr:hover{background:rgba(232,240,255,.
 /* ===================== v4: student sign-in ===================== */
 /* Same idea as the admin app (full-bleed gradient + frosted card + slideshow) with its own look:
    blue->teal gradient, dark glass card, mirrored layout (form left, slideshow right). */
-.auth-body{background:linear-gradient(135deg,#0a54e0 0%,#1f8fff 46%,#14c4c0 100%) fixed;position:relative;overflow-x:hidden}
+.auth-body{background:linear-gradient(135deg,#06309a 0%,#0b5ff0 65%,#3d8bff 100%) fixed;position:relative;overflow-x:hidden}
 .auth-body::before,.auth-body::after{content:"";position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0}
-.auth-body::before{width:560px;height:560px;background:#7c5cff;opacity:.45;left:-150px;bottom:-170px;animation:orb 20s ease-in-out infinite}
-.auth-body::after{width:520px;height:520px;background:#35e0c8;opacity:.40;right:-130px;top:-150px;animation:orb 24s ease-in-out infinite reverse}
+.auth-body::before{width:560px;height:560px;background:#3d8bff;opacity:.42;left:-150px;bottom:-170px;animation:orb 20s ease-in-out infinite}
+.auth-body::after{width:520px;height:520px;background:#6aa9ff;opacity:.30;right:-130px;top:-150px;animation:orb 24s ease-in-out infinite reverse}
 .auth-wrap{position:relative;z-index:1;grid-template-columns:1fr 1.15fr;background:none}
 .auth-hero{order:2;background:none}
 .auth-card-wrap{order:1;background:none}
@@ -230,9 +230,9 @@ th{background:rgba(250,251,254,.55)}tbody tr:hover{background:rgba(232,240,255,.
 .auth-card input:-webkit-autofill{-webkit-text-fill-color:#fff;transition:background-color 9999s ease-out 0s}
 .auth-card .input-wrap .ic{fill:rgba(255,255,255,.78)}.auth-card .input-wrap:focus-within .ic{fill:#fff}
 .auth-card .eye svg{fill:rgba(255,255,255,.85)}.auth-card .eye:hover{background:rgba(255,255,255,.2)}.auth-card .eye.on svg{fill:#fff}
-.auth-card .btn{background:#fff;color:#0a54e0;border-color:#fff;box-shadow:0 10px 26px rgba(0,40,140,.32)}
+.auth-card .btn{background:#fff;color:#0847b8;border-color:#fff;box-shadow:0 10px 26px rgba(0,30,110,.32)}
 .auth-card .btn:hover{background:#f1f7ff}
-.auth-card .btn .spinner.sm{border-color:rgba(10,84,224,.3);border-top-color:#0a54e0}
+.auth-card .btn .spinner.sm{border-color:rgba(10,84,224,.3);border-top-color:#0847b8}
 .auth-card .field-validation-error{color:#ffd9d4}
 .auth-card .form-alert.validation-summary-errors{background:rgba(255,235,233,.95);color:#a1211a}
 .auth-card .alert-ok{background:rgba(230,246,238,.95)}
