@@ -1,0 +1,30 @@
+<UserControl x:Class="ExamBox.Admin.ExamsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <DockPanel>
+        <DockPanel DockPanel.Dock="Top" LastChildFill="False" Margin="0,0,0,16">
+            <StackPanel DockPanel.Dock="Left">
+                <TextBlock Text="Exams" Style="{StaticResource H1}"/>
+                <TextBlock Text="Create exams, add questions and publish them to students." Style="{StaticResource Muted}"/>
+            </StackPanel>
+            <Button DockPanel.Dock="Right" Content="New exam" Style="{StaticResource PrimaryButton}" Click="New_Click" Margin="0" VerticalAlignment="Center"/>
+        </DockPanel>
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,14,0,0">
+            <Button x:Name="OpenBtn" Content="Open" Style="{StaticResource GhostButton}" Click="Open_Click"/>
+            <TextBlock Text="Select an exam to manage its questions and see results (or double-click it)." Style="{StaticResource Muted}" VerticalAlignment="Center" Margin="8,0,0,0"/>
+        </StackPanel>
+        <Grid>
+            <DataGrid x:Name="Table" SelectionChanged="Grid_SelectionChanged" MouseDoubleClick="Grid_DoubleClick">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="TITLE" Binding="{Binding Title}" Width="2*"/>
+                    <DataGridTextColumn Header="QUESTIONS" Binding="{Binding Questions}" Width="100"/>
+                    <DataGridTextColumn Header="DURATION" Binding="{Binding Duration}" Width="100"/>
+                    <DataGridTextColumn Header="PASS MARK" Binding="{Binding PassMark}" Width="100"/>
+                    <DataGridTextColumn Header="SUBMISSIONS" Binding="{Binding Submissions}" Width="120"/>
+                    <DataGridTextColumn Header="STATUS" Binding="{Binding Status}" Width="110"/>
+                </DataGrid.Columns>
+            </DataGrid>
+            <TextBlock x:Name="Empty" Text="No exams yet.&#10;Click “New exam” to create one." Style="{StaticResource Muted}" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" Visibility="Collapsed"/>
+        </Grid>
+    </DockPanel>
+</UserControl>

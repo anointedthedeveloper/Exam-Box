@@ -1,0 +1,62 @@
+<UserControl x:Class="ExamBox.Admin.ExamDetailView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Margin="0,0,0,14">
+            <Button Content="← All exams" Style="{StaticResource GhostButton}" Click="Back_Click" HorizontalAlignment="Left" Padding="10,5" Margin="0,0,0,10"/>
+            <DockPanel LastChildFill="False">
+                <StackPanel DockPanel.Dock="Left">
+                    <TextBlock x:Name="TitleText" Style="{StaticResource H1}"/>
+                    <TextBlock x:Name="Meta" Style="{StaticResource Muted}"/>
+                </StackPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button x:Name="PublishBtn" Style="{StaticResource PrimaryButton}" Click="Publish_Click"/>
+                    <Button Content="Edit details" Style="{StaticResource GhostButton}" Click="Edit_Click"/>
+                    <Button Content="Delete exam" Style="{StaticResource DangerButton}" Click="Delete_Click" Margin="0"/>
+                </StackPanel>
+            </DockPanel>
+            <Border x:Name="LockedNote" Background="{StaticResource WarnBgBrush}" CornerRadius="10" Padding="14,10" Margin="0,12,0,0" Visibility="Collapsed">
+                <TextBlock Foreground="{StaticResource WarnBrush}" FontWeight="SemiBold" TextWrapping="Wrap"
+                           Text="Students have started this exam, so its questions are locked to keep grading consistent."/>
+            </Border>
+        </StackPanel>
+        <TabControl>
+            <TabItem Header="Questions" Padding="14,8" FontSize="14">
+                <DockPanel Margin="0,12,0,0">
+                    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,12,0,0">
+                        <Button x:Name="AddQ" Content="Add question" Style="{StaticResource PrimaryButton}" Click="AddQ_Click"/>
+                        <Button x:Name="EditQ" Content="Edit" Style="{StaticResource GhostButton}" Click="EditQ_Click"/>
+                        <Button x:Name="DelQ" Content="Delete" Style="{StaticResource DangerButton}" Click="DelQ_Click"/>
+                    </StackPanel>
+                    <DataGrid x:Name="QTable" SelectionChanged="QTable_SelectionChanged">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="#" Binding="{Binding No}" Width="50"/>
+                            <DataGridTextColumn Header="QUESTION" Binding="{Binding Text}" Width="3*"/>
+                            <DataGridTextColumn Header="OPTIONS" Binding="{Binding Options}" Width="2*"/>
+                            <DataGridTextColumn Header="CORRECT" Binding="{Binding Correct}" Width="90"/>
+                            <DataGridTextColumn Header="MARKS" Binding="{Binding Marks}" Width="80"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+            </TabItem>
+            <TabItem Header="Results" Padding="14,8" FontSize="14">
+                <DockPanel Margin="0,12,0,0">
+                    <DockPanel DockPanel.Dock="Bottom" LastChildFill="False" Margin="0,12,0,0">
+                        <Button DockPanel.Dock="Left" Content="Export CSV" Style="{StaticResource GhostButton}" Click="Export_Click"/>
+                        <TextBlock x:Name="ResultSummary" DockPanel.Dock="Left" Style="{StaticResource Muted}" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                    </DockPanel>
+                    <DataGrid x:Name="RTable">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="STUDENT" Binding="{Binding Student}" Width="2*"/>
+                            <DataGridTextColumn Header="STUDENT ID" Binding="{Binding StudentId}" Width="*"/>
+                            <DataGridTextColumn Header="SCORE" Binding="{Binding Score}" Width="100"/>
+                            <DataGridTextColumn Header="PERCENT" Binding="{Binding Percent}" Width="100"/>
+                            <DataGridTextColumn Header="OUTCOME" Binding="{Binding Outcome}" Width="100"/>
+                            <DataGridTextColumn Header="SUBMITTED" Binding="{Binding Submitted}" Width="170"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+</UserControl>

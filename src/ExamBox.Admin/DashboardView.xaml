@@ -1,0 +1,66 @@
+<UserControl x:Class="ExamBox.Admin.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+            <DockPanel LastChildFill="False">
+                <StackPanel DockPanel.Dock="Left">
+                    <TextBlock Text="Dashboard" Style="{StaticResource H1}"/>
+                    <TextBlock Text="Overview of your students and exams." Style="{StaticResource Muted}"/>
+                </StackPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Content="New exam" Style="{StaticResource GhostButton}" Click="NewExam_Click"/>
+                    <Button Content="Add student" Style="{StaticResource PrimaryButton}" Click="AddStudent_Click" Margin="0"/>
+                </StackPanel>
+            </DockPanel>
+
+            <Border x:Name="PortalBanner" Style="{StaticResource Card}" Margin="0,18,0,0" Padding="14,10"/>
+
+            <UniformGrid Rows="1" Margin="0,16,0,0">
+                <Border Style="{StaticResource Card}" Margin="0,0,8,0"><StackPanel>
+                    <TextBlock x:Name="StudentsN" Style="{StaticResource StatNumber}"/>
+                    <TextBlock Text="Students" FontWeight="SemiBold" Foreground="{StaticResource MutedBrush}"/>
+                    <TextBlock x:Name="StudentsSub" FontSize="12" Foreground="{StaticResource MutedBrush}"/></StackPanel></Border>
+                <Border Style="{StaticResource Card}" Margin="8,0"><StackPanel>
+                    <TextBlock x:Name="ExamsN" Style="{StaticResource StatNumber}"/>
+                    <TextBlock Text="Exams" FontWeight="SemiBold" Foreground="{StaticResource MutedBrush}"/>
+                    <TextBlock x:Name="ExamsSub" FontSize="12" Foreground="{StaticResource MutedBrush}"/></StackPanel></Border>
+                <Border Style="{StaticResource Card}" Margin="8,0"><StackPanel>
+                    <TextBlock x:Name="DoneN" Style="{StaticResource StatNumber}"/>
+                    <TextBlock Text="Completed attempts" FontWeight="SemiBold" Foreground="{StaticResource MutedBrush}"/>
+                    <TextBlock x:Name="DoneSub" FontSize="12" Foreground="{StaticResource MutedBrush}"/></StackPanel></Border>
+                <Border Style="{StaticResource Card}" Margin="8,0,0,0"><StackPanel>
+                    <TextBlock x:Name="AvgN" Style="{StaticResource StatNumber}"/>
+                    <TextBlock Text="Average score" FontWeight="SemiBold" Foreground="{StaticResource MutedBrush}"/>
+                    <TextBlock Text="across submitted exams" FontSize="12" Foreground="{StaticResource MutedBrush}"/></StackPanel></Border>
+            </UniformGrid>
+
+            <Grid Margin="0,16,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Recent submissions" Style="{StaticResource H2}" Margin="0,0,0,8"/>
+                    <DataGrid x:Name="RecentGrid" Height="330">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="STUDENT" Binding="{Binding Student}" Width="*"/>
+                            <DataGridTextColumn Header="EXAM" Binding="{Binding Exam}" Width="*"/>
+                            <DataGridTextColumn Header="SCORE" Binding="{Binding Score}" Width="Auto"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="Newest students" Style="{StaticResource H2}" Margin="0,0,0,8"/>
+                    <DataGrid x:Name="NewGrid" Height="330">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="NAME" Binding="{Binding Name}" Width="*"/>
+                            <DataGridTextColumn Header="STUDENT ID" Binding="{Binding StudentId}" Width="Auto"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

@@ -1,0 +1,24 @@
+<UserControl x:Class="ExamBox.Admin.AccountView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel>
+        <TextBlock Text="My account" Style="{StaticResource H1}"/>
+        <TextBlock x:Name="Who" Style="{StaticResource Muted}" Margin="0,2,0,20"/>
+        <Border Style="{StaticResource Card}" MaxWidth="460" HorizontalAlignment="Left">
+            <StackPanel>
+                <TextBlock Text="Change password" Style="{StaticResource H2}"/>
+                <TextBlock Text="Current password" Style="{StaticResource FieldLabel}"/>
+                <PasswordBox x:Name="Current"/>
+                <TextBlock Text="New password" Style="{StaticResource FieldLabel}"/>
+                <PasswordBox x:Name="New"/>
+                <TextBlock Text="Confirm new password" Style="{StaticResource FieldLabel}"/>
+                <PasswordBox x:Name="Confirm"/>
+                <TextBlock x:Name="ErrorText" Style="{StaticResource ErrorText}" Visibility="Collapsed"/>
+                <Button Content="Update password" Style="{StaticResource PrimaryButton}" Click="Save_Click" Margin="0,18,0,0" HorizontalAlignment="Left"/>
+            </StackPanel>
+        </Border>
+        <TextBlock Style="{StaticResource Muted}" Margin="0,18,0,0" MaxWidth="460" HorizontalAlignment="Left"
+                   Text="Your data lives in a database file on this computer. Back it up by copying the folder shown below."/>
+        <TextBox x:Name="DataPath" IsReadOnly="True" Margin="0,8,0,0" MaxWidth="460" HorizontalAlignment="Stretch"/>
+    </StackPanel>
+</UserControl>

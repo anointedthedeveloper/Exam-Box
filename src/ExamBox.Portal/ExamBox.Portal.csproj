@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+  </PropertyGroup>
+  <ItemGroup>
+    <Using Include="Microsoft.AspNetCore.Http" />
+  </ItemGroup>
+  <PropertyGroup>
+    <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="..\ExamBox.Core\ExamBox.Core.csproj" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="8.0.*" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- CSS/JS/logo ship inside the assembly so the portal works from a single-file exe. -->
+    <EmbeddedResource Include="Assets\**\*" />
+  </ItemGroup>
+</Project>

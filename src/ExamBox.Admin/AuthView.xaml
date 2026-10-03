@@ -1,0 +1,49 @@
+<UserControl x:Class="ExamBox.Admin.AuthView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1.1*"/>
+            <ColumnDefinition Width="1*" MinWidth="460"/>
+        </Grid.ColumnDefinitions>
+        <Border Grid.Column="0" Background="{StaticResource HeroBrush}" Padding="60">
+            <StackPanel VerticalAlignment="Center">
+                <Border Background="White" CornerRadius="26" Width="140" Height="140" Padding="6" HorizontalAlignment="Left">
+                    <Image Source="/Assets/logo.png"/>
+                </Border>
+                <TextBlock Text="ExamBox" Foreground="White" FontSize="42" FontWeight="ExtraBold" Margin="0,20,0,4"/>
+                <TextBlock Text="Run exams, manage students and grade results — all in one box." Foreground="#DBE6FF" FontSize="17" TextWrapping="Wrap" MaxWidth="420"/>
+                <TextBlock Text="• Timed multiple-choice exams with instant grading" Foreground="#CFDCFF" Margin="0,22,0,0"/>
+                <TextBlock Text="• Students sit exams from any browser on your network" Foreground="#CFDCFF" Margin="0,6,0,0"/>
+                <TextBlock Text="• Everything stays on this computer" Foreground="#CFDCFF" Margin="0,6,0,0"/>
+            </StackPanel>
+        </Border>
+        <Border Grid.Column="1" Background="{StaticResource BgBrush}">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" VerticalAlignment="Center">
+                <Border Style="{StaticResource Card}" Width="400" Margin="20" Padding="28">
+                    <StackPanel>
+                        <TextBlock x:Name="Heading" Style="{StaticResource H1}" FontSize="22"/>
+                        <TextBlock x:Name="SubHeading" Style="{StaticResource Muted}" Margin="0,4,0,0"/>
+                        <StackPanel x:Name="NamePanel" Visibility="Collapsed">
+                            <TextBlock Text="Full name" Style="{StaticResource FieldLabel}"/>
+                            <TextBox x:Name="FullName"/>
+                            <TextBlock Text="Email (optional)" Style="{StaticResource FieldLabel}"/>
+                            <TextBox x:Name="Email"/>
+                        </StackPanel>
+                        <TextBlock Text="Username" Style="{StaticResource FieldLabel}"/>
+                        <TextBox x:Name="Username"/>
+                        <TextBlock Text="Password" Style="{StaticResource FieldLabel}"/>
+                        <PasswordBox x:Name="Password"/>
+                        <StackPanel x:Name="ConfirmPanel" Visibility="Collapsed">
+                            <TextBlock Text="Confirm password" Style="{StaticResource FieldLabel}"/>
+                            <PasswordBox x:Name="Confirm"/>
+                            <TextBlock Text="At least 8 characters, with letters and numbers." Style="{StaticResource Muted}" FontSize="12" Margin="0,6,0,0"/>
+                        </StackPanel>
+                        <TextBlock x:Name="ErrorText" Style="{StaticResource ErrorText}" Visibility="Collapsed"/>
+                        <Button x:Name="Submit" Style="{StaticResource PrimaryButton}" IsDefault="True" Click="Submit_Click" Margin="0,20,0,0" Padding="16,11"/>
+                    </StackPanel>
+                </Border>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</UserControl>

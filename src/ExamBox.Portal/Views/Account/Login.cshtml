@@ -1,0 +1,18 @@
+@model LoginVm
+@{ ViewData["Title"] = "Sign in"; }
+<h2>Student sign in</h2>
+<p class="muted">Use the student ID your administrator gave you.</p>
+<partial name="_Flash" />
+<form method="post" asp-action="Login">
+    <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+    <input type="hidden" asp-for="ReturnUrl" />
+    <label asp-for="Identifier">Student ID or email</label>
+    <input asp-for="Identifier" autocomplete="username" autofocus />
+    <span asp-validation-for="Identifier" class="field-validation-error"></span>
+    <label asp-for="Password">Password</label>
+    <input asp-for="Password" autocomplete="current-password" />
+    <span asp-validation-for="Password" class="field-validation-error"></span>
+    <label class="check"><input type="checkbox" asp-for="RememberMe" /> Keep me signed in</label>
+    <button class="btn block">Sign in</button>
+</form>
+<p class="muted small" style="margin-top:16px">Your account is created by your administrator. Forgot your password? Ask them to reset it.</p>
