@@ -50,3 +50,22 @@ window.addEventListener('pageshow', function () {   // coming back via the Back 
   document.getElementById('overlay') && document.getElementById('overlay').classList.remove('show');
   document.querySelectorAll('.is-loading').forEach(function (b) { b.classList.remove('is-loading'); });
 });
+
+// Staggered entrance for card grids.
+document.querySelectorAll('.stats>*,.exam-grid>*').forEach(function (el, i) { el.style.animationDelay = (i % 9) * 70 + 'ms'; });
+
+// Score ring on the result page: fill and count up.
+if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  document.querySelectorAll('.ring').forEach(function (r) {
+    var target = parseFloat(getComputedStyle(r).getPropertyValue('--p')) || 0, inner = r.firstElementChild, t0 = null;
+    function step(ts) {
+      t0 = t0 || ts;
+      var k = Math.min(1, (ts - t0) / 1300), e = 1 - Math.pow(1 - k, 3);
+      r.style.setProperty('--p', (target * e).toFixed(2));
+      if (inner) inner.textContent = (Math.round(target * e * 10) / 10) + '%';
+      if (k < 1) requestAnimationFrame(step);
+    }
+    r.style.setProperty('--p', '0');
+    requestAnimationFrame(step);
+  });
+}

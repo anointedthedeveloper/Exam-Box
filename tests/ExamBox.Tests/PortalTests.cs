@@ -92,4 +92,23 @@ public class PortalTests
         t.Students.Update(stu.Student.Id, new StudentInput("Stu Dent", "S001", null, null, false));
         Assert.Contains("/account/login", (await c.Get("/portal")).Url);
     }
+
+    [Fact]
+    public async Task Sessions_end_when_the_portal_restarts()
+    {
+        using var t = new TempDb();
+        t.Auth.CreateAdmin("admin", "pw");
+        var stu = t.Students.Create(new StudentInput("Stu", "S9", null, null)).Value!;
+        t.Auth.ChangePassword(stu.Student.Id, stu.TempPassword, "pw2");
+        var port = FreePort();
+        var c = new Client($"http://127.0.0.1:{port}");
+        await using (var host = await PortalHost.StartAsync(t.Factory, port))
+        {
+            var login = await c.Post("/account/login", new() { ["Identifier"] = "S9", ["Password"] = "pw2" }, "/account/login");
+            Assert.EndsWith("/portal", login.Url);
+            Assert.EndsWith("/portal", (await c.Get("/portal")).Url);
+        }
+        await using (var host2 = await PortalHost.StartAsync(t.Factory, port))
+            Assert.Contains("/account/login", (await c.Get("/portal")).Url);   // same cookie, new run: must sign in again
+    }
 }

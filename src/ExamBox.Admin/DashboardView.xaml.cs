@@ -10,6 +10,8 @@ public partial class DashboardView : UserControl
     public sealed record RecentRow(string Student, string Exam, string Score);
     public sealed record NewRow(string Name, string StudentId);
 
+    private bool _animated;
+
     public DashboardView()
     {
         InitializeComponent();
@@ -22,16 +24,21 @@ public partial class DashboardView : UserControl
         Greeting.Text = $"Welcome back, {App.CurrentUser?.Username}";
         DateText.Text = DateTime.Now.ToString("dddd, d MMMM yyyy");
         var d = App.Dashboard.Get();
-        StudentsN.Text = d.Students.ToString();
+        Anim.CountUp(StudentsN, d.Students);
         StudentsSub.Text = $"{d.ActiveStudents} active";
-        ExamsN.Text = d.Exams.ToString();
+        Anim.CountUp(ExamsN, d.Exams);
         ExamsSub.Text = $"{d.PublishedExams} published";
-        DoneN.Text = d.Completed.ToString();
+        Anim.CountUp(DoneN, d.Completed);
         DoneSub.Text = $"{d.Attempts - d.Completed} in progress";
-        AvgN.Text = d.Completed == 0 ? "—" : $"{d.AvgPercent}%";
+        if (d.Completed == 0) AvgN.Text = "—"; else Anim.CountUp(AvgN, d.AvgPercent, 1, "%");
         RecentGrid.ItemsSource = d.Recent.Select(a => new RecentRow(a.Student!.FullName, a.Exam!.Title, $"{a.Percent}%")).ToList();
         NewGrid.ItemsSource = d.NewStudents.Select(s => new NewRow(s.FullName, s.Username)).ToList();
         RenderPortal();
+        if (!_animated)
+        {
+            _animated = true;
+            Anim.Stagger(new FrameworkElement[] { HeroBanner, PortalBanner, Stat0, Stat1, Stat2, Stat3, Lists });
+        }
     }
 
     private void RenderPortal()

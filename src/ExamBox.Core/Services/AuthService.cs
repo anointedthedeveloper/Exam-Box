@@ -48,7 +48,7 @@ public sealed class AuthService(DbFactory factory)
         // that an account exists on the other.
         var generic = $"Invalid {who} or password.";
         using var db = factory.Create();
-        var user = db.Users.FirstOrDefault(u => u.Username == id || u.Email == id);
+        var user = db.Users.FirstOrDefault(u => u.Username == id);
 
         if (user != null && user.Role == role && user.LockoutEnd > DateTime.UtcNow)
         {

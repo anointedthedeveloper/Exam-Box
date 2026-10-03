@@ -38,6 +38,7 @@ public sealed class PortalHost : IAsyncDisposable
         builder.WebHost.ConfigureKestrel(k => k.ListenAnyIP(port));
 
         builder.Services.AddSingleton(db);
+        builder.Services.AddSingleton(PortalBoot.New());
         builder.Services.AddScoped<AuthService>();
         builder.Services.AddDbContext<AppDb>(o => o.UseSqlite(db.ConnectionString));
         builder.Services.AddControllersWithViews(o => o.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()))
@@ -53,14 +54,16 @@ public sealed class PortalHost : IAsyncDisposable
                 o.Cookie.Name = "exambox.auth";
                 o.Cookie.HttpOnly = true;
                 o.Cookie.SameSite = SameSiteMode.Lax;
-                o.ExpireTimeSpan = TimeSpan.FromHours(8);
+                o.ExpireTimeSpan = TimeSpan.FromHours(2);
                 o.SlidingExpiration = true;
                 // Reject cookies of users who were deactivated or deleted after signing in.
                 o.Events.OnValidatePrincipal = async ctx =>
                 {
                     var id = ctx.Principal?.GetUserId();
                     var ctxDb = ctx.HttpContext.RequestServices.GetRequiredService<AppDb>();
-                    var ok = id != null && await ctxDb.Users.AsNoTracking().AnyAsync(u => u.Id == id && u.IsActive);
+                    var boot = ctx.HttpContext.RequestServices.GetRequiredService<PortalBoot>().Id;
+                    // Sign-ins do not survive closing/restarting ExamBox, whether or not the student signed out.
+                    var ok = ctx.Principal?.FindFirst("boot")?.Value == boot && id != null && await ctxDb.Users.AsNoTracking().AnyAsync(u => u.Id == id && u.IsActive);
                     if (!ok) { ctx.RejectPrincipal(); await ctx.HttpContext.SignOutAsync(); }
                 };
             });

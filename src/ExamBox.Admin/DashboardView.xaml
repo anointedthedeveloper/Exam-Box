@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel>
-            <Border Background="{StaticResource HeroBrush}" CornerRadius="18" Padding="32,26" ClipToBounds="True" Effect="{StaticResource SoftShadow}">
+            <Border x:Name="HeroBanner" Background="{StaticResource HeroBrush}" CornerRadius="18" Padding="32,26" ClipToBounds="True" Effect="{StaticResource SoftShadow}">
                 <Grid>
                     <Ellipse Width="360" Height="360" Fill="White" Opacity="0.07" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-190,-90,0"/>
                     <Ellipse Width="220" Height="220" Fill="White" Opacity="0.05" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="260,0,0,-130"/>
@@ -24,25 +24,25 @@
             <Border x:Name="PortalBanner" Style="{StaticResource Card}" Margin="0,18,0,0" Padding="14,10"/>
 
             <UniformGrid Rows="1" Margin="0,16,0,0">
-                <Border Style="{StaticResource Card}" Margin="0,0,8,0"><DockPanel><Border DockPanel.Dock="Right" Width="42" Height="42" CornerRadius="11" Background="{StaticResource BlueLightBrush}" VerticalAlignment="Top"><TextBlock Text="&#xE716;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="{StaticResource BlueBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel>
+                <Border x:Name="Stat0" Style="{StaticResource Card}" Margin="0,0,8,0"><DockPanel><Border DockPanel.Dock="Right" Width="42" Height="42" CornerRadius="11" Background="{StaticResource BlueLightBrush}" VerticalAlignment="Top"><TextBlock Text="&#xE716;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="{StaticResource BlueBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel>
                     <TextBlock x:Name="StudentsN" Style="{StaticResource StatNumber}"/>
                     <TextBlock Text="Students" FontWeight="SemiBold" Foreground="{StaticResource MutedBrush}"/>
                     <TextBlock x:Name="StudentsSub" FontSize="12" Foreground="{StaticResource MutedBrush}"/></StackPanel></DockPanel></Border>
-                <Border Style="{StaticResource Card}" Margin="8,0"><DockPanel><Border DockPanel.Dock="Right" Width="42" Height="42" CornerRadius="11" Background="{StaticResource BlueLightBrush}" VerticalAlignment="Top"><TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="{StaticResource BlueBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel>
+                <Border x:Name="Stat1" Style="{StaticResource Card}" Margin="8,0"><DockPanel><Border DockPanel.Dock="Right" Width="42" Height="42" CornerRadius="11" Background="{StaticResource BlueLightBrush}" VerticalAlignment="Top"><TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="{StaticResource BlueBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel>
                     <TextBlock x:Name="ExamsN" Style="{StaticResource StatNumber}"/>
                     <TextBlock Text="Exams" FontWeight="SemiBold" Foreground="{StaticResource MutedBrush}"/>
                     <TextBlock x:Name="ExamsSub" FontSize="12" Foreground="{StaticResource MutedBrush}"/></StackPanel></DockPanel></Border>
-                <Border Style="{StaticResource Card}" Margin="8,0"><DockPanel><Border DockPanel.Dock="Right" Width="42" Height="42" CornerRadius="11" Background="{StaticResource BlueLightBrush}" VerticalAlignment="Top"><TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="{StaticResource BlueBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel>
+                <Border x:Name="Stat2" Style="{StaticResource Card}" Margin="8,0"><DockPanel><Border DockPanel.Dock="Right" Width="42" Height="42" CornerRadius="11" Background="{StaticResource BlueLightBrush}" VerticalAlignment="Top"><TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="{StaticResource BlueBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel>
                     <TextBlock x:Name="DoneN" Style="{StaticResource StatNumber}"/>
                     <TextBlock Text="Completed attempts" FontWeight="SemiBold" Foreground="{StaticResource MutedBrush}"/>
                     <TextBlock x:Name="DoneSub" FontSize="12" Foreground="{StaticResource MutedBrush}"/></StackPanel></DockPanel></Border>
-                <Border Style="{StaticResource Card}" Margin="8,0,0,0"><DockPanel><Border DockPanel.Dock="Right" Width="42" Height="42" CornerRadius="11" Background="{StaticResource BlueLightBrush}" VerticalAlignment="Top"><TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="{StaticResource BlueBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel>
+                <Border x:Name="Stat3" Style="{StaticResource Card}" Margin="8,0,0,0"><DockPanel><Border DockPanel.Dock="Right" Width="42" Height="42" CornerRadius="11" Background="{StaticResource BlueLightBrush}" VerticalAlignment="Top"><TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="{StaticResource BlueBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel>
                     <TextBlock x:Name="AvgN" Style="{StaticResource StatNumber}"/>
                     <TextBlock Text="Average score" FontWeight="SemiBold" Foreground="{StaticResource MutedBrush}"/>
                     <TextBlock Text="across submitted exams" FontSize="12" Foreground="{StaticResource MutedBrush}"/></StackPanel></DockPanel></Border>
             </UniformGrid>
 
-            <Grid Margin="0,16,0,0">
+            <Grid x:Name="Lists" Margin="0,16,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="16"/>

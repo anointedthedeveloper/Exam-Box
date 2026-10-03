@@ -4,7 +4,7 @@ namespace ExamBox.Models;
 
 public class LoginVm
 {
-    [Required(ErrorMessage = "Enter your student ID or email.")] public string Identifier { get; set; } = "";
+    [Required(ErrorMessage = "Enter your student ID.")] public string Identifier { get; set; } = "";
     [Required(ErrorMessage = "Enter your password.")] public string Password { get; set; } = "";
     public string? ReturnUrl { get; set; }
 }

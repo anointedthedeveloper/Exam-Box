@@ -30,6 +30,9 @@ public class CoreTests
         Assert.Null(wrongPortal.User);
         Assert.Equal("Invalid ID or password.", wrongPortal.Error);     // does not reveal that this is an admin account
         Assert.Equal(t.Auth.Authenticate("nobody", "x", UserRole.Student).Error, wrongPortal.Error);
+        t.Students.Create(new StudentInput("Em", "E1", "em@x.com", null));
+        var byEmail = t.Auth.Authenticate("em@x.com", "whatever", UserRole.Student);       // sign-in is by ID only
+        Assert.Null(byEmail.User); Assert.Equal("Invalid ID or password.", byEmail.Error);
 
         for (var i = 0; i < 9; i++) Assert.Null(t.Auth.Authenticate("admin", "wrong", UserRole.Admin).User);
         Assert.NotNull(t.Auth.Authenticate("admin", "Passw0rdAdmin", UserRole.Admin).User);   // 9 failures: still allowed, and success resets the count

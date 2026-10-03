@@ -16,24 +16,26 @@
             </BeginStoryboard>
         </EventTrigger>
     </UserControl.Triggers>
-    <Grid>
+    <Grid Background="{StaticResource AdminHeroBrush}" ClipToBounds="True">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1.15*"/>
             <ColumnDefinition Width="1*" MinWidth="480"/>
         </Grid.ColumnDefinitions>
-
-        <!-- admin brand panel: deeper navy than the student site, with its own illustrations -->
-        <Border Grid.Column="0" Background="{StaticResource AdminHeroBrush}" ClipToBounds="True">
-            <Grid>
-                <Ellipse Width="640" Height="640" Fill="White" Opacity="0.05" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-230,-240,0">
+                <Ellipse Grid.ColumnSpan="2" Width="620" Height="620" Fill="{StaticResource OrbGlowBrush}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,-40,0" IsHitTestVisible="False"/>
+                <Ellipse Grid.ColumnSpan="2" Width="420" Height="420" Fill="{StaticResource OrbPurpleBrush}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,260,-140" IsHitTestVisible="False"/>
+                <Ellipse Grid.ColumnSpan="2" IsHitTestVisible="False" Width="640" Height="640" Fill="White" Opacity="0.05" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-230,-240,0">
                     <Ellipse.RenderTransform><TranslateTransform x:Name="BlobMove1"/></Ellipse.RenderTransform>
                 </Ellipse>
-                <Ellipse Width="460" Height="460" Fill="#3D8BFF" Opacity="0.10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-180,0,0,-190">
+                <Ellipse Grid.ColumnSpan="2" IsHitTestVisible="False" Width="460" Height="460" Fill="#3D8BFF" Opacity="0.10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-180,0,0,-190">
                     <Ellipse.RenderTransform><TranslateTransform x:Name="BlobMove2"/></Ellipse.RenderTransform>
                 </Ellipse>
-                <Ellipse Width="150" Height="150" Fill="White" Opacity="0.05" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="260,300,0,0">
+                <Ellipse Grid.ColumnSpan="2" IsHitTestVisible="False" Width="150" Height="150" Fill="White" Opacity="0.05" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="260,300,0,0">
                     <Ellipse.RenderTransform><TranslateTransform x:Name="BlobMove3"/></Ellipse.RenderTransform>
                 </Ellipse>
+
+        <!-- admin brand panel: deeper navy than the student site, with its own illustrations -->
+        <Border Grid.Column="0" ClipToBounds="True">
+            <Grid>
 
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="48,38,0,0">
                     <Border Style="{StaticResource LogoBadge}" Width="56" Height="56" CornerRadius="16">
@@ -83,12 +85,10 @@
         </Border>
 
         <!-- form -->
-        <Border Grid.Column="1" Background="{StaticResource BgBrush}" ClipToBounds="True">
+        <Border Grid.Column="1">
             <Grid>
-                <Ellipse Width="520" Height="520" Fill="{StaticResource BlueLightBrush}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-260,-200,0" Opacity="0.8"/>
-                <Ellipse Width="320" Height="320" Fill="{StaticResource BlueLightBrush}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-140,0,0,-150" Opacity="0.6"/>
                 <ScrollViewer VerticalScrollBarVisibility="Auto" VerticalAlignment="Center">
-                    <Border Background="White" CornerRadius="20" Width="440" Margin="24" Padding="36,32,36,22" Effect="{StaticResource SoftShadow}" BorderBrush="{StaticResource LineBrush}" BorderThickness="1">
+                    <Border Background="{StaticResource FrostBrush}" CornerRadius="22" Width="440" Margin="24" Padding="36,32,36,22" Effect="{StaticResource SoftShadow}" BorderBrush="#B3FFFFFF" BorderThickness="1.5">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <Border Width="58" Height="58" CornerRadius="16" Background="{StaticResource BlueLightBrush}" Padding="9">
@@ -138,7 +138,7 @@
                             </StackPanel>
 
                             <Grid Margin="2,18,0,0">
-                                <CheckBox x:Name="RememberMe" Content="Remember me" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                <CheckBox x:Name="RememberMe" Content="Remember my username" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                                 <TextBlock x:Name="ForgotLink" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="13">
                                     <Hyperlink Click="Forgot_Click" TextDecorations="None" Foreground="{StaticResource BlueBrush}" FontWeight="SemiBold">Forgot password?</Hyperlink>
                                 </TextBlock>

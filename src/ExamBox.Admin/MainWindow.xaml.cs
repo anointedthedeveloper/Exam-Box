@@ -30,6 +30,7 @@ public partial class MainWindow : Window
     {
         App.CurrentUser = user;
         UserName.Text = user.FullName;
+        UserInitial.Text = string.IsNullOrEmpty(user.FullName) ? "?" : user.FullName[..1].ToUpperInvariant();
         AuthHost.Content = null;
         AuthHost.Visibility = Visibility.Collapsed;
         Shell.Visibility = Visibility.Visible;
@@ -74,9 +75,6 @@ public partial class MainWindow : Window
     private void SignOut_Click(object sender, RoutedEventArgs e)
     {
         App.CurrentUser = null;
-        // Signing out ends "remember me" auto-sign-in (the username stays pre-filled).
-        App.Settings.RememberedSecret = null;
-        App.Settings.Save();
         ShowAuth();
     }
 }

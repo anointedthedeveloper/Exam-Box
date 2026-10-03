@@ -165,3 +165,43 @@ body.navigating .topbar{opacity:1;animation:topbar 1.6s ease-out forwards}
 .ring>div{width:98px;height:98px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:1.7rem;font-weight:800}
 .sidebar nav a{display:flex;align-items:center;gap:10px}
 tbody tr{transition:background .12s}
+
+/* ===================== v3: glassmorphism + motion ===================== */
+/* app pages: soft gradient with drifting colour orbs behind frosted cards */
+body:not(.auth-body){background:linear-gradient(135deg,#e7efff,#f3eeff 55%,#e3f4ff) fixed}
+body:not(.auth-body)::before,body:not(.auth-body)::after{content:"";position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(70px);opacity:.5}
+body:not(.auth-body)::before{width:540px;height:540px;background:#6ea8ff;top:-170px;right:-130px;animation:orb 18s ease-in-out infinite}
+body:not(.auth-body)::after{width:480px;height:480px;background:#b794ff;bottom:-180px;left:260px;animation:orb 23s ease-in-out infinite reverse}
+@keyframes orb{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-70px,55px) scale(1.08)}}
+.shell{position:relative;z-index:1}
+.card,.stat,.exam-card,.q,.callout{background:rgba(255,255,255,.66);-webkit-backdrop-filter:blur(16px) saturate(160%);backdrop-filter:blur(16px) saturate(160%);border:1px solid rgba(255,255,255,.85);box-shadow:0 8px 32px rgba(31,60,140,.10),inset 0 1px 0 rgba(255,255,255,.9)}
+.callout{background:rgba(255,244,224,.75);border-color:rgba(243,217,164,.9)}
+th{background:rgba(250,251,254,.55)}tbody tr:hover{background:rgba(232,240,255,.55)}
+.opt{background:rgba(255,255,255,.55)}
+.sidebar{box-shadow:6px 0 30px rgba(6,48,154,.18)}
+.sidebar nav a{transition:background .15s,transform .15s}.sidebar nav a:hover{transform:translateX(3px)}
+
+/* sign-in: frosted card floating over moving colour */
+.auth-card-wrap{position:relative;overflow:hidden;background:linear-gradient(135deg,#d6e6ff,#e9e0ff 55%,#d3f1ff)}
+.auth-card-wrap::before,.auth-card-wrap::after{content:"";position:absolute;border-radius:50%;filter:blur(50px);pointer-events:none}
+.auth-card-wrap::before{width:380px;height:380px;background:#5b94ff;opacity:.55;top:6%;left:8%;animation:orb 15s ease-in-out infinite}
+.auth-card-wrap::after{width:340px;height:340px;background:#b08cff;opacity:.5;bottom:4%;right:6%;animation:orb 19s ease-in-out infinite reverse}
+.auth-card{position:relative;z-index:1;background:rgba(255,255,255,.58);-webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);border:1px solid rgba(255,255,255,.85);box-shadow:0 30px 80px rgba(6,48,154,.22),inset 0 1px 0 rgba(255,255,255,.95)}
+.auth-card input[type=text],.auth-card input[type=password]{background:rgba(255,255,255,.78)}
+
+/* motion */
+.hero-banner{background-size:220% 220%;animation:fadeup .5s both,gradshift 14s ease infinite}
+@keyframes gradshift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.hero-banner img{animation:bob 4.5s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.stats>*,.exam-grid>*,.hero-banner,.card,.q{animation-name:fadeup;animation-duration:.55s;animation-fill-mode:both;animation-timing-function:cubic-bezier(.2,.7,.2,1)}
+.hero-banner{animation:fadeup .55s both,gradshift 14s ease infinite}
+.exam-card:hover{box-shadow:0 18px 44px rgba(11,95,240,.22),inset 0 1px 0 rgba(255,255,255,.9)}
+.btn{position:relative;overflow:hidden}
+.btn:not(.ghost):not(.danger)::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.38) 50%,transparent 70%);transform:translateX(-130%);pointer-events:none}
+.btn:not(.ghost):not(.danger):hover::after{transform:translateX(130%);transition:transform .7s ease}
+.timer.low{animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 4px 14px rgba(217,48,37,.35)}50%{box-shadow:0 4px 30px rgba(217,48,37,.7)}}
+.chip{-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.3)}
+.badge{transition:transform .15s}.badge:hover{transform:scale(1.06)}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}

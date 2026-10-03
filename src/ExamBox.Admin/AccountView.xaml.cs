@@ -18,7 +18,6 @@ public partial class AccountView : UserControl
         if (New.Password != Confirm.Password) { ErrorText.Text = "Passwords do not match."; ErrorBox.Visibility = Visibility.Visible; return; }
         var r = App.Auth.ChangePassword(App.CurrentUser!.Id, Current.Password, New.Password);
         if (!r.Ok) { ErrorText.Text = r.Error; ErrorBox.Visibility = Visibility.Visible; return; }
-        if (App.Settings.RememberedSecret != null) { App.Settings.RememberedSecret = Secrets.Protect(New.Password); App.Settings.Save(); }
         Current.Clear(); New.Clear(); Confirm.Clear();
         Ui.Info("Password updated.");
     }

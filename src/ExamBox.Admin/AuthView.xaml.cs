@@ -11,7 +11,7 @@ namespace ExamBox.Admin;
 public partial class AuthView : UserControl
 {
     private readonly bool _setup;
-    private bool _autoTried, _busy;
+    private bool _busy;
     private int _slide;
     private readonly DispatcherTimer _slideTimer = new() { Interval = TimeSpan.FromSeconds(4.5) };
     private readonly DispatcherTimer _lockTimer = new() { Interval = TimeSpan.FromSeconds(1) };
@@ -43,7 +43,6 @@ public partial class AuthView : UserControl
         {
             App.Portal.Changed += RenderPortal;
             _slideTimer.Start();
-            if (!_setup && !_autoTried && TryAutoSignIn()) return;
             (string.IsNullOrEmpty(Username.Text) ? Username : (Control)Password).Focus();
         };
         Unloaded += (_, _) => { _slideTimer.Stop(); _lockTimer.Stop(); App.Portal.Changed -= RenderPortal; };
@@ -194,25 +193,6 @@ public partial class AuthView : UserControl
         ShowError($"Too many failed attempts. Locked — try again in {(int)left.TotalMinutes}:{left.Seconds:00}.");
     }
 
-    // ---------- remember me ----------
-    /// <summary>"Remember me": sign in automatically with the DPAPI-protected password from the last launch.</summary>
-    private bool TryAutoSignIn()
-    {
-        _autoTried = true;
-        var user = App.Settings.RememberedUser;
-        var pw = Secrets.Unprotect(App.Settings.RememberedSecret);
-        if (user == null || pw == null) return false;
-        var r = App.Auth.Authenticate(user, pw, UserRole.Admin);
-        if (r.User == null)
-        {
-            App.Settings.RememberedSecret = null;   // stored credentials no longer work: fall back to the form
-            App.Settings.Save();
-            return false;
-        }
-        MainWindow.Current.SignedIn(r.User);
-        return true;
-    }
-
     private async void Submit_Click(object sender, RoutedEventArgs e)
     {
         if (_busy || _lockedUntil != null) return;
@@ -254,16 +234,8 @@ public partial class AuthView : UserControl
             return;
         }
 
-        if (RememberMe.IsChecked == true)
-        {
-            App.Settings.RememberedUser = r.User.Username;
-            App.Settings.RememberedSecret = Secrets.Protect(password);
-        }
-        else
-        {
-            App.Settings.RememberedUser = null;
-            App.Settings.RememberedSecret = null;
-        }
+        // "Remember me" only remembers the username; the password is never stored.
+        App.Settings.RememberedUser = RememberMe.IsChecked == true ? r.User.Username : null;
         App.Settings.Save();
         MainWindow.Current.SignedIn(r.User);
     }

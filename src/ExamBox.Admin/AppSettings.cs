@@ -7,10 +7,9 @@ public sealed class AppSettings
 {
     public int Port { get; set; } = 5109;
     public bool AutoStartServer { get; set; } = true;
-    /// <summary>"Remember me": last administrator username (pre-filled on the sign-in screen).</summary>
+    /// <summary>"Remember me": the last administrator username, pre-filled on the sign-in screen.
+    /// No password is ever stored: the administrator signs in again every time the app starts.</summary>
     public string? RememberedUser { get; set; }
-    /// <summary>Password encrypted with Windows DPAPI for the current Windows user only; enables automatic sign-in.</summary>
-    public string? RememberedSecret { get; set; }
 
     private string _path = "";
 

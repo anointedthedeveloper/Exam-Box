@@ -8,7 +8,7 @@
 <form method="post" asp-action="Login" data-loading="Signing you in…">
     <div asp-validation-summary="ModelOnly" class="form-alert"></div>
     <input type="hidden" asp-for="ReturnUrl" />
-    <label asp-for="Identifier">Student ID or email</label>
+    <label asp-for="Identifier">Student ID</label>
     <div class="input-wrap">
         <svg class="ic" viewBox="0 0 24 24"><path d="M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9zm0 2c-4 0-8 2-8 5v1h16v-1c0-3-4-5-8-5z"/></svg>
         <input asp-for="Identifier" autocomplete="username" autofocus placeholder="e.g. S001" />
