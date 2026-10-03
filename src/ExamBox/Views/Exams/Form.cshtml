@@ -1,0 +1,18 @@
+@model Exam
+@{ var edit = Model.Id != 0; ViewData["Title"] = edit ? "Edit exam" : "New exam"; }
+<div class="page-head"><div><div class="crumbs"><a asp-action="Index">Exams</a> /</div><h1>@ViewData["Title"]</h1></div></div>
+<div class="card form-card">
+    <form method="post">
+        <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+        <label asp-for="Title">Title</label><input asp-for="Title" autofocus />
+        <span asp-validation-for="Title" class="field-validation-error"></span>
+        <label asp-for="Description">Instructions / description</label><textarea asp-for="Description"></textarea>
+        <span asp-validation-for="Description" class="field-validation-error"></span>
+        <div class="row2">
+            <div><label asp-for="DurationMinutes">Duration (minutes)</label><input asp-for="DurationMinutes" type="number" min="1" max="600" /><span asp-validation-for="DurationMinutes" class="field-validation-error"></span></div>
+            <div><label asp-for="PassMarkPercent">Pass mark (%)</label><input asp-for="PassMarkPercent" type="number" min="1" max="100" /><span asp-validation-for="PassMarkPercent" class="field-validation-error"></span></div>
+        </div>
+        <div class="form-actions"><button class="btn">@(edit ? "Save changes" : "Create exam")</button>
+            <a class="btn ghost" asp-action="@(edit ? "Details" : "Index")" asp-route-id="@(edit ? Model.Id : null)">Cancel</a></div>
+    </form>
+</div>

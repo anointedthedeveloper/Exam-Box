@@ -1,0 +1,20 @@
+@model StudentFormVm
+@{ var edit = Model.Id != null; ViewData["Title"] = edit ? "Edit student" : "Add student"; }
+<div class="page-head"><div><div class="crumbs"><a asp-action="Index">Students</a> /</div><h1>@ViewData["Title"]</h1>
+@if (!edit) { <p>A temporary password is generated for the student. They'll set their own at first login.</p> }</div></div>
+<div class="card form-card">
+    <form method="post">
+        <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+        <label asp-for="FullName">Full name</label><input asp-for="FullName" autofocus />
+        <span asp-validation-for="FullName" class="field-validation-error"></span>
+        <div class="row2">
+            <div><label asp-for="Username">Student ID</label><input asp-for="Username" /><span asp-validation-for="Username" class="field-validation-error"></span></div>
+            <div><label asp-for="Department">Department / class</label><input asp-for="Department" /><span asp-validation-for="Department" class="field-validation-error"></span></div>
+        </div>
+        <label asp-for="Email">Email (optional)</label><input asp-for="Email" type="email" />
+        <span asp-validation-for="Email" class="field-validation-error"></span>
+        <label class="check"><input type="checkbox" asp-for="IsActive" /> Account active (can sign in)</label>
+        <div class="form-actions"><button class="btn">@(edit ? "Save changes" : "Create student")</button>
+            <a class="btn ghost" asp-action="@(edit ? "Details" : "Index")" asp-route-id="@Model.Id">Cancel</a></div>
+    </form>
+</div>

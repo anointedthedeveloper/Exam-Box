@@ -1,0 +1,36 @@
+@model TakeExamVm
+@{ ViewData["Title"] = Model.Exam.Title; var n = 0; }
+<div class="timer" id="timer"><div><strong>@Model.Exam.Title</strong><div class="small">Answer all questions, then submit.</div></div><div class="t" id="clock">--:--</div></div>
+<form method="post" id="examForm" asp-action="Submit" asp-route-id="@Model.Attempt.Id">
+@foreach (var q in Model.Questions)
+{
+    n++;
+    <div class="q"><div class="q-h"><span>@n. @q.Text</span><span class="badge">@q.Marks mark@(q.Marks == 1 ? "" : "s")</span></div>
+    @foreach (var o in q.Options())
+    {
+        <label class="opt"><input type="radio" name="q_@q.Id" value="@o.Key" /><span><strong>@o.Key.</strong> @o.Text</span></label>
+    }</div>
+}
+<div class="actions"><button class="btn" id="submitBtn">Submit exam</button></div>
+</form>
+@section Scripts {
+<script>
+(function () {
+  var left = @Model.SecondsLeft, form = document.getElementById('examForm'), clock = document.getElementById('clock'),
+      timer = document.getElementById('timer'), end = Date.now() + left * 1000, sent = false;
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function tick() {
+    var s = Math.max(0, Math.round((end - Date.now()) / 1000));
+    clock.textContent = pad(Math.floor(s / 60)) + ':' + pad(s % 60);
+    timer.classList.toggle('low', s <= 60);
+    if (s <= 0 && !sent) { sent = true; form.submit(); }
+  }
+  tick(); setInterval(tick, 500);
+  form.addEventListener('submit', function (e) {
+    if (!sent && !confirm('Submit your exam now? You cannot change answers afterwards.')) { e.preventDefault(); return; }
+    sent = true;
+  });
+  window.addEventListener('beforeunload', function (e) { if (!sent) { e.preventDefault(); e.returnValue = ''; } });
+})();
+</script>
+}

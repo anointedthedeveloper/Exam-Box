@@ -1,0 +1,33 @@
+@model User
+@{ ViewData["Title"] = Model.FullName; var temp = TempData["TempPassword"] as string; var tempFor = TempData["TempFor"] as string; }
+<div class="page-head"><div><div class="crumbs"><a asp-action="Index">Students</a> /</div><h1>@Model.FullName</h1>
+<p><span class="mono">@Model.Username</span> · <span class="badge @(Model.IsActive ? "ok" : "err")">@(Model.IsActive ? "Active" : "Inactive")</span></p></div>
+<div class="actions">
+    <a class="btn ghost" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+    <form asp-action="ResetPassword" asp-route-id="@Model.Id" method="post" data-confirm="Reset this student's password? Their current password stops working."><button class="btn ghost">Reset password</button></form>
+    <form asp-action="Delete" asp-route-id="@Model.Id" method="post" data-confirm="Delete this student and all of their exam records? This cannot be undone."><button class="btn danger">Delete</button></form>
+</div></div>
+@if (temp != null)
+{
+    <div class="callout"><strong>Temporary password for @tempFor</strong> — shown only once. Give it to the student; they must change it at first sign-in.<br />
+    <p style="margin:10px 0 0"><code>@temp</code><button type="button" class="btn ghost sm" data-copy="@temp">Copy</button></p></div>
+}
+<div class="grid2">
+    <div class="card"><h2>Details</h2>
+        <p class="muted small" style="margin:0">Email</p><p style="margin:0 0 10px">@(Model.Email ?? "—")</p>
+        <p class="muted small" style="margin:0">Department / class</p><p style="margin:0 0 10px">@(Model.Department ?? "—")</p>
+        <p class="muted small" style="margin:0">Created</p><p style="margin:0 0 10px"><time datetime="@Model.CreatedAt.ToString("o")"></time></p>
+        <p class="muted small" style="margin:0">Last login</p><p style="margin:0">@if (Model.LastLoginAt != null) { <time datetime="@Model.LastLoginAt.Value.ToString("o")"></time> } else { <text>Never</text> }</p></div>
+    <div class="card flush"><div class="card-h"><h2 style="margin:0">Exam history</h2></div>
+    @if (Model.Attempts.Count == 0) { <div class="empty">No exams taken yet.</div> }
+    else
+    {
+        <table><thead><tr><th>Exam</th><th>Result</th></tr></thead><tbody>
+        @foreach (var a in Model.Attempts.OrderByDescending(a => a.StartedAt))
+        {
+            <tr><td>@a.Exam!.Title</td><td>@if (a.SubmittedAt == null) { <span class="badge warn">In progress</span> } else { <span class="badge @(a.Percent >= a.Exam.PassMarkPercent ? "ok" : "err")">@a.Score/@a.TotalMarks (@a.Percent%)</span> }</td></tr>
+        }
+        </tbody></table>
+    }
+    </div>
+</div>

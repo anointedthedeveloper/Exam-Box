@@ -1,0 +1,22 @@
+@model List<User>
+@{ ViewData["Title"] = "Students"; }
+<div class="page-head"><div><h1>Students</h1><p>@Model.Count student(s)</p></div>
+<div class="actions">
+    <form method="get" class="search"><input type="text" name="q" value="@ViewBag.Q" placeholder="Search name, ID, email" /><button class="btn ghost">Search</button></form>
+    <a class="btn" asp-action="Create">Add student</a></div></div>
+<div class="card flush">
+@if (Model.Count == 0) { <div class="empty">@(string.IsNullOrEmpty(ViewBag.Q as string) ? "No students yet. Add your first student to get started." : "No students match your search.")</div> }
+else
+{
+    <table><thead><tr><th>Name</th><th>Student ID</th><th>Department</th><th>Status</th><th>Last login</th><th></th></tr></thead><tbody>
+    @foreach (var s in Model)
+    {
+        <tr><td><a asp-action="Details" asp-route-id="@s.Id"><strong>@s.FullName</strong></a><div class="muted small">@s.Email</div></td>
+            <td class="mono">@s.Username</td><td>@(s.Department ?? "—")</td>
+            <td><span class="badge @(s.IsActive ? "ok" : "err")">@(s.IsActive ? "Active" : "Inactive")</span></td>
+            <td class="muted small">@if (s.LastLoginAt != null) { <time datetime="@s.LastLoginAt.Value.ToString("o")"></time> } else { <text>Never</text> }</td>
+            <td class="right"><a class="btn ghost sm" asp-action="Edit" asp-route-id="@s.Id">Edit</a></td></tr>
+    }
+    </tbody></table>
+}
+</div>

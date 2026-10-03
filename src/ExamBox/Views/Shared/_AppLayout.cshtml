@@ -1,0 +1,47 @@
+@{
+    var isAdmin = User.IsInRole("Admin");
+    var ctrl = (ViewContext.RouteData.Values["controller"] as string ?? "").ToLowerInvariant();
+    string Active(params string[] c) => c.Contains(ctrl) ? "active" : "";
+    var initials = string.Concat((User.Identity?.Name ?? "?").Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(p => char.ToUpper(p[0])));
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] · ExamBox</title>
+    <link rel="icon" href="~/img/logo.webp" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+<div class="shell">
+    <aside class="sidebar">
+        <a class="brand" href="/"><img src="~/img/logo.webp" alt="" /><span>ExamBox</span></a>
+        <nav>
+            @if (isAdmin)
+            {
+                <a class="@Active("dashboard")" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+                <a class="@Active("students")" asp-controller="Students" asp-action="Index">Students</a>
+                <a class="@Active("exams")" asp-controller="Exams" asp-action="Index">Exams</a>
+            }
+            else
+            {
+                <a class="@Active("portal")" asp-controller="Portal" asp-action="Index">My dashboard</a>
+            }
+            <a class="@Active("account")" asp-controller="Account" asp-action="ChangePassword">Change password</a>
+        </nav>
+        <div class="me">
+            <div class="avatar">@initials</div>
+            <div class="me-info"><strong>@User.Identity!.Name</strong><small>@(isAdmin ? "Administrator" : "Student")</small></div>
+            <form asp-controller="Account" asp-action="Logout" method="post"><button class="link-btn" title="Sign out">Sign out</button></form>
+        </div>
+    </aside>
+    <main class="content">
+        <partial name="_Flash" />
+        @RenderBody()
+    </main>
+</div>
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

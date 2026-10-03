@@ -1,0 +1,30 @@
+@model LoginVm
+@{ ViewData["Title"] = "Sign in"; var staff = Model.Portal == "staff"; }
+<h2>Welcome back</h2>
+<p class="muted">Sign in to your ExamBox account.</p>
+<partial name="_Flash" />
+<div class="tabs" id="tabs">
+    <button type="button" data-p="student" class="@(staff ? "" : "on")">Student</button>
+    <button type="button" data-p="staff" class="@(staff ? "on" : "")">Staff</button>
+</div>
+<form method="post" asp-action="Login">
+    <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+    <input type="hidden" asp-for="Portal" />
+    <input type="hidden" asp-for="ReturnUrl" />
+    <label asp-for="Identifier" id="idLabel">@(staff ? "Username or email" : "Student ID or email")</label>
+    <input asp-for="Identifier" autocomplete="username" autofocus />
+    <span asp-validation-for="Identifier" class="field-validation-error"></span>
+    <label asp-for="Password">Password</label>
+    <input asp-for="Password" autocomplete="current-password" />
+    <span asp-validation-for="Password" class="field-validation-error"></span>
+    <label class="check"><input type="checkbox" asp-for="RememberMe" /> Keep me signed in</label>
+    <button class="btn block">Sign in</button>
+</form>
+<p class="muted small" style="margin-top:16px">Students: your account is created by your administrator. Forgot your password? Ask them to reset it.</p>
+<script>
+  var tabs = document.querySelectorAll('#tabs button'), portal = document.getElementById('Portal'), lbl = document.getElementById('idLabel');
+  tabs.forEach(function (b) { b.addEventListener('click', function () {
+    tabs.forEach(function (x) { x.classList.toggle('on', x === b); });
+    portal.value = b.dataset.p; lbl.textContent = b.dataset.p === 'staff' ? 'Username or email' : 'Student ID or email';
+  }); });
+</script>

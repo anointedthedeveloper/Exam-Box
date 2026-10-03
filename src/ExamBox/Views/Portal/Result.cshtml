@@ -1,0 +1,21 @@
+@model Attempt
+@{ ViewData["Title"] = Model.Exam!.Title + " result"; var pass = Model.Percent >= Model.Exam.PassMarkPercent; var n = 0;
+   var picked = Model.Answers.ToDictionary(a => a.QuestionId, a => a.Selected); }
+<div class="page-head"><div><div class="crumbs"><a asp-action="Index">My dashboard</a> /</div><h1>@Model.Exam.Title</h1></div></div>
+<div class="card" style="display:flex;gap:28px;align-items:center;flex-wrap:wrap">
+    <div><div class="score">@Model.Percent%</div><div class="muted">@Model.Score of @Model.TotalMarks marks</div></div>
+    <div style="flex:1;min-width:220px"><span class="badge @(pass ? "ok" : "err")">@(pass ? "Passed" : "Not passed")</span>
+        <p class="muted" style="margin:6px 0 10px">Pass mark: @Model.Exam.PassMarkPercent%</p><div class="progress"><i style="width:@Model.Percent.ToString(System.Globalization.CultureInfo.InvariantCulture)%"></i></div></div>
+</div>
+<h2>Review</h2>
+@foreach (var q in Model.Exam.Questions.OrderBy(q => q.Id))
+{
+    n++; picked.TryGetValue(q.Id, out var sel);
+    <div class="q"><div class="q-h"><span>@n. @q.Text</span><span class="badge @(sel == q.CorrectOption ? "ok" : "err")">@(sel == q.CorrectOption ? q.Marks : 0)/@q.Marks</span></div>
+    @foreach (var o in q.Options())
+    {
+        var cls = o.Key == q.CorrectOption ? "right" : (o.Key == sel ? "wrong" : "");
+        <div class="opt @cls"><span><strong>@o.Key.</strong> @o.Text @(o.Key == sel ? "(your answer)" : "") @(o.Key == q.CorrectOption ? "✓" : "")</span></div>
+    }
+    @if (sel == null) { <div class="muted small">Not answered.</div> }</div>
+}

@@ -1,0 +1,21 @@
+@model Question
+@{ var exam = (Exam)ViewBag.Exam; var edit = Model.Id != 0; ViewData["Title"] = edit ? "Edit question" : "Add question"; }
+<div class="page-head"><div><div class="crumbs"><a asp-action="Index">Exams</a> / <a asp-action="Details" asp-route-id="@exam.Id">@exam.Title</a> /</div><h1>@ViewData["Title"]</h1></div></div>
+<div class="card form-card">
+    <form method="post">
+        <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+        <label asp-for="Text">Question</label><textarea asp-for="Text" autofocus></textarea>
+        <span asp-validation-for="Text" class="field-validation-error"></span>
+        <label asp-for="OptionA">Option A</label><input asp-for="OptionA" /><span asp-validation-for="OptionA" class="field-validation-error"></span>
+        <label asp-for="OptionB">Option B</label><input asp-for="OptionB" /><span asp-validation-for="OptionB" class="field-validation-error"></span>
+        <label asp-for="OptionC">Option C (optional)</label><input asp-for="OptionC" /><span asp-validation-for="OptionC" class="field-validation-error"></span>
+        <label asp-for="OptionD">Option D (optional)</label><input asp-for="OptionD" /><span asp-validation-for="OptionD" class="field-validation-error"></span>
+        <div class="row2">
+            <div><label asp-for="CorrectOption">Correct answer</label>
+                <select asp-for="CorrectOption"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select>
+                <span asp-validation-for="CorrectOption" class="field-validation-error"></span></div>
+            <div><label asp-for="Marks">Marks</label><input asp-for="Marks" type="number" min="1" max="100" /><span asp-validation-for="Marks" class="field-validation-error"></span></div>
+        </div>
+        <div class="form-actions"><button class="btn">@(edit ? "Save question" : "Add question")</button><a class="btn ghost" asp-action="Details" asp-route-id="@exam.Id">Cancel</a></div>
+    </form>
+</div>
