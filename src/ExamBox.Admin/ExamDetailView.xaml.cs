@@ -34,8 +34,11 @@ public partial class ExamDetailView : UserControl
 
         TitleText.Text = e.Title;
         var total = e.Questions.Sum(q => q.Marks);
-        Meta.Text = $"{e.DurationMinutes} min · pass mark {e.PassMarkPercent}% · {e.Questions.Count} question(s), {total} mark(s) · {(e.IsPublished ? "Published" : "Draft")}";
+        Meta.Text = $"{e.DurationMinutes} min · pass mark {e.PassMarkPercent}% · {e.Questions.Count} question(s), {total} mark(s)";
         PublishBtn.Content = e.IsPublished ? "Unpublish" : "Publish";
+        StateText.Text = e.IsPublished ? "Published" : "Draft";
+        StateText.Foreground = (System.Windows.Media.Brush)FindResource(e.IsPublished ? "OkBrush" : "WarnBrush");
+        StatePill.Background = (System.Windows.Media.Brush)FindResource(e.IsPublished ? "OkBgBrush" : "WarnBgBrush");
         LockedNote.Visibility = _locked ? Visibility.Visible : Visibility.Collapsed;
         AddQ.IsEnabled = !_locked;
 

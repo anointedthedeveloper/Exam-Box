@@ -134,6 +134,7 @@ public partial class AuthView : UserControl
 
     private void ShowPw_Changed(object sender, RoutedEventArgs e)
     {
+        ShowPw.ToolTip = ShowPw.IsChecked == true ? "Hide password" : "Show password";
         if (ShowPw.IsChecked == true)
         {
             PasswordVisible.Text = Password.Password;

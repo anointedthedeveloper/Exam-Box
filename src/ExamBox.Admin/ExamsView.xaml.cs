@@ -29,6 +29,7 @@ public partial class ExamsView : UserControl
         Table.ItemsSource = list.Select(e => new ExamRow(e.Id, e.Title, e.Questions.Count, $"{e.DurationMinutes} min", $"{e.PassMarkPercent}%",
             e.Attempts.Count(a => a.SubmittedAt != null), e.IsPublished ? "Published" : "Draft")).ToList();
         Empty.Visibility = list.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        Count.Text = list.Count == 0 ? "Create exams, add questions and publish them to students." : $"{list.Count} exam(s) · {list.Count(e => e.IsPublished)} published";
         OpenBtn.IsEnabled = Selected != null;
     }
 

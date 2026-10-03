@@ -5,30 +5,43 @@
         <DockPanel DockPanel.Dock="Top" LastChildFill="False" Margin="0,0,0,16">
             <StackPanel DockPanel.Dock="Left">
                 <TextBlock Text="Exams" Style="{StaticResource H1}"/>
-                <TextBlock Text="Create exams, add questions and publish them to students." Style="{StaticResource Muted}"/>
+                <TextBlock x:Name="Count" Text="Create exams, add questions and publish them to students." Style="{StaticResource Muted}"/>
             </StackPanel>
-            <Button DockPanel.Dock="Right" Content="New exam" Style="{StaticResource PrimaryButton}" Click="New_Click" Margin="0" VerticalAlignment="Center"/>
+            <Button DockPanel.Dock="Right" Style="{StaticResource PrimaryButton}" Click="New_Click" Margin="0" VerticalAlignment="Center"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE710;" FontFamily="Segoe MDL2 Assets" FontSize="14" Margin="0,0,8,0" VerticalAlignment="Center"/><TextBlock Text="New exam" VerticalAlignment="Center"/></StackPanel></Button>
         </DockPanel>
-        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,14,0,0">
-            <Button x:Name="OpenBtn" Content="Open" Style="{StaticResource GhostButton}" Click="Open_Click"/>
-            <TextBlock Text="Select an exam to manage its questions and see results (or double-click it)." Style="{StaticResource Muted}" VerticalAlignment="Center" Margin="8,0,0,0"/>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,14">
+            <Button x:Name="OpenBtn" Style="{StaticResource GhostButton}" Click="Open_Click"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE8A7;" FontFamily="Segoe MDL2 Assets" FontSize="14" Margin="0,0,8,0" VerticalAlignment="Center"/><TextBlock Text="Open exam" VerticalAlignment="Center"/></StackPanel></Button>
+            <TextBlock Text="Select an exam to manage its questions and see results · double-click a row to open" Style="{StaticResource Muted}" FontSize="12" VerticalAlignment="Center" Margin="6,0,0,0"/>
         </StackPanel>
-        <Grid>
-            <DataGrid x:Name="Table" SelectionChanged="Grid_SelectionChanged" MouseDoubleClick="Grid_DoubleClick">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="TITLE" Binding="{Binding Title}" Width="2*"/>
-                    <DataGridTextColumn Header="QUESTIONS" Binding="{Binding Questions}" Width="100"/>
-                    <DataGridTextColumn Header="DURATION" Binding="{Binding Duration}" Width="100"/>
-                    <DataGridTextColumn Header="PASS MARK" Binding="{Binding PassMark}" Width="100"/>
-                    <DataGridTextColumn Header="SUBMISSIONS" Binding="{Binding Submissions}" Width="120"/>
-                    <DataGridTextColumn Header="STATUS" Binding="{Binding Status}" Width="110"/>
-                </DataGrid.Columns>
-            </DataGrid>
-            <StackPanel x:Name="Empty" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed">
-                <Border Style="{StaticResource IllustrationPanel}" Width="320" HorizontalAlignment="Center"><Image Source="/Assets/admin-exams.png"/></Border>
-                <TextBlock x:Name="EmptyTitle" Text="No exams yet" Style="{StaticResource H2}" HorizontalAlignment="Center" Margin="0,18,0,4"/>
-                <TextBlock x:Name="EmptyText" Text="Click “New exam” to create one." Style="{StaticResource Muted}" TextAlignment="Center" HorizontalAlignment="Center"/>
-            </StackPanel>
-        </Grid>
+        <Border Style="{StaticResource GridCard}">
+            <Grid>
+                <DataGrid x:Name="Table" RowHeight="56" SelectionChanged="Grid_SelectionChanged" MouseDoubleClick="Grid_DoubleClick">
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn Header="EXAM" Width="2.4*" SortMemberPath="Title">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Border Width="36" Height="36" CornerRadius="10" Background="{StaticResource BlueLightBrush}">
+                                            <TextBlock Text="&#xE8A5;" Style="{StaticResource IconGlyph}" FontSize="16"/>
+                                        </Border>
+                                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="12,0,0,0" TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="QUESTIONS" Binding="{Binding Questions}" Width="100"/>
+                        <DataGridTextColumn Header="DURATION" Binding="{Binding Duration}" Width="100"/>
+                        <DataGridTextColumn Header="PASS MARK" Binding="{Binding PassMark}" Width="100"/>
+                        <DataGridTextColumn Header="SUBMISSIONS" Binding="{Binding Submissions}" Width="120"/>
+                        <DataGridTemplateColumn Header="STATUS" Width="120" SortMemberPath="Status" CellTemplate="{StaticResource StatusCell}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+                <StackPanel x:Name="Empty" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed">
+                    <Border Style="{StaticResource IllustrationPanel}" Width="320" HorizontalAlignment="Center"><Image Source="/Assets/admin-exams.png"/></Border>
+                    <TextBlock x:Name="EmptyTitle" Text="No exams yet" Style="{StaticResource H2}" HorizontalAlignment="Center" Margin="0,18,0,4"/>
+                    <TextBlock x:Name="EmptyText" Text="Click “New exam” to create one." Style="{StaticResource Muted}" TextAlignment="Center" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </Border>
     </DockPanel>
 </UserControl>

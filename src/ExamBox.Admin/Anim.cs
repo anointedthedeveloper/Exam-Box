@@ -29,6 +29,16 @@ internal static class Anim
         foreach (var e in items) FadeUp(e, i++ * stepMs);
     }
 
+    /// <summary>Card lifts slightly while the pointer is over it.</summary>
+    public static void HoverLift(FrameworkElement e, double lift = 4)
+    {
+        var tt = e.RenderTransform as TranslateTransform;
+        if (tt == null || tt.IsFrozen) { tt = new TranslateTransform(); e.RenderTransform = tt; }
+        var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
+        e.MouseEnter += (_, _) => tt.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(-lift, TimeSpan.FromMilliseconds(160)) { EasingFunction = ease });
+        e.MouseLeave += (_, _) => tt.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(0, TimeSpan.FromMilliseconds(240)) { EasingFunction = ease });
+    }
+
     /// <summary>Counts a number up with an ease-out.</summary>
     public static void CountUp(TextBlock target, double value, int decimals = 0, string suffix = "", int durationMs = 900)
     {

@@ -58,6 +58,7 @@ public partial class App : Application
             return;
         }
 
+        var clock = System.Diagnostics.Stopwatch.StartNew();
         var splash = new SplashWindow();
         splash.Show();
         try
@@ -87,9 +88,12 @@ public partial class App : Application
         }
 
         splash.SetStatus("Almost ready…");
+        // Let the intro play for a moment so it reads as a start-up, not a flash.
+        var remaining = 1300 - (int)clock.ElapsedMilliseconds;
+        if (remaining > 0) await Task.Delay(remaining);
         MainWindow = new MainWindow();   // becomes the main window before the splash closes, so closing it can't end the app
         MainWindow.Show();
-        splash.Close();
+        await splash.FadeOutAsync();     // splash is Topmost: it dissolves to reveal the app
     }
 
     protected override void OnExit(ExitEventArgs e)

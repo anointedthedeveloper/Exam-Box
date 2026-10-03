@@ -6,7 +6,12 @@
             <Button Content="← All exams" Style="{StaticResource GhostButton}" Click="Back_Click" HorizontalAlignment="Left" Padding="10,5" Margin="0,0,0,10"/>
             <DockPanel LastChildFill="False">
                 <StackPanel DockPanel.Dock="Left">
-                    <TextBlock x:Name="TitleText" Style="{StaticResource H1}"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock x:Name="TitleText" Style="{StaticResource H1}"/>
+                        <Border x:Name="StatePill" CornerRadius="10" Padding="11,3" Margin="14,0,0,0" VerticalAlignment="Center">
+                            <TextBlock x:Name="StateText" FontSize="12" FontWeight="Bold"/>
+                        </Border>
+                    </StackPanel>
                     <TextBlock x:Name="Meta" Style="{StaticResource Muted}"/>
                 </StackPanel>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
@@ -28,7 +33,8 @@
                         <Button x:Name="EditQ" Content="Edit" Style="{StaticResource GhostButton}" Click="EditQ_Click"/>
                         <Button x:Name="DelQ" Content="Delete" Style="{StaticResource DangerButton}" Click="DelQ_Click"/>
                     </StackPanel>
-                    <DataGrid x:Name="QTable" SelectionChanged="QTable_SelectionChanged">
+                    <Border Style="{StaticResource GridCard}">
+                        <DataGrid x:Name="QTable" SelectionChanged="QTable_SelectionChanged">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="#" Binding="{Binding No}" Width="50"/>
                             <DataGridTextColumn Header="QUESTION" Binding="{Binding Text}" Width="3*"/>
@@ -37,6 +43,7 @@
                             <DataGridTextColumn Header="MARKS" Binding="{Binding Marks}" Width="80"/>
                         </DataGrid.Columns>
                     </DataGrid>
+                    </Border>
                 </DockPanel>
             </TabItem>
             <TabItem Header="Results" Padding="14,8" FontSize="14">
@@ -45,16 +52,18 @@
                         <Button DockPanel.Dock="Left" Content="Export CSV" Style="{StaticResource GhostButton}" Click="Export_Click"/>
                         <TextBlock x:Name="ResultSummary" DockPanel.Dock="Left" Style="{StaticResource Muted}" VerticalAlignment="Center" Margin="8,0,0,0"/>
                     </DockPanel>
-                    <DataGrid x:Name="RTable">
+                    <Border Style="{StaticResource GridCard}">
+                        <DataGrid x:Name="RTable">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="STUDENT" Binding="{Binding Student}" Width="2*"/>
                             <DataGridTextColumn Header="STUDENT ID" Binding="{Binding StudentId}" Width="*"/>
                             <DataGridTextColumn Header="SCORE" Binding="{Binding Score}" Width="100"/>
                             <DataGridTextColumn Header="PERCENT" Binding="{Binding Percent}" Width="100"/>
-                            <DataGridTextColumn Header="OUTCOME" Binding="{Binding Outcome}" Width="100"/>
+                            <DataGridTemplateColumn Header="OUTCOME" Width="110" SortMemberPath="Outcome" CellTemplate="{StaticResource OutcomeCell}"/>
                             <DataGridTextColumn Header="SUBMITTED" Binding="{Binding Submitted}" Width="170"/>
                         </DataGrid.Columns>
                     </DataGrid>
+                    </Border>
                 </DockPanel>
             </TabItem>
         </TabControl>

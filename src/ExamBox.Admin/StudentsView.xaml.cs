@@ -5,7 +5,7 @@ namespace ExamBox.Admin;
 
 public partial class StudentsView : UserControl
 {
-    public sealed record StudentRow(int Id, string Name, string StudentId, string Department, string Email, string Status, int Exams, string LastLogin);
+    public sealed record StudentRow(int Id, string Name, string Initial, string StudentId, string Department, string Email, string Status, int Exams, string LastLogin);
 
     private readonly bool _openAdd;
 
@@ -27,7 +27,7 @@ public partial class StudentsView : UserControl
     {
         var q = Search.Text;
         var list = App.Students.List(q);
-        Table.ItemsSource = list.Select(s => new StudentRow(s.Id, s.FullName, s.Username, s.Department ?? "—", s.Email ?? "—",
+        Table.ItemsSource = list.Select(s => new StudentRow(s.Id, s.FullName, s.FullName.Length > 0 ? s.FullName[..1].ToUpperInvariant() : "?", s.Username, s.Department ?? "—", s.Email ?? "—",
             s.IsActive ? "Active" : "Inactive", s.Attempts.Count(a => a.SubmittedAt != null), Ui.Local(s.LastLoginAt, "Never"))).ToList();
         Count.Text = $"{list.Count} student(s)";
         Empty.Visibility = list.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
@@ -39,7 +39,11 @@ public partial class StudentsView : UserControl
     private void UpdateButtons() =>
         EditBtn.IsEnabled = HistoryBtn.IsEnabled = ResetBtn.IsEnabled = DeleteBtn.IsEnabled = Selected != null;
 
-    private void Search_Changed(object sender, TextChangedEventArgs e) { if (IsLoaded) Reload(); }
+    private void Search_Changed(object sender, TextChangedEventArgs e)
+    {
+        SearchHint.Visibility = Search.Text.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
+        if (IsLoaded) Reload();
+    }
     private void Grid_SelectionChanged(object sender, SelectionChangedEventArgs e) => UpdateButtons();
     private void Grid_DoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e) { if (Selected != null) Edit_Click(sender, e); }
 
