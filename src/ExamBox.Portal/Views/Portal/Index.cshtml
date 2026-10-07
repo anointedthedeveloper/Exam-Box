@@ -1,4 +1,4 @@
-@model StudentDashboardVm
+@model StudentHome
 @{ ViewData["Title"] = "My dashboard"; var done = Model.Completed; }
 <div class="hero-banner">
     <div>
@@ -8,7 +8,7 @@
             <span class="chip">ID: @Model.Student.Username</span>
             <span class="chip">@Model.Available.Count available</span>
             <span class="chip">@done.Count completed</span>
-            @if (done.Count > 0) { <span class="chip">Average @(Math.Round(done.Average(a => a.Percent), 1))%</span> }
+            @if (done.Any(a => !a.PendingMarking)) { <span class="chip">Average @(Math.Round(done.Where(a => !a.PendingMarking).Average(a => a.Percent), 1))%</span> }
         </div>
     </div>
     <img src="/assets/img/slide-exams.svg" alt="" />
@@ -26,7 +26,7 @@
     <div class="card empty-card">
         <div class="illus"><img src="/assets/img/slide-timer.svg" alt="" /></div>
         <strong>Nothing to take right now</strong>
-        <div>New exams will show up here when your administrator publishes them.</div>
+        <div>New exams will show up here when your teacher launches them.</div>
     </div>
 }
 else
@@ -37,10 +37,26 @@ else
         <div class="exam-card">
             <h3>@e.Title</h3>
             <p>@(string.IsNullOrWhiteSpace(e.Description) ? "No extra instructions." : e.Description)</p>
-            <div class="meta"><span>@e.Questions.Count questions</span><span>@e.DurationMinutes min</span><span>Pass @e.PassMarkPercent%</span></div>
+            <div class="meta"><span>@e.Questions.Count(q => q.Marks > 0) questions</span>@if (e.Questions.Any(q => q.Type == QuestionType.Theory)) { <span>@(e.Questions.Any(q => q.Type == QuestionType.Objective) ? "Objective + theory" : "Theory")</span> }<span>@e.DurationMinutes min</span><span>Pass @e.PassMarkPercent%</span></div>
             <form asp-action="Start" asp-route-examId="@e.Id" method="post" data-confirm="Start '@e.Title'? The timer starts immediately and you only get one attempt." data-loading="Starting your exam…" data-overlay>
                 <button class="btn block"><span class="lbl">Start exam</span><span class="spinner sm"></span></button>
             </form>
+        </div>
+    }
+    </div>
+}
+
+@if (Model.Upcoming.Count > 0)
+{
+    <h2 class="section-title">Coming up</h2>
+    <div class="exam-grid">
+    @foreach (var e in Model.Upcoming)
+    {
+        <div class="exam-card soon">
+            <h3>@e.Title</h3>
+            <p>@(string.IsNullOrWhiteSpace(e.Description) ? "Not open yet." : e.Description)</p>
+            <div class="meta"><span>@e.DurationMinutes min</span><span>Opens <time datetime="@e.OpensAt!.Value.ToString("o")"></time></span></div>
+            <button class="btn block" disabled>Not open yet</button>
         </div>
     }
     </div>
@@ -55,7 +71,9 @@ else
     @foreach (var a in done)
     {
         var pass = a.Percent >= a.Exam!.PassMarkPercent;
-        <tr><td><strong>@a.Exam.Title</strong></td><td>@a.Score / @a.TotalMarks (@a.Percent%)</td><td><span class="badge @(pass ? "ok" : "err")">@(pass ? "Pass" : "Fail")</span></td>
+        <tr><td><strong>@a.Exam.Title</strong></td>
+            @if (a.PendingMarking) { <td class="muted">Objective @a.ObjectiveScore so far</td><td><span class="badge warn">Awaiting marking</span></td> }
+            else { <td>@a.Score / @a.TotalMarks (@a.Percent%)</td><td><span class="badge @(pass ? "ok" : "err")">@(pass ? "Pass" : "Fail")</span></td> }
             <td class="muted small"><time datetime="@a.SubmittedAt!.Value.ToString("o")"></time></td>
             <td class="right"><a class="btn ghost sm" asp-action="Result" asp-route-id="@a.Id">Review</a></td></tr>
     }

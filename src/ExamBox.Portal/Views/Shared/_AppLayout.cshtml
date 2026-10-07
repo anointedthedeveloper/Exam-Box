@@ -15,24 +15,24 @@
 </head>
 <body>
 <div class="topbar"></div>
-<div class="shell">
-    <aside class="sidebar">
+<header class="nav-wrap">
+    <div class="nav-capsule">
         <a class="brand" href="/"><img src="/assets/img/logo.png" alt="" /><span>@Brand.Name</span></a>
         <nav>
-                <a class="@Active("portal")" asp-controller="Portal" asp-action="Index">My dashboard</a>
-            <a class="@Active("account")" asp-controller="Account" asp-action="ChangePassword">Change password</a>
+            <a class="@Active("portal")" asp-controller="Portal" asp-action="Index">My exams</a>
+            <a class="@Active("account")" asp-controller="Account" asp-action="ChangePassword">Password</a>
         </nav>
         <div class="me">
             <div class="avatar">@initials</div>
             <div class="me-info"><strong>@User.Identity!.Name</strong><small>Student</small></div>
-            <form asp-controller="Account" asp-action="Logout" method="post"><button class="link-btn" title="Sign out">Sign out</button></form>
+            <form asp-controller="Account" asp-action="Logout" method="post"><button class="signout" title="Sign out">Sign out</button></form>
         </div>
-    </aside>
-    <main class="content">
-        <partial name="_Flash" />
-        @RenderBody()
-    </main>
-</div>
+    </div>
+</header>
+<main class="content">
+    <partial name="_Flash" />
+    @RenderBody()
+</main>
 <div class="overlay" id="overlay"><div class="spinner lg"></div><p id="overlayMsg">Please wait…</p></div>
 <script src="/assets/js/site.js"></script>
 @await RenderSectionAsync("Scripts", required: false)

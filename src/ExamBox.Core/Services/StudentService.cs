@@ -61,6 +61,22 @@ public sealed class StudentService(DbFactory factory)
         return OpResult<CreatedStudent>.Success(new CreatedStudent(s, temp));
     }
 
+    /// <summary>Creates many students; rows that fail (duplicate ID, missing name ...) are skipped with the reason and a 1-based row index.</summary>
+    public StudentImportResult CreateMany(IReadOnlyList<ImportedStudent> rows, string? defaultClass = null)
+    {
+        var created = new List<CreatedStudent>(); var skipped = new List<ImportIssue>();
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        for (var n = 0; n < rows.Count; n++)
+        {
+            var r = rows[n];
+            if (!string.IsNullOrWhiteSpace(r.Username) && !seen.Add(r.Username.Trim()))
+            { skipped.Add(new ImportIssue(n + 1, $"{r.Username}: listed twice in the file.")); continue; }
+            var res = Create(new StudentInput(r.FullName, r.Username, r.Email, string.IsNullOrWhiteSpace(r.Department) ? defaultClass : r.Department));
+            if (res.Ok) created.Add(res.Value!); else skipped.Add(new ImportIssue(n + 1, $"{(string.IsNullOrWhiteSpace(r.Username) ? r.FullName : r.Username)}: {res.Error}"));
+        }
+        return new StudentImportResult(created, skipped);
+    }
+
     public OpResult Update(int id, StudentInput i)
     {
         var err = Check(i);
@@ -95,5 +111,99 @@ public sealed class StudentService(DbFactory factory)
         db.Users.Remove(s);
         db.SaveChanges();
         return OpResult.Success();
+    }
+}
+
+public sealed record ImportedStudent(string FullName, string Username, string? Email, string? Department);
+public sealed record StudentImportResult(List<CreatedStudent> Created, List<ImportIssue> Skipped);
+
+public static class StudentImporter
+{
+    public static byte[] BuildTemplate()
+    {
+        using var wb = new ClosedXML.Excel.XLWorkbook();
+        var ws = wb.AddWorksheet("Students");
+        string[] h = { "Student ID", "Full name", "Class", "Email" };
+        for (var i = 0; i < h.Length; i++)
+        {
+            var c = ws.Cell(1, i + 1);
+            c.Value = h[i]; c.Style.Font.Bold = true; c.Style.Font.FontColor = ClosedXML.Excel.XLColor.White;
+            c.Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.FromHtml("#1D4ED8");
+        }
+        ws.Column(1).Style.NumberFormat.Format = "@";
+        var how = wb.AddWorksheet("How to use");
+        how.Cell(1, 1).Value = "List one student per row on the \"Students\" sheet, starting directly under the headings.";
+        how.Cell(2, 1).Value = "Student ID and Full name are required. Class (for example SS1) and Email are optional.";
+        how.Cell(3, 1).Value = "Example: SS1/2025/001 | Ada Okafor | SS1";
+        how.Cell(4, 1).Value = "ExamBox creates a temporary password for each student; they choose their own at first sign-in.";
+        how.Column(1).Width = 110;
+        ws.Column(1).Width = 20; ws.Column(2).Width = 30; ws.Column(3).Width = 14; ws.Column(4).Width = 30;
+        using var ms = new MemoryStream();
+        wb.SaveAs(ms);
+        return ms.ToArray();
+    }
+
+    public static (List<ImportedStudent> Rows, List<ImportIssue> Issues) Parse(Stream xlsx)
+    {
+        var rows = new List<ImportedStudent>(); var issues = new List<ImportIssue>();
+        ClosedXML.Excel.XLWorkbook wb;
+        try { wb = new ClosedXML.Excel.XLWorkbook(xlsx); }
+        catch { issues.Add(new ImportIssue(0, "This is not a valid Excel (.xlsx) file.")); return (rows, issues); }
+        using (wb)
+        {
+            var ws = wb.Worksheets.First();
+            var used = ws.RangeUsed();
+            if (used == null) { issues.Add(new ImportIssue(0, "The sheet is empty.")); return (rows, issues); }
+            var map = new Dictionary<string, int>();
+            var hr = used.FirstRow().RowNumber();
+            for (var c = used.FirstColumn().ColumnNumber(); c <= used.LastColumn().ColumnNumber(); c++)
+            {
+                var k = new string(ws.Cell(hr, c).GetString().Where(char.IsLetterOrDigit).ToArray()).ToLowerInvariant();
+                var key = k switch
+                {
+                    "studentid" or "id" or "matric" or "matricno" or "matricnumber" or "admissionno" or "regno" or "username" => "id",
+                    "fullname" or "name" or "studentname" => "name",
+                    "class" or "department" or "dept" or "arm" or "level" => "class",
+                    "email" or "emailaddress" => "email",
+                    _ => null,
+                };
+                if (key != null && !map.ContainsKey(key)) map[key] = c;
+            }
+            if (!map.ContainsKey("id") || !map.ContainsKey("name"))
+            {
+                issues.Add(new ImportIssue(0, "Could not find the \"Student ID\" and \"Full name\" columns. Use the ExamBox student template."));
+                return (rows, issues);
+            }
+            string Get(int r, string k) => map.TryGetValue(k, out var c) ? ws.Cell(r, c).GetFormattedString().Trim() : "";
+            for (var r = hr + 1; r <= used.LastRow().RowNumber(); r++)
+            {
+                var id = Get(r, "id"); var name = Get(r, "name");
+                if (id.Length == 0 && name.Length == 0) continue;
+                rows.Add(new ImportedStudent(name, id, Get(r, "email"), Get(r, "class")));
+                // row numbers are kept on the issues produced at creation time via index
+            }
+        }
+        if (rows.Count == 0 && issues.Count == 0) issues.Add(new ImportIssue(0, "No students were found under the headings."));
+        return (rows, issues);
+    }
+
+    /// <summary>Excel sheet the teacher prints/cuts so each student gets their first password.</summary>
+    public static byte[] CredentialSheet(IEnumerable<CreatedStudent> created, string portalUrl)
+    {
+        using var wb = new ClosedXML.Excel.XLWorkbook();
+        var ws = wb.AddWorksheet("Logins");
+        string[] h = { "Student ID", "Full name", "Class", "Temporary password", "Portal" };
+        for (var i = 0; i < h.Length; i++) { ws.Cell(1, i + 1).Value = h[i]; ws.Cell(1, i + 1).Style.Font.Bold = true; }
+        var r = 2;
+        foreach (var c in created)
+        {
+            ws.Cell(r, 1).Value = c.Student.Username; ws.Cell(r, 2).Value = c.Student.FullName;
+            ws.Cell(r, 3).Value = c.Student.Department ?? ""; ws.Cell(r, 4).Value = c.TempPassword; ws.Cell(r, 5).Value = portalUrl;
+            r++;
+        }
+        ws.Columns().AdjustToContents();
+        using var ms = new MemoryStream();
+        wb.SaveAs(ms);
+        return ms.ToArray();
     }
 }

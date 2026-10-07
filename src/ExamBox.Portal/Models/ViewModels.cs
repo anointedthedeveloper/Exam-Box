@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using ExamBox.Services;
 
 namespace ExamBox.Models;
 
@@ -17,18 +18,26 @@ public class ChangePasswordVm
     public string ConfirmPassword { get; set; } = "";
 }
 
-public class StudentDashboardVm
-{
-    public User Student { get; set; } = null!;
-    public List<Exam> Available { get; set; } = new();
-    public List<Attempt> InProgress { get; set; } = new();
-    public List<Attempt> Completed { get; set; } = new();
-}
-
 public class TakeExamVm
 {
     public Attempt Attempt { get; set; } = null!;
     public Exam Exam { get; set; } = null!;
     public List<Question> Questions { get; set; } = new();
+    public Dictionary<int, Answer> Saved { get; set; } = new();
     public int SecondsLeft { get; set; }
+}
+
+public static class QLabel
+{
+    /// <summary>Display numbers: the teacher's own label when given, otherwise 1, 2, 3 ... counting only unlabelled questions.</summary>
+    public static Dictionary<int, string> Build(IEnumerable<Question> questions)
+    {
+        var map = new Dictionary<int, string>(); var n = 0;
+        foreach (var q in questions)
+            map[q.Id] = string.IsNullOrWhiteSpace(q.Number) ? (++n).ToString() : q.Number!.Trim();
+        return map;
+    }
+
+    /// <summary>A theory row with no marks is only reading material (e.g. a passage).</summary>
+    public static bool IsPassage(Question q) => q.Type == QuestionType.Theory && q.Marks == 0;
 }

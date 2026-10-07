@@ -265,3 +265,38 @@ th{background:rgba(250,251,254,.55)}tbody tr:hover{background:rgba(232,240,255,.
   .auth-logo{width:46px!important;height:46px!important}
 }
 @media (max-height:520px){.slides{display:none}}
+
+
+/* ===================== v6: floating capsule navbar + exam content ===================== */
+.shell{display:block}
+.nav-wrap{position:sticky;top:0;z-index:20;padding:14px 18px 0;display:flex;justify-content:center;pointer-events:none}
+.nav-capsule{pointer-events:auto;display:flex;align-items:center;gap:18px;max-width:1180px;width:100%;padding:8px 10px 8px 14px;border-radius:999px;
+  background:rgba(255,255,255,.66);border:1px solid rgba(255,255,255,.9);box-shadow:0 10px 36px rgba(31,60,140,.16),inset 0 1px 0 #fff;
+  -webkit-backdrop-filter:blur(20px) saturate(170%);backdrop-filter:blur(20px) saturate(170%)}
+.nav-capsule .brand{color:var(--blue-d);padding:0;font-size:1.1rem}
+.nav-capsule .brand img{width:36px;height:36px;padding:0;background:none;border-radius:10px}
+.nav-capsule nav{display:flex;gap:4px;flex:1;justify-content:center}
+.nav-capsule nav a{color:var(--mut);padding:8px 16px;border-radius:999px;font-weight:700;transition:background .2s,color .2s}
+.nav-capsule nav a:hover{background:rgba(11,95,240,.08);color:var(--blue-d);text-decoration:none}
+.nav-capsule nav a.active{background:linear-gradient(135deg,#0847b8,#0b5ff0);color:#fff;box-shadow:0 6px 16px rgba(11,95,240,.35)}
+.nav-capsule .me{border:0;padding:0;flex-wrap:nowrap}
+.nav-capsule .avatar{background:linear-gradient(135deg,#0b5ff0,#3d8bff);color:#fff}
+.nav-capsule .me-info small{color:var(--mut)}
+.signout{background:rgba(11,95,240,.08);border:0;color:var(--blue-d);font:inherit;font-weight:700;border-radius:999px;padding:8px 14px;cursor:pointer;transition:background .2s}
+.signout:hover{background:rgba(11,95,240,.16)}
+.content{margin:0 auto;padding:22px 18px 60px}
+.timer{top:84px}
+.q-img{display:block;max-width:100%;max-height:420px;margin:4px 0 14px;border-radius:12px;border:1px solid var(--line);background:#fff;object-fit:contain}
+textarea.theory{min-height:150px;line-height:1.55;background:rgba(255,255,255,.85)}
+.q.passage{background:rgba(232,240,255,.75);border-left:4px solid var(--blue)}
+.wc{min-height:1.2em;margin-top:4px}
+.saved{font-weight:700}.saved.ok{color:#bff0d3}.saved.bad{color:#ffd9a8}
+.typed{white-space:pre-wrap;background:rgba(255,255,255,.7);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.feedback{margin-top:10px;padding:10px 14px;border-radius:10px;background:var(--warnbg);border:1px solid #f3d9a4}
+.feedback.model{background:var(--okbg);border-color:#bfe5cf}
+.exam-card.soon{opacity:.85}.exam-card button[disabled]{opacity:.55;cursor:not-allowed;box-shadow:none}
+.await{width:110px;height:110px;border-radius:50%;background:var(--warnbg);display:grid;place-items:center;flex:none}
+.pulse{width:44px;height:44px;border-radius:50%;background:#e0a23c;animation:beat 1.6s ease-in-out infinite}
+@keyframes beat{0%,100%{transform:scale(.8);opacity:.7}50%{transform:scale(1.15);opacity:1}}
+.badge:hover{transform:none}
+@media(max-width:760px){.nav-capsule{border-radius:24px;flex-wrap:wrap;gap:8px}.nav-capsule nav{order:3;flex-basis:100%}.me-info{display:none}.timer{top:72px}}

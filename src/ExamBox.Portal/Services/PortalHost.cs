@@ -41,6 +41,7 @@ public sealed class PortalHost : IAsyncDisposable
         builder.Services.AddSingleton(PortalBoot.New());
         builder.Services.AddSingleton(PortalBrand.From(brand));
         builder.Services.AddScoped<AuthService>();
+        builder.Services.AddScoped<AttemptService>();
         builder.Services.AddDbContext<AppDb>(o => o.UseSqlite(db.ConnectionString));
         builder.Services.AddControllersWithViews(o => o.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()))
             .AddApplicationPart(asm);

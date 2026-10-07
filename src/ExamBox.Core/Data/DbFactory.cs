@@ -39,6 +39,6 @@ public sealed class DbFactory
     public void Initialize()
     {
         using var db = Create();
-        db.Database.EnsureCreated();
+        SchemaUpgrader.Run(db);
     }
 }

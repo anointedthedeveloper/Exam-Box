@@ -36,7 +36,7 @@ public sealed class ReportService(DbFactory factory)
     private List<Raw> LoadRaw(int? examId)
     {
         using var db = factory.Create();
-        var q = db.Attempts.AsNoTracking().Where(a => a.SubmittedAt != null);
+        var q = db.Attempts.AsNoTracking().Where(a => a.SubmittedAt != null && !a.PendingMarking);
         if (examId != null) q = q.Where(a => a.ExamId == examId);
         return q.Select(a => new
         {

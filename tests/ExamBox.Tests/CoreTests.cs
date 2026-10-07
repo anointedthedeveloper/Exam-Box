@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using ExamBox.Models;
 using ExamBox.Services;
 using Xunit;
@@ -227,5 +228,215 @@ public class ReportTests
             Assert.Throws<InvalidOperationException>(() => t.Factory.BackupTo(t.Factory.DbPath));
         }
         finally { Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools(); try { Directory.Delete(dir, true); } catch { } }
+    }
+}
+
+public class ProductionTests
+{
+    [Fact]
+    public void Old_v1_database_is_upgraded_in_place_without_losing_data()
+    {
+        var dir = Path.Combine(Path.GetTempPath(), "exambox-up-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(dir);
+        try
+        {
+            var f = new ExamBox.Data.DbFactory(dir);
+            using (var c = new Microsoft.Data.Sqlite.SqliteConnection(f.ConnectionString))
+            {
+                c.Open();
+                foreach (var sql in new[]
+                {
+                    "CREATE TABLE Users (Id INTEGER PRIMARY KEY AUTOINCREMENT, FullName TEXT NOT NULL, Username TEXT NOT NULL COLLATE NOCASE, Email TEXT NULL COLLATE NOCASE, Department TEXT NULL, PasswordHash TEXT NOT NULL, Role TEXT NOT NULL, IsActive INTEGER NOT NULL, MustChangePassword INTEGER NOT NULL, FailedLogins INTEGER NOT NULL, LockoutEnd TEXT NULL, CreatedAt TEXT NOT NULL, LastLoginAt TEXT NULL)",
+                    "CREATE TABLE Exams (Id INTEGER PRIMARY KEY AUTOINCREMENT, Title TEXT NOT NULL, Description TEXT NULL, DurationMinutes INTEGER NOT NULL, PassMarkPercent INTEGER NOT NULL, IsPublished INTEGER NOT NULL, CreatedAt TEXT NOT NULL)",
+                    "CREATE TABLE Questions (Id INTEGER PRIMARY KEY AUTOINCREMENT, ExamId INTEGER NOT NULL, Text TEXT NOT NULL, OptionA TEXT NOT NULL, OptionB TEXT NOT NULL, OptionC TEXT NULL, OptionD TEXT NULL, CorrectOption TEXT NOT NULL, Marks INTEGER NOT NULL)",
+                    "CREATE TABLE Attempts (Id INTEGER PRIMARY KEY AUTOINCREMENT, ExamId INTEGER NOT NULL, StudentId INTEGER NOT NULL, StartedAt TEXT NOT NULL, SubmittedAt TEXT NULL, Score INTEGER NOT NULL, TotalMarks INTEGER NOT NULL)",
+                    "CREATE TABLE Answers (Id INTEGER PRIMARY KEY AUTOINCREMENT, AttemptId INTEGER NOT NULL, QuestionId INTEGER NOT NULL, Selected TEXT NULL)",
+                    "INSERT INTO Users VALUES (1,'Old Student','S1',NULL,NULL,'x','Student',1,0,0,NULL,'2025-01-01 00:00:00',NULL)",
+                    "INSERT INTO Exams VALUES (1,'Old exam',NULL,30,50,1,'2025-01-01 00:00:00')",
+                    "INSERT INTO Questions VALUES (1,1,'2+2?','3','4',NULL,NULL,'B',2)",
+                    "INSERT INTO Questions VALUES (2,1,'3+3?','5','6',NULL,NULL,'B',2)",
+                    "INSERT INTO Attempts VALUES (1,1,1,'2025-01-02 00:00:00','2025-01-02 00:10:00',4,4)",
+                    "INSERT INTO Answers VALUES (1,1,1,'B')",
+                })
+                {
+                    using var cmd = c.CreateCommand(); cmd.CommandText = sql; cmd.ExecuteNonQuery();
+                }
+            }
+            f.Initialize();
+            f.Initialize(); // second run is a no-op
+            var exams = new ExamService(f);
+            var e = exams.Get(1)!;
+            Assert.Equal(new[] { 1, 2 }, e.Questions.Select(q => q.Id));
+            Assert.All(e.Questions, q => Assert.Equal(ExamBox.Models.QuestionType.Objective, q.Type));
+            Assert.True(e.ShowCorrectAnswers);
+            using var db = f.Create();
+            var a = db.Attempts.Single();
+            Assert.Equal(4, a.ObjectiveScore); Assert.Equal(4, a.Score); Assert.False(a.PendingMarking);
+            Assert.Equal("B", db.Answers.Single().Selected);
+            Assert.True(exams.SaveQuestion(1, 0, new QuestionInput(ExamBox.Models.QuestionType.Theory, "3a", "Explain.", 5)).Ok == false); // locked: attempt exists
+        }
+        finally { Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools(); try { Directory.Delete(dir, true); } catch { } }
+    }
+
+    [Fact]
+    public void Template_roundtrip_and_import_rules()
+    {
+        // the downloadable template parses cleanly (example sheet is ignored, questions sheet is empty -> clear message)
+        var blank = QuestionImporter.Parse(new MemoryStream(QuestionImporter.BuildTemplate()));
+        Assert.Contains(blank.Issues, i => i.Message.Contains("No questions") || i.Message.Contains("empty"));
+
+        using var wb = new ClosedXML.Excel.XLWorkbook();
+        var ws = wb.AddWorksheet("Questions");
+        string[] h = { "No", "Type", "Question", "A", "B", "C", "D", "E", "Correct", "Marks", "Image", "Model answer" };
+        for (var i = 0; i < h.Length; i++) ws.Cell(1, i + 1).Value = h[i];
+        void Row(int r, params object[] v) { for (var i = 0; i < v.Length; i++) ws.Cell(r, i + 1).Value = v[i]?.ToString() ?? ""; }
+        Row(2, "1", "OBJ", "2+2?", "3", "4", "", "", "", "B", 2, "", "");
+        Row(3, "2", "mcq", "Pick the shape", "x", "y", "z", "", "", "c", "", "yes", "");
+        Row(4, "3", "THEORY", "Passage text", "", "", "", "", "", "", 0, "", "");
+        Row(5, "3a", "ESSAY", "Explain", "", "", "", "", "", "", 5, "map.png", "Because.");
+        Row(6, "4", "OBJ", "bad one", "only a", "", "", "", "", "A", 1, "", "");     // B missing
+        Row(7, "5", "WHAT", "bad type", "a", "b", "", "", "", "A", 1, "", "");
+        Row(8, "6", "OBJ", "bad key", "a", "b", "", "", "", "D", 1, "", "");          // D not filled
+        Row(9, "7", "OBJ", "bad marks", "a", "b", "", "", "", "A", "abc", "", "");
+        using var ms = new MemoryStream(); wb.SaveAs(ms); ms.Position = 0;
+        var res = QuestionImporter.Parse(ms);
+        Assert.Equal(4, res.Questions.Count);
+        Assert.Equal(new[] { 6, 7, 8, 9 }, res.Issues.Where(i => !i.IsWarning).Select(i => i.Row).ToArray());
+        Assert.Equal("C", res.Questions[1].CorrectOption);
+        Assert.Equal(1, res.Questions[1].Marks);              // default 1 for OBJ
+        Assert.True(res.Questions[1].ImageRequired);
+        Assert.Equal(QuestionType.Theory, res.Questions[2].Type);
+        Assert.Equal(0, res.Questions[2].Marks);              // passage
+        Assert.Equal("3a", res.Questions[3].Number);
+        Assert.True(res.Questions[3].ImageRequired);          // map.png not loaded -> must be attached
+        Assert.Equal(2, res.NeedImages);
+        Assert.Contains(res.Issues, i => i.IsWarning && i.Row == 5);
+    }
+
+    [Fact]
+    public void Images_folder_resolves_file_names()
+    {
+        var dir = Path.Combine(Path.GetTempPath(), "exambox-img-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(dir);
+        try
+        {
+            var png = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==");
+            File.WriteAllBytes(Path.Combine(dir, "pic.png"), png);
+            using var wb = new ClosedXML.Excel.XLWorkbook();
+            var ws = wb.AddWorksheet("Questions");
+            string[] h = { "No", "Type", "Question", "A", "B", "Correct", "Marks", "Image" };
+            for (var i = 0; i < h.Length; i++) ws.Cell(1, i + 1).Value = h[i];
+            string[] r2 = { "1", "OBJ", "See pic", "a", "b", "A", "1", "pic.png" };
+            string[] r3 = { "2", "OBJ", "Traversal", "a", "b", "A", "1", "../../etc/passwd" };
+            for (var i = 0; i < r2.Length; i++) { ws.Cell(2, i + 1).Value = r2[i]; ws.Cell(3, i + 1).Value = r3[i]; }
+            using var ms = new MemoryStream(); wb.SaveAs(ms); ms.Position = 0;
+            var res = QuestionImporter.Parse(ms, dir);
+            Assert.True(res.Questions[0].HasImage); Assert.Equal("image/png", res.Questions[0].ImageType);
+            Assert.False(res.Questions[1].HasImage); Assert.True(res.Questions[1].MissingImage);
+        }
+        finally { try { Directory.Delete(dir, true); } catch { } }
+    }
+
+    [Fact]
+    public void Launch_rules_duplicate_and_images()
+    {
+        using var t = new TempDb();
+        var e = t.Exams.Save(0, "SS1 English First Term", null, 40, 50, "SS1").Value!;
+        Assert.False(t.Exams.Launch(e.Id, null, null, null).Ok);                       // no questions
+        t.Exams.SaveQuestion(e.Id, 0, new QuestionInput(QuestionType.Objective, null, "Q?", 1, "a", "b", Correct: "A", ImageRequired: true));
+        var q = t.Exams.Get(e.Id)!.Questions.Single();
+        Assert.False(t.Exams.Launch(e.Id, null, null, null).Ok);                       // picture missing
+        var png = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==");
+        Assert.False(t.Exams.SetImage(e.Id, q.Id, new byte[] { 1, 2, 3 }, "image/png").Ok);       // not an image
+        Assert.True(t.Exams.SetImage(e.Id, q.Id, png, "image/png").Ok);
+        var now = DateTime.UtcNow;
+        Assert.False(t.Exams.Launch(e.Id, now.AddDays(2), now.AddDays(1), null).Ok);   // closes before opens
+        Assert.True(t.Exams.Launch(e.Id, now.AddDays(2), now.AddDays(3), "SS1").Ok);
+        Assert.Equal(ExamState.Scheduled, t.Exams.Get(e.Id)!.StateAt(now));
+        var copy = t.Exams.Duplicate(e.Id).Value!;
+        var c = t.Exams.Get(copy.Id)!;
+        Assert.False(c.IsPublished); Assert.EndsWith("(copy)", c.Title); Assert.True(c.Questions.Single().HasImage); Assert.Equal("SS1", c.ForDepartment);
+        // reorder
+        t.Exams.SaveQuestion(copy.Id, 0, new QuestionInput(QuestionType.Theory, "2", "Essay", 5));
+        var ids = t.Exams.Get(copy.Id)!.Questions.Select(x => x.Id).ToList();
+        t.Exams.MoveQuestion(copy.Id, ids[1], -1);
+        Assert.Equal(new[] { ids[1], ids[0] }, t.Exams.Get(copy.Id)!.Questions.Select(x => x.Id));
+    }
+
+    [Fact]
+    public void Mixed_exam_flow_with_theory_marking()
+    {
+        using var t = new TempDb();
+        var att = new AttemptService(t.Factory); var mark = new MarkingService(t.Factory);
+        var e = t.Exams.Save(0, "Mixed", null, 30, 50).Value!;
+        t.Exams.SaveQuestion(e.Id, 0, "2+2?", "3", "4", null, null, "B", 2);
+        t.Exams.Theory(e.Id, "Passage", 0, "3");
+        t.Exams.Theory(e.Id, "Explain A", 5, "3a");
+        t.Exams.Theory(e.Id, "Explain B", 5, "3b");
+        Assert.True(t.Exams.Launch(e.Id, null, null, null).Ok);
+        var s = t.Students.Create(new StudentInput("Stu", "S9", null, null)).Value!.Student;
+        var aid = att.Start(s.Id, e.Id).Value;
+        var take = att.GetTake(s.Id, aid)!;
+        Assert.Equal(QuestionType.Objective, take.Questions[0].Type);
+        var qs = take.Questions;
+        var draft = new Dictionary<int, string> { [qs[2].Id] = "my answer a" };
+        Assert.True(att.SaveDraft(s.Id, aid, draft).Ok);
+        Assert.Equal("my answer a", att.GetTake(s.Id, aid)!.Saved[qs[2].Id].Text);
+        var final = new Dictionary<int, string> { [qs[0].Id] = "B", [qs[2].Id] = "my answer a", [qs[3].Id] = "my answer b" };
+        Assert.True(att.Submit(s.Id, aid, final).Ok);
+        var r = att.GetResult(s.Id, aid)!;
+        Assert.True(r.PendingMarking); Assert.Equal(2, r.ObjectiveScore); Assert.Equal(12, r.TotalMarks);
+        Assert.Equal(0, new ReportService(t.Factory).Build().Attempts);                  // not final yet
+        Assert.Equal(1, new DashboardService(t.Factory).Get().AwaitingMarking);
+        Assert.Single(mark.Pending());
+        var sheet = mark.Sheet(aid)!;
+        Assert.Equal(2, sheet.Items.Count);
+        var a1 = sheet.Items[0].Question.Id; var a2 = sheet.Items[1].Question.Id;
+        Assert.False(mark.Save(aid, new[] { new MarkEntry(a1, 6, null) }, false).Ok);      // above max
+        Assert.True(mark.Save(aid, new[] { new MarkEntry(a1, 4, "good") }, false).Ok);
+        Assert.False(mark.Save(aid, Array.Empty<MarkEntry>(), true).Ok);                 // b unmarked
+        Assert.True(mark.Save(aid, new[] { new MarkEntry(a2, 3, null) }, true).Ok);
+        r = att.GetResult(s.Id, aid)!;
+        Assert.False(r.PendingMarking); Assert.Equal(9, r.Score); Assert.Equal(7, r.TheoryScore);
+        Assert.Equal(1, new ReportService(t.Factory).Build().Attempts);
+        Assert.Equal(0, mark.PendingCount());
+    }
+
+    [Fact]
+    public void Visibility_by_class_and_schedule_and_expiry()
+    {
+        using var t = new TempDb();
+        var att = new AttemptService(t.Factory);
+        var ss1 = t.Students.Create(new StudentInput("A", "A1", null, "SS1")).Value!.Student;
+        var ss2 = t.Students.Create(new StudentInput("B", "B1", null, "SS2")).Value!.Student;
+        var e = t.Exams.Save(0, "Class exam", null, 10, 50).Value!;
+        t.Exams.SaveQuestion(e.Id, 0, "Q", "a", "b", null, null, "A", 1);
+        t.Exams.Launch(e.Id, null, DateTime.UtcNow.AddHours(1), "ss1");
+        Assert.Single(att.Home(ss1.Id).Available);
+        Assert.Empty(att.Home(ss2.Id).Available);
+        Assert.False(att.Start(ss2.Id, e.Id).Ok);
+        var later = t.Exams.Save(0, "Later", null, 10, 50).Value!;
+        t.Exams.SaveQuestion(later.Id, 0, "Q", "a", "b", null, null, "A", 1);
+        t.Exams.Launch(later.Id, DateTime.UtcNow.AddDays(2), null, null);
+        var home = att.Home(ss1.Id);
+        Assert.Single(home.Upcoming); Assert.False(att.Start(ss1.Id, later.Id).Ok);
+        // an attempt whose window shut is collected on its own, using saved answers
+        var aid = att.Start(ss1.Id, e.Id).Value;
+        using (var db = t.Factory.Create()) db.Exams.Where(x => x.Id == e.Id).ExecuteUpdate(s => s.SetProperty(x => x.ClosesAt, DateTime.UtcNow.AddSeconds(-1)));
+        Assert.Equal(1, att.CollectExpired());
+        Assert.NotNull(att.GetResult(ss1.Id, aid));
+    }
+
+    [Fact]
+    public void Student_import_creates_skips_and_exports()
+    {
+        using var t = new TempDb();
+        t.Students.Create(new StudentInput("Existing", "E1", null, null));
+        var rows = new List<ImportedStudent> { new("New One", "N1", "", "SS1"), new("Dup", "E1", "", ""), new("", "N2", "", ""), new("Twice", "N1", "", "") };
+        var res = t.Students.CreateMany(rows);
+        Assert.Single(res.Created); Assert.Equal(3, res.Skipped.Count);
+        var sheet = StudentImporter.CredentialSheet(res.Created, "http://x:5000");
+        Assert.True(sheet.Length > 100);
+        var (parsed, issues) = StudentImporter.Parse(new MemoryStream(StudentImporter.BuildTemplate()));
+        Assert.Single(issues); Assert.Empty(parsed);
     }
 }

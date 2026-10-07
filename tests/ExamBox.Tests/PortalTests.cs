@@ -123,4 +123,51 @@ public class PortalTests
         await using (var host = await PortalHost.StartAsync(t.Factory, port2))
             Assert.Contains("ExamBox", (await new Client($"http://127.0.0.1:{port2}").Get("/account/login")).Html);   // default brand
     }
+
+    [Fact]
+    public async Task Theory_exam_over_http_with_pictures_autosave_and_pending_marking()
+    {
+        using var t = new TempDb();
+        t.Auth.CreateAdmin("admin", "pw");
+        var png = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==");
+        var exam = t.Exams.Save(0, "English", null, 20, 50).Value!;
+        t.Exams.SaveQuestion(exam.Id, 0, "Pick one", "a", "b", null, null, "A", 1);
+        t.Exams.Theory(exam.Id, "Describe the picture", 10, "2a");
+        var withPic = t.Exams.Get(exam.Id)!.Questions.Last();
+        t.Exams.SetImage(exam.Id, withPic.Id, png, "image/png");
+        t.Exams.Launch(exam.Id, null, null, null);
+        var s1 = t.Students.Create(new StudentInput("One", "P1", null, null)).Value!;
+        var s2 = t.Students.Create(new StudentInput("Two", "P2", null, null)).Value!;
+        t.Auth.ChangePassword(s1.Student.Id, s1.TempPassword, "pw"); t.Auth.ChangePassword(s2.Student.Id, s2.TempPassword, "pw");
+        var port = FreePort();
+        await using var host = await PortalHost.StartAsync(t.Factory, port);
+        var c = new Client($"http://127.0.0.1:{port}"); var other = new Client($"http://127.0.0.1:{port}");
+        await c.Post("/account/login", new() { ["Identifier"] = "P1", ["Password"] = "pw" }, "/account/login");
+        await other.Post("/account/login", new() { ["Identifier"] = "P2", ["Password"] = "pw" }, "/account/login");
+
+        Assert.Equal(HttpStatusCode.NotFound, (await c.Http.GetAsync($"/portal/media/{withPic.Id}")).StatusCode);   // not started yet
+        var take = await c.Post($"/portal/start/{exam.Id}", new(), "/portal");
+        Assert.Contains("<textarea", take.Html); Assert.Contains($"/portal/media/{withPic.Id}", take.Html);
+        Assert.Contains("Section B", take.Html);
+        var img = await c.Http.GetAsync($"/portal/media/{withPic.Id}");
+        Assert.Equal("image/png", img.Content.Headers.ContentType!.MediaType);
+        Assert.Equal(HttpStatusCode.NotFound, (await other.Http.GetAsync($"/portal/media/{withPic.Id}")).StatusCode);   // other student, no attempt
+
+        var qids = Regex.Matches(take.Html, "name=\"q_(\\d+)\"").Select(m => m.Groups[1].Value).Distinct().ToList();
+        // autosave
+        var (_, page) = await c.Get(take.Url);
+        var token = Regex.Match(page, "name=\"__RequestVerificationToken\"[^>]*value=\"([^\"]+)\"").Groups[1].Value;
+        var save = await c.Http.PostAsync(take.Url + "/save", new FormUrlEncodedContent(new Dictionary<string, string> { ["__RequestVerificationToken"] = token, [$"q_{qids[1]}"] = "half written" }));
+        Assert.Contains("\"ok\":true", await save.Content.ReadAsStringAsync());
+        Assert.Contains("half written", (await c.Get(take.Url)).Html);          // survives a reload
+
+        var done = await c.Post(take.Url, new() { [$"q_{qids[0]}"] = "A", [$"q_{qids[1]}"] = "a full answer" });
+        Assert.Contains("Awaiting marking", done.Html);
+        Assert.Contains("a full answer", done.Html);
+
+        var sheet = new MarkingService(t.Factory).Sheet(int.Parse(take.Url.Split('/').Last()))!;
+        new MarkingService(t.Factory).Save(sheet.Attempt.Id, new[] { new MarkEntry(withPic.Id, 8, "Nice") }, true);
+        var final = await c.Get(done.Url);
+        Assert.Contains("9 of 11", final.Html); Assert.Contains("Nice", final.Html);
+    }
 }

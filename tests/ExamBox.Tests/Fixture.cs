@@ -27,3 +27,15 @@ public sealed class TempDb : IDisposable
         try { Directory.Delete(Dir, true); } catch { /* best effort */ }
     }
 }
+
+public static class TestExt
+{
+    public static OpResult SaveQuestion(this ExamService s, int examId, int qid, string text, string a, string b, string? c, string? d, string correct, int marks) =>
+        s.SaveQuestion(examId, qid, new QuestionInput(ExamBox.Models.QuestionType.Objective, null, text, marks, a, b, c, d, null, correct));
+
+    public static OpResult Theory(this ExamService s, int examId, string text, int marks, string? number = null, string? model = null) =>
+        s.SaveQuestion(examId, 0, new QuestionInput(ExamBox.Models.QuestionType.Theory, number, text, marks, ModelAnswer: model));
+
+    public static OpResult SetPublished(this ExamService s, int id, bool on) =>
+        on ? s.Launch(id, null, null, null) : s.Unpublish(id);
+}
