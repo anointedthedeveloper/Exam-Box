@@ -1,6 +1,7 @@
 <UserControl x:Class="ExamBox.Admin.ServerView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:r="clr-namespace:ExamBox.Admin"
              xmlns:local="clr-namespace:ExamBox.Admin">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel>
@@ -8,7 +9,7 @@
             <TextBlock Text="Students sit exams in a web browser. ExamBox hosts that site for you — keep this app open while exams are running."
                        Style="{StaticResource Muted}" Margin="0,2,0,18"/>
 
-            <Grid>
+            <Grid r:Responsive.StackBelow="1000">
                 <Grid.ColumnDefinitions><ColumnDefinition Width="1.5*"/><ColumnDefinition Width="20"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0">
             <Border Style="{StaticResource Card}">

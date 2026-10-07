@@ -36,6 +36,7 @@ public partial class MainWindow : Window
             kids[1].Visibility = iconsOnly ? Visibility.Collapsed : Visibility.Visible;
             r.Padding = iconsOnly ? new Thickness(13, 10, 13, 10) : new Thickness(16, 10, 16, 10);
         }
+        Page.Margin = ActualWidth < 1150 ? new Thickness(16, 14, 16, 12) : new Thickness(30, 22, 30, 20);
         BrandText.Visibility = ProfileText.Visibility = ActualWidth < 1060 ? Visibility.Collapsed : Visibility.Visible;
         RefreshBadges(iconsOnly);
     }

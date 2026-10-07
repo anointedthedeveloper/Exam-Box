@@ -1,12 +1,13 @@
 <UserControl x:Class="ExamBox.Admin.SettingsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:r="clr-namespace:ExamBox.Admin">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel>
             <TextBlock Text="Settings" Style="{StaticResource H1}"/>
             <TextBlock Text="Make ExamBox yours. Changes apply straight away." Style="{StaticResource Muted}" Margin="0,2,0,18"/>
 
-            <UniformGrid Columns="2">
+            <UniformGrid Columns="2" r:Responsive.CellWidth="430">
                 <Border Style="{StaticResource Card}" Margin="0,0,9,18">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
@@ -52,7 +53,7 @@
                 <TextBlock x:Name="ErrorText" Style="{StaticResource ErrorText}" Margin="0" VerticalAlignment="Center" Visibility="Collapsed"/>
             </StackPanel>
 
-            <UniformGrid Columns="2">
+            <UniformGrid Columns="2" r:Responsive.CellWidth="430">
                 <Border Style="{StaticResource Card}" Margin="0,0,9,18">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
