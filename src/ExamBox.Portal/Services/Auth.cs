@@ -6,6 +6,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace ExamBox.Services;
 
+/// <summary>Institution name shown beside the logo (defaults to "ExamBox").</summary>
+public sealed record PortalBrand(string Name)
+{
+    public static PortalBrand From(string? name) => new(string.IsNullOrWhiteSpace(name) ? "ExamBox" : name.Trim());
+}
+
 /// <summary>Identifies one run of the portal; sign-ins from an earlier run are rejected.</summary>
 public sealed record PortalBoot(string Id)
 {

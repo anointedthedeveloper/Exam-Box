@@ -26,7 +26,7 @@ public sealed class PortalHost : IAsyncDisposable
     private PortalHost(WebApplication app, int port) { _app = app; Port = port; }
 
     /// <summary>Starts the portal listening on all network interfaces. Throws if the port is unavailable.</summary>
-    public static async Task<PortalHost> StartAsync(DbFactory db, int port)
+    public static async Task<PortalHost> StartAsync(DbFactory db, int port, string? brand = null)
     {
         var asm = typeof(PortalHost).Assembly;
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions
@@ -39,6 +39,7 @@ public sealed class PortalHost : IAsyncDisposable
 
         builder.Services.AddSingleton(db);
         builder.Services.AddSingleton(PortalBoot.New());
+        builder.Services.AddSingleton(PortalBrand.From(brand));
         builder.Services.AddScoped<AuthService>();
         builder.Services.AddDbContext<AppDb>(o => o.UseSqlite(db.ConnectionString));
         builder.Services.AddControllersWithViews(o => o.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()))

@@ -1,9 +1,10 @@
+@inject PortalBrand Brand
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>@ViewData["Title"] · ExamBox</title>
+    <title>@ViewData["Title"] · @Brand.Name</title>
     <link rel="icon" href="/assets/img/favicon.ico" sizes="any" />
     <link rel="stylesheet" href="/assets/css/site.css" />
 </head>
@@ -12,7 +13,7 @@
     <main class="auth-wrap">
         <section class="auth-hero">
             <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span>
-            <div class="hero-brand"><img src="/assets/img/logo.png" alt="" /><span>ExamBox</span></div>
+            <div class="hero-brand"><img src="/assets/img/logo.png" alt="" /><span>@Brand.Name</span></div>
             <div class="slides">
                 <figure class="slide s1"><img src="/assets/img/slide-exams.svg" alt="" /><figcaption><h2>Sit your exam with confidence</h2><p>Clear questions, one attempt, no surprises.</p></figcaption></figure>
                 <figure class="slide s2"><img src="/assets/img/slide-timer.svg" alt="" /><figcaption><h2>Timed and fair</h2><p>A live countdown keeps you on track.</p></figcaption></figure>

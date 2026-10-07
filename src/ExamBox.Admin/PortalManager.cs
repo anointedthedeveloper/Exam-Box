@@ -16,7 +16,7 @@ public sealed class PortalManager
         await StopAsync();
         try
         {
-            _host = await PortalHost.StartAsync(App.Db, port);
+            _host = await PortalHost.StartAsync(App.Db, port, App.Settings.InstitutionName);
             Port = port;
             Error = null;
         }

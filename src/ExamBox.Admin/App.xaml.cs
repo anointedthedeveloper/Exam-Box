@@ -14,6 +14,7 @@ public partial class App : Application
     public static StudentService Students { get; private set; } = null!;
     public static ExamService Exams { get; private set; } = null!;
     public static DashboardService Dashboard { get; private set; } = null!;
+    public static ReportService Reports { get; private set; } = null!;
     public static AppSettings Settings { get; private set; } = null!;
     public static PortalManager Portal { get; } = new();
     public static User? CurrentUser { get; set; }
@@ -79,6 +80,7 @@ public partial class App : Application
         Students = new StudentService(Db);
         Exams = new ExamService(Db);
         Dashboard = new DashboardService(Db);
+        Reports = new ReportService(Db);
         Settings = AppSettings.Load(Db.DataDir);
 
         if (Settings.AutoStartServer)

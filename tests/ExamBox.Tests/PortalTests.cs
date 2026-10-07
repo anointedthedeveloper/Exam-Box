@@ -111,4 +111,16 @@ public class PortalTests
         await using (var host2 = await PortalHost.StartAsync(t.Factory, port))
             Assert.Contains("/account/login", (await c.Get("/portal")).Url);   // same cookie, new run: must sign in again
     }
+
+    [Fact]
+    public async Task Institution_name_is_shown_on_the_student_site()
+    {
+        using var t = new TempDb();
+        var port = FreePort();
+        await using (var host = await PortalHost.StartAsync(t.Factory, port, "Greenfield Academy"))
+            Assert.Contains("Greenfield Academy", (await new Client($"http://127.0.0.1:{port}").Get("/account/login")).Html);
+        var port2 = FreePort();
+        await using (var host = await PortalHost.StartAsync(t.Factory, port2))
+            Assert.Contains("ExamBox", (await new Client($"http://127.0.0.1:{port2}").Get("/account/login")).Html);   // default brand
+    }
 }

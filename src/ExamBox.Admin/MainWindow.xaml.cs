@@ -30,6 +30,8 @@ public partial class MainWindow : Window
     {
         App.CurrentUser = user;
         UserName.Text = user.FullName;
+        ReportsBadge.Visibility = App.Settings.SeenReports ? Visibility.Collapsed : Visibility.Visible;
+        SettingsBadge.Visibility = App.Settings.SeenSettings ? Visibility.Collapsed : Visibility.Visible;
         UserInitial.Text = string.IsNullOrEmpty(user.FullName) ? "?" : user.FullName[..1].ToUpperInvariant();
         AuthHost.Content = null;
         AuthHost.Visibility = Visibility.Collapsed;
@@ -44,11 +46,15 @@ public partial class MainWindow : Window
         {
             "students" => (NavStudents, (UserControl)new StudentsView(openAdd)),
             "exams" => (NavExams, new ExamsView(openAdd)),
+            "reports" => (NavReports, new ReportsView()),
+            "settings" => (NavSettings, new SettingsView()),
             "server" => (NavServer, new ServerView()),
             "account" => (NavAccount, new AccountView()),
             _ => (NavDashboard, new DashboardView()),
         };
         radio.IsChecked = true;
+        if (page == "reports" && !App.Settings.SeenReports) { App.Settings.SeenReports = true; App.Settings.Save(); ReportsBadge.Visibility = Visibility.Collapsed; }
+        if (page == "settings" && !App.Settings.SeenSettings) { App.Settings.SeenSettings = true; App.Settings.Save(); SettingsBadge.Visibility = Visibility.Collapsed; }
         ShowPage(view);
     }
 

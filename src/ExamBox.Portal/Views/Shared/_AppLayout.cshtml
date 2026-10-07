@@ -1,3 +1,4 @@
+@inject PortalBrand Brand
 @{
         var ctrl = (ViewContext.RouteData.Values["controller"] as string ?? "").ToLowerInvariant();
     string Active(params string[] c) => c.Contains(ctrl) ? "active" : "";
@@ -8,7 +9,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>@ViewData["Title"] · ExamBox</title>
+    <title>@ViewData["Title"] · @Brand.Name</title>
     <link rel="icon" href="/assets/img/favicon.ico" sizes="any" />
     <link rel="stylesheet" href="/assets/css/site.css" />
 </head>
@@ -16,7 +17,7 @@
 <div class="topbar"></div>
 <div class="shell">
     <aside class="sidebar">
-        <a class="brand" href="/"><img src="/assets/img/logo.png" alt="" /><span>ExamBox</span></a>
+        <a class="brand" href="/"><img src="/assets/img/logo.png" alt="" /><span>@Brand.Name</span></a>
         <nav>
                 <a class="@Active("portal")" asp-controller="Portal" asp-action="Index">My dashboard</a>
             <a class="@Active("account")" asp-controller="Account" asp-action="ChangePassword">Change password</a>

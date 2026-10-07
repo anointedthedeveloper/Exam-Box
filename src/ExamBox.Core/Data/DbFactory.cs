@@ -23,6 +23,18 @@ public sealed class DbFactory
     public AppDb Create() =>
         new(new DbContextOptionsBuilder<AppDb>().UseSqlite(ConnectionString).Options);
 
+    /// <summary>Writes a consistent copy of the database to <paramref name="targetPath"/> (replaced if it exists).</summary>
+    public void BackupTo(string targetPath)
+    {
+        var full = Path.GetFullPath(targetPath);
+        if (string.Equals(full, Path.GetFullPath(DbPath), StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("Choose a different file than the live database.");
+        if (File.Exists(full)) File.Delete(full);
+        using var db = Create();
+        // VACUUM INTO produces a transactionally consistent copy even while the portal is writing.
+        db.Database.ExecuteSqlRaw("VACUUM INTO '" + full.Replace("'", "''") + "'");
+    }
+
     /// <summary>Creates the schema on first run.</summary>
     public void Initialize()
     {

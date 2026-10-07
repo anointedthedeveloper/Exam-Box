@@ -31,7 +31,9 @@ Data folder: `%LOCALAPPDATA%\ExamBox` (override with the `EXAMBOX_DATA` environm
 - Student management: add, edit, search, deactivate, delete, reset password, exam history.
 - Exams: timed multiple-choice, marks per question, pass mark, publish/unpublish. Questions lock once a student starts.
 - Students: one attempt per exam, server-enforced deadline, automatic grading, answer review.
-- Dashboard with live counts, average score, recent submissions.
+- Dashboard: live stats, enrolment sparkline, monthly growth, grade-distribution donut, pass/fail trend, searchable recent submissions, getting-started checklist.
+- Reports: filter by exam and period, KPIs, per-exam pass rates, top students, CSV export.
+- Settings: institution name (also shown on the student site), exam defaults, one-click database backup, security notes.
 
 ## Projects
 

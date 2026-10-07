@@ -10,11 +10,13 @@ public sealed class DashboardStats
     public double AvgPercent;
     public List<Attempt> Recent { get; init; } = new();
     public List<User> NewStudents { get; init; } = new();
+    /// <summary>Cumulative student count at the end of each of the last 8 weeks (oldest first).</summary>
+    public int[] StudentsByWeek { get; init; } = new int[8];
 }
 
 public sealed class DashboardService(DbFactory factory)
 {
-    public DashboardStats Get()
+    public DashboardStats Get(int recentCount = 30)
     {
         using var db = factory.Create();
         var done = db.Attempts.Where(a => a.SubmittedAt != null);
@@ -29,9 +31,22 @@ public sealed class DashboardService(DbFactory factory)
             Completed = scores.Count,
             AvgPercent = scores.Count == 0 ? 0 : Math.Round(scores.Average(s => s.TotalMarks == 0 ? 0 : s.Score * 100.0 / s.TotalMarks), 1),
             Recent = done.Include(a => a.Student).Include(a => a.Exam).AsNoTracking()
-                .OrderByDescending(a => a.SubmittedAt).Take(8).ToList(),
+                .OrderByDescending(a => a.SubmittedAt).Take(recentCount).ToList(),
             NewStudents = db.Users.AsNoTracking().Where(u => u.Role == UserRole.Student)
-                .OrderByDescending(u => u.CreatedAt).Take(6).ToList(),
+                .OrderByDescending(u => u.CreatedAt).Take(8).ToList(),
+            StudentsByWeek = WeeklyCumulative(db.Users.Where(u => u.Role == UserRole.Student).Select(u => u.CreatedAt).ToList()),
         };
+    }
+
+    private static int[] WeeklyCumulative(List<DateTime> created)
+    {
+        var now = DateTime.UtcNow;
+        var result = new int[8];
+        for (var i = 0; i < 8; i++)
+        {
+            var end = now.AddDays(-7 * (7 - i));
+            result[i] = created.Count(c => c <= end);
+        }
+        return result;
     }
 }

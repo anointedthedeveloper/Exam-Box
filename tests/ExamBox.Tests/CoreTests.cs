@@ -150,3 +150,82 @@ public class AttemptWarningTests
         t.Students.Create(new StudentInput("S", "S1", null, null));
     }
 }
+
+public class ReportTests
+{
+    private static (TempDb t, Exam exam) Seed(params (int score, DateTime when)[] attempts)
+    {
+        var t = new TempDb();
+        var exam = t.Exams.Save(0, "Math", null, 30, 50).Value!;
+        var i = 0;
+        foreach (var (score, when) in attempts)
+        {
+            var s = t.Students.Create(new StudentInput($"Student {i}", $"S{i}", null, null)).Value!.Student; i++;
+            using var db = t.Factory.Create();
+            db.Attempts.Add(new Attempt { ExamId = exam.Id, StudentId = s.Id, Score = score, TotalMarks = 100, StartedAt = when, SubmittedAt = when });
+            db.SaveChanges();
+        }
+        return (t, exam);
+    }
+
+    [Fact]
+    public void Report_numbers_grades_and_trend()
+    {
+        var now = DateTime.UtcNow;
+        var (t, exam) = Seed((95, now), (85, now), (72, now.AddMonths(-1)), (61, now.AddMonths(-2)), (40, now.AddMonths(-2)));
+        using var _ = t;
+        var r = new ReportService(t.Factory).Build();
+        Assert.Equal(5, r.Attempts);
+        Assert.Equal(70.6, r.AvgPercent);
+        Assert.Equal(80, r.PassRate);                                  // 4 of 5 reach the 50% pass mark
+        Assert.Equal(95, r.HighPercent); Assert.Equal(40, r.LowPercent);
+        Assert.Equal(new[] { 1, 1, 1, 1, 1 }, r.GradeCounts);          // A B C D E
+        Assert.Equal(6, r.Trend.Count);
+        Assert.Equal(2, r.Trend[^1].Passed);                            // this month: 95 and 85
+        Assert.Equal(1, r.Trend[^3].Failed);                            // two months ago: the 40
+        Assert.Single(r.Exams); Assert.Equal(5, r.Exams[0].Attempts);
+        Assert.Equal("Student 0", r.TopStudents[0].Name);
+    }
+
+    [Fact]
+    public void Filters_by_period_and_exam_and_exports()
+    {
+        var now = DateTime.UtcNow;
+        var (t, exam) = Seed((90, now), (50, now.AddDays(-40)));
+        using var _ = t;
+        var svc = new ReportService(t.Factory);
+        Assert.Equal(1, svc.Build(null, now.AddDays(-30)).Attempts);   // last 30 days only
+        Assert.Equal(2, svc.Build(exam.Id).Attempts);
+        Assert.Equal(0, svc.Build(exam.Id + 99).Attempts);
+        Assert.Equal(2, svc.Export().Count);
+        Assert.Equal(1, svc.Export(null, now.AddDays(-30)).Count);
+        Assert.Equal(new double[8].Length, new DashboardService(t.Factory).Get().StudentsByWeek.Length);
+    }
+
+    [Fact]
+    public void Empty_database_gives_zeroes_not_errors()
+    {
+        using var t = new TempDb();
+        var r = new ReportService(t.Factory).Build();
+        Assert.Equal(0, r.Attempts); Assert.Equal(0, r.PassRate); Assert.Equal(6, r.Trend.Count);
+        Assert.All(r.GradeCounts, c => Assert.Equal(0, c));
+    }
+
+    [Fact]
+    public void Backup_is_a_usable_copy()
+    {
+        using var t = new TempDb();
+        t.Students.Create(new StudentInput("A", "A1", null, null));
+        var dir = Path.Combine(Path.GetTempPath(), "exambox-backup-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(dir);
+        try
+        {
+            var target = Path.Combine(dir, "exambox.db");
+            t.Factory.BackupTo(target);
+            var copy = new ExamBox.Data.DbFactory(dir);
+            Assert.Single(new StudentService(copy).List());
+            Assert.Throws<InvalidOperationException>(() => t.Factory.BackupTo(t.Factory.DbPath));
+        }
+        finally { Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools(); try { Directory.Delete(dir, true); } catch { } }
+    }
+}

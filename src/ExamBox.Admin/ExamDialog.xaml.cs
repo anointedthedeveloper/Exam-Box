@@ -13,6 +13,7 @@ public partial class ExamDialog : Window
         _existing = existing;
         InitializeComponent();
         Title = Heading.Text = existing == null ? "New exam" : "Edit exam";
+        if (existing == null) { Duration.Text = App.Settings.DefaultDurationMinutes.ToString(); PassMark.Text = App.Settings.DefaultPassMark.ToString(); }
         SaveBtn.Content = existing == null ? "Create exam" : "Save changes";
         if (existing != null)
         {
