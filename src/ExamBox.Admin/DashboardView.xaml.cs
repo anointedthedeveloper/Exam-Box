@@ -56,6 +56,7 @@ public partial class DashboardView : UserControl
         StatAvgSub.Text = "across submitted exams";
 
         // insights
+        InsightsSub.Text = report.Attempts == 0 ? "Charts fill in as students submit exams" : $"Based on {report.Attempts} submitted exam(s)";
         Donut.CenterTitle = report.Attempts.ToString();
         Donut.CenterSub = "submissions";
         Donut.Slices = Palette.GradeSlices(report.GradeCounts);

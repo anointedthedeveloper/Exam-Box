@@ -38,10 +38,10 @@
                 </Ellipse>
             </Grid>
 
-            <ContentControl x:Name="Page" Grid.Row="1" Margin="30,24,30,20"/>
+            <ContentControl x:Name="Page" Grid.Row="1" Margin="30,22,30,20"/>
 
             <!-- navbar: a blue strip that continues the title bar, with rounded bottom corners -->
-            <Border x:Name="TopBar" Grid.Row="0" CornerRadius="0,0,30,30" Padding="26,12,26,14" Effect="{StaticResource SoftShadow}">
+            <Border x:Name="TopBar" Grid.Row="0" Margin="18,12,18,0" CornerRadius="26" Padding="20,9,20,9" BorderBrush="#40FFFFFF" BorderThickness="1" Effect="{StaticResource SoftShadow}">
                 <Border.Background>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                         <GradientStop Color="#0847B8" Offset="0"/>
@@ -57,7 +57,7 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                        <Border Style="{StaticResource LogoBadge}" Width="44" Height="44" CornerRadius="13" Padding="8">
+                        <Border Style="{StaticResource LogoBadge}" Width="42" Height="42" CornerRadius="13" Padding="8">
                             <Image Source="/Assets/logo.png"/>
                         </Border>
                         <StackPanel x:Name="BrandText" Margin="12,0,0,0" VerticalAlignment="Center">
