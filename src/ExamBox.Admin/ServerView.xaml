@@ -3,14 +3,17 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:ExamBox.Admin">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel MaxWidth="900" HorizontalAlignment="Left">
+        <StackPanel>
             <TextBlock Text="Student portal" Style="{StaticResource H1}"/>
             <TextBlock Text="Students sit exams in a web browser. ExamBox hosts that site for you — keep this app open while exams are running."
                        Style="{StaticResource Muted}" Margin="0,2,0,18"/>
 
+            <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="1.5*"/><ColumnDefinition Width="20"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
             <Border Style="{StaticResource Card}">
               <DockPanel>
-                <Border DockPanel.Dock="Right" Style="{StaticResource IllustrationPanel}" Width="230" Height="190" VerticalAlignment="Top" Margin="20,0,0,0">
+                <Border DockPanel.Dock="Right" Style="{StaticResource IllustrationPanel}" Width="260" Height="200" VerticalAlignment="Top" Margin="20,0,0,0">
                     <Image Source="/Assets/slide-devices.png"/>
                 </Border>
                 <StackPanel>
@@ -73,6 +76,40 @@
                 <TextBlock Foreground="{StaticResource WarnBrush}" TextWrapping="Wrap"
                            Text="The first time the portal starts, Windows may ask to allow ExamBox through the firewall. Choose “Allow” (Private networks) so other computers can connect."/>
             </Border>
+                </StackPanel>
+            <StackPanel Grid.Column="2">
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="How students join" Style="{StaticResource H2}"/>
+                    <DockPanel Margin="0,14,0,0">
+                        <Border DockPanel.Dock="Left" Width="32" Height="32" CornerRadius="16" Background="{StaticResource BlueLightBrush}" VerticalAlignment="Top"><TextBlock Text="1" FontWeight="ExtraBold" Foreground="{StaticResource BlueDarkBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                        <StackPanel Margin="14,0,0,0"><TextBlock Text="Keep ExamBox open" FontWeight="SemiBold"/><TextBlock Text="The portal only runs while this app is running on this computer." Style="{StaticResource Muted}" FontSize="12.5" TextWrapping="Wrap"/></StackPanel>
+                    </DockPanel>
+                    <DockPanel Margin="0,14,0,0">
+                        <Border DockPanel.Dock="Left" Width="32" Height="32" CornerRadius="16" Background="{StaticResource BlueLightBrush}" VerticalAlignment="Top"><TextBlock Text="2" FontWeight="ExtraBold" Foreground="{StaticResource BlueDarkBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                        <StackPanel Margin="14,0,0,0"><TextBlock Text="Share the address" FontWeight="SemiBold"/><TextBlock Text="Students on the same Wi-Fi or network type it into any browser." Style="{StaticResource Muted}" FontSize="12.5" TextWrapping="Wrap"/></StackPanel>
+                    </DockPanel>
+                    <DockPanel Margin="0,14,0,0">
+                        <Border DockPanel.Dock="Left" Width="32" Height="32" CornerRadius="16" Background="{StaticResource BlueLightBrush}" VerticalAlignment="Top"><TextBlock Text="3" FontWeight="ExtraBold" Foreground="{StaticResource BlueDarkBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                        <StackPanel Margin="14,0,0,0"><TextBlock Text="They sign in with their Student ID" FontWeight="SemiBold"/><TextBlock Text="Temporary passwords are changed at first sign-in." Style="{StaticResource Muted}" FontSize="12.5" TextWrapping="Wrap"/></StackPanel>
+                    </DockPanel>
+                    <DockPanel Margin="0,14,0,0">
+                        <Border DockPanel.Dock="Left" Width="32" Height="32" CornerRadius="16" Background="{StaticResource BlueLightBrush}" VerticalAlignment="Top"><TextBlock Text="4" FontWeight="ExtraBold" Foreground="{StaticResource BlueDarkBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                        <StackPanel Margin="14,0,0,0"><TextBlock Text="Launch the exam" FontWeight="SemiBold"/><TextBlock Text="Under Exams, launch it for everyone or one class, now or at a set time." Style="{StaticResource Muted}" FontSize="12.5" TextWrapping="Wrap"/></StackPanel>
+                    </DockPanel>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Card}" Margin="0,16,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Before exam day" Style="{StaticResource H2}"/>
+                        <TextBlock Text="• Open the address on a student device to test it." Style="{StaticResource Muted}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                        <TextBlock Text="• Allow ExamBox through the Windows firewall (Private networks)." Style="{StaticResource Muted}" Margin="0,6,0,0" TextWrapping="Wrap"/>
+                        <TextBlock Text="• Plug the computer in and turn off sleep." Style="{StaticResource Muted}" Margin="0,6,0,0" TextWrapping="Wrap"/>
+                        <TextBlock Text="• Back up the database from Settings." Style="{StaticResource Muted}" Margin="0,6,0,0" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+            </Grid>
         </StackPanel>
     </ScrollViewer>
 </UserControl>
