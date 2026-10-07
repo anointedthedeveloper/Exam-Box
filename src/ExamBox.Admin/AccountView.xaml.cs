@@ -8,8 +8,17 @@ public partial class AccountView : UserControl
     public AccountView()
     {
         InitializeComponent();
-        Who.Text = $"Signed in as {App.CurrentUser!.Username}";
+        var u = App.CurrentUser!;
+        Who.Text = u.Username;
+        Initial.Text = u.Username.Length > 0 ? u.Username[..1].ToUpperInvariant() : "?";
         DataPath.Text = App.Db.DataDir;
+        LastIn.Text = "Last sign-in: " + Ui.Ago(u.LastLoginAt, "this session");
+        Since.Text = "Account created: " + Ui.Local(u.CreatedAt);
+        Loaded += (_, _) =>
+        {
+            var d = App.Dashboard.Get(0);
+            StatStudents.Text = d.Students.ToString(); StatExams.Text = d.Exams.ToString(); StatMarking.Text = d.AwaitingMarking.ToString();
+        };
     }
 
     private void Save_Click(object sender, RoutedEventArgs e)
@@ -22,6 +31,9 @@ public partial class AccountView : UserControl
         Current.Clear(); New.Clear(); Confirm.Clear();
         Ui.Info("Password updated.");
     }
+
+    private void Settings_Click(object sender, RoutedEventArgs e) => MainWindow.Current.Go("settings");
+    private void SignOut_Click(object sender, RoutedEventArgs e) => MainWindow.Current.SignOutNow();
 
     private void OpenFolder_Click(object sender, RoutedEventArgs e)
     {

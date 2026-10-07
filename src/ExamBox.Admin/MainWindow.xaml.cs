@@ -154,6 +154,8 @@ public partial class MainWindow : Window
 
     private void Nav_Click(object sender, RoutedEventArgs e) => Go((string)((RadioButton)sender).Tag);
 
+    public void SignOutNow() => SignOut_Click(this, new RoutedEventArgs());
+
     private void SignOut_Click(object sender, RoutedEventArgs e)
     {
         ProfilePopup.IsOpen = false;
