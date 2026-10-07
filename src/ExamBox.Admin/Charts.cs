@@ -307,6 +307,17 @@ internal static class Palette
     private static SolidColorBrush B(string hex) { var b = new SolidColorBrush((Color)ColorConverter.ConvertFromString(hex)); b.Freeze(); return b; }
     public static readonly Brush[] Grade = { B("#0B5FF0"), B("#19B58A"), B("#6AA9FF"), B("#7B61FF"), B("#F2A900") };
     public static readonly string[] GradeRange = { "90% +", "80–89%", "70–79%", "60–69%", "Below 60%" };
+    private static readonly (Brush Bg, Brush Fg)[] Avatars =
+    {
+        (B("#E3EDFF"), B("#0B5FF0")), (B("#DDF6EC"), B("#0F9D58")), (B("#EBE6FF"), B("#6B4FE8")),
+        (B("#FFF1D6"), B("#C77D00")), (B("#FFE4EA"), B("#D63C63")), (B("#DDF3F8"), B("#0E8AA3")),
+    };
+    /// <summary>A stable colour pair per name, so each student keeps the same avatar colour.</summary>
+    public static (Brush Bg, Brush Fg) Avatar(string name)
+    {
+        var h = 17; foreach (var ch in name) h = h * 31 + ch;
+        return Avatars[(h & 0x7fffffff) % Avatars.Length];
+    }
     public static readonly Brush Passed = B("#19B58A");
     public static readonly Brush Failed = B("#E5484D");
 
