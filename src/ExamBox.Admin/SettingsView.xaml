@@ -100,7 +100,7 @@
                             </StackPanel>
                         </StackPanel>
                         <TextBlock Margin="0,14,0,0" TextWrapping="Wrap" Foreground="{StaticResource InkBrush}" LineHeight="21"
-                                   Text="•  Passwords are stored hashed; no password is ever saved in plain text.&#10;•  After 10 wrong sign-in attempts an account is locked for 5 minutes.&#10;•  You sign in again every time ExamBox starts.&#10;•  Student sessions end when ExamBox restarts or after 2 hours idle.&#10;•  Forgot the admin password? Run ExamBox.exe --reset-admin NewPassword."/>
+                                   Text="•  Passwords are stored hashed; no password is ever saved in plain text.&#10;•  After 10 wrong sign-in attempts an account is locked for 5 minutes.&#10;•  You sign in again every time ExamBox starts. With “Remember me”, the saved password is pre-filled (encrypted for your Windows account) but never signs you in by itself.&#10;•  Student sessions end when ExamBox restarts or after 2 hours idle.&#10;•  Forgot the admin password? Run ExamBox.exe --reset-admin NewPassword."/>
                     </StackPanel>
                 </Border>
 

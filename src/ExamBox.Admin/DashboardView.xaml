@@ -5,7 +5,7 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel>
             <Border x:Name="HeroOuter" CornerRadius="24" Background="#0A3A9E" Effect="{StaticResource SoftShadow}">
-                <Border x:Name="HeroBanner" CornerRadius="24" local:Round.Clip="True" MinHeight="430">
+                <Border x:Name="HeroBanner" CornerRadius="24" local:Round.Clip="True" MinHeight="446">
                     <Border.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,0.7">
                             <GradientStop Color="#0A3A9E" Offset="0"/>
@@ -67,16 +67,16 @@
                             </StackPanel>
 
                             <Viewbox Grid.Column="1" StretchDirection="DownOnly" Stretch="Uniform" VerticalAlignment="Bottom" HorizontalAlignment="Right">
-                                <Grid Width="740" Height="430">
+                                <Grid Width="740" Height="446">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="0,26,0,0">
-                                        <Border Width="228" Height="120" Background="#F7FFFFFF" CornerRadius="14" Padding="14,10" Margin="0,0,12,0" Effect="{StaticResource CardShadow}">
+                                        <Border Width="228" Height="128" Background="#F7FFFFFF" CornerRadius="14" Padding="14,10" Margin="0,0,12,0" Effect="{StaticResource CardShadow}">
                                             <StackPanel>
                                                 <DockPanel><TextBlock Text="···" DockPanel.Dock="Right" Foreground="{StaticResource MutedBrush}" FontWeight="Bold"/><TextBlock Text="Exams" FontWeight="Bold" FontSize="13.5" Foreground="{StaticResource InkBrush}"/></DockPanel>
                                                 <DockPanel Margin="0,12,0,0"><TextBlock x:Name="MiniPublished" DockPanel.Dock="Right" FontSize="20" FontWeight="ExtraBold" Foreground="{StaticResource InkBrush}"/><Ellipse Width="9" Height="9" Fill="#19B58A" Margin="0,0,8,0" VerticalAlignment="Center"/><StackPanel><TextBlock Text="Published" FontSize="12.5" FontWeight="SemiBold" Foreground="{StaticResource InkBrush}"/><TextBlock x:Name="MiniPublishedOf" FontSize="10.5" Foreground="{StaticResource MutedBrush}"/></StackPanel></DockPanel>
                                                 <DockPanel Margin="0,9,0,0"><TextBlock x:Name="MiniInProgress" DockPanel.Dock="Right" FontSize="20" FontWeight="ExtraBold" Foreground="{StaticResource InkBrush}"/><Ellipse Width="9" Height="9" Fill="#F2A900" Margin="0,0,8,0" VerticalAlignment="Center"/><TextBlock Text="In progress" FontSize="12.5" FontWeight="SemiBold" Foreground="{StaticResource InkBrush}" VerticalAlignment="Center"/></DockPanel>
                                             </StackPanel>
                                         </Border>
-                                        <Border Width="228" Height="120" Background="#F7FFFFFF" CornerRadius="14" Padding="14,10" Margin="0,0,12,0" Effect="{StaticResource CardShadow}">
+                                        <Border Width="228" Height="128" Background="#F7FFFFFF" CornerRadius="14" Padding="14,10" Margin="0,0,12,0" Effect="{StaticResource CardShadow}">
                                             <Grid>
                                                 <StackPanel>
                                                     <DockPanel><TextBlock Text="···" DockPanel.Dock="Right" Foreground="{StaticResource MutedBrush}" FontWeight="Bold"/><TextBlock Text="Students" FontWeight="Bold" FontSize="13.5" Foreground="{StaticResource InkBrush}"/></DockPanel>
@@ -86,7 +86,7 @@
                                                 <local:Sparkline x:Name="MiniSpark" Height="34" Width="104" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
                                             </Grid>
                                         </Border>
-                                        <Border Width="228" Height="120" Background="#F7FFFFFF" CornerRadius="14" Padding="14,10" Margin="0" Effect="{StaticResource CardShadow}">
+                                        <Border Width="228" Height="128" Background="#F7FFFFFF" CornerRadius="14" Padding="14,10" Margin="0" Effect="{StaticResource CardShadow}">
                                             <StackPanel>
                                                 <DockPanel><TextBlock Text="···" DockPanel.Dock="Right" Foreground="{StaticResource MutedBrush}" FontWeight="Bold"/><TextBlock Text="Growth" FontWeight="Bold" FontSize="13.5" Foreground="{StaticResource InkBrush}"/></DockPanel>
                                                 <TextBlock Text="Exams completed per month" FontSize="10.5" Foreground="{StaticResource MutedBrush}"/>
@@ -95,7 +95,7 @@
                                         </Border>
                                     </StackPanel>
                                     <Image Source="/Assets/admin-hero.png" Width="352" Height="286" HorizontalAlignment="Right" VerticalAlignment="Bottom" Stretch="Uniform"/>
-                                    <Border x:Name="MiniStats" Width="305" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,134,0,0" Background="#F7FFFFFF" CornerRadius="16" Effect="{StaticResource SoftShadow}">
+                                    <Border x:Name="MiniStats" Width="305" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,172,0,0" Background="#F7FFFFFF" CornerRadius="16" Effect="{StaticResource SoftShadow}">
                                         <Border.RenderTransform><TranslateTransform x:Name="MiniBob"/></Border.RenderTransform>
                                         <Border.Triggers>
                                             <EventTrigger RoutedEvent="FrameworkElement.Loaded">

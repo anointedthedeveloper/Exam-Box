@@ -138,7 +138,7 @@
                             </StackPanel>
 
                             <Grid Margin="2,18,0,0">
-                                <CheckBox x:Name="RememberMe" Content="Remember my username" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                <CheckBox x:Name="RememberMe" Content="Remember me" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                                 <TextBlock x:Name="ForgotLink" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="13">
                                     <Hyperlink Click="Forgot_Click" TextDecorations="None" Foreground="{StaticResource BlueBrush}" FontWeight="SemiBold">Forgot password?</Hyperlink>
                                 </TextBlock>

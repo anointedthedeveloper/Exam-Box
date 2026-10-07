@@ -15,9 +15,11 @@ public sealed class AppSettings
     /// <summary>The "new" badge in the sidebar disappears once the page has been opened.</summary>
     public bool SeenReports { get; set; }
     public bool SeenSettings { get; set; }
-    /// <summary>"Remember me": the last administrator username, pre-filled on the sign-in screen.
-    /// No password is ever stored: the administrator signs in again every time the app starts.</summary>
+    /// <summary>"Remember me": the last administrator username, pre-filled on the sign-in screen.</summary>
     public string? RememberedUser { get; set; }
+    /// <summary>The password, encrypted with Windows DPAPI for the current Windows user only. It is pre-filled on the
+    /// sign-in screen; the administrator still has to press Sign in (there is no automatic sign-in).</summary>
+    public string? RememberedSecret { get; set; }
 
     private string _path = "";
 

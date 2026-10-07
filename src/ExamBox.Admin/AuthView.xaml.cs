@@ -35,6 +35,8 @@ public partial class AuthView : UserControl
         {
             Username.Text = App.Settings.RememberedUser;
             RememberMe.IsChecked = true;
+            var saved = Secrets.Unprotect(App.Settings.RememberedSecret);
+            if (saved != null) Password.Password = saved;   // pre-filled only: signing in is still a deliberate click
         }
 
         _slideTimer.Tick += (_, _) => NextSlide();
@@ -228,6 +230,8 @@ public partial class AuthView : UserControl
 
         if (r.User == null)
         {
+            // A remembered password that no longer works (e.g. it was reset) must not be offered again.
+            if (Secrets.Unprotect(App.Settings.RememberedSecret) == password) { App.Settings.RememberedSecret = null; App.Settings.Save(); }
             if (r.LockedUntil != null) StartLock(r.LockedUntil.Value);
             else ShowError(r.Error ?? "Sign-in failed.", warning: r.AttemptsLeft is > 0);
             Password.Clear(); PasswordVisible.Clear();
@@ -235,8 +239,10 @@ public partial class AuthView : UserControl
             return;
         }
 
-        // "Remember me" only remembers the username; the password is never stored.
-        App.Settings.RememberedUser = RememberMe.IsChecked == true ? r.User.Username : null;
+        // "Remember me": keep the username and the (DPAPI-encrypted) password so the form is pre-filled next time.
+        var remember = RememberMe.IsChecked == true;
+        App.Settings.RememberedUser = remember ? r.User.Username : null;
+        App.Settings.RememberedSecret = remember ? Secrets.Protect(password) : null;
         App.Settings.Save();
         MainWindow.Current.SignedIn(r.User);
     }
