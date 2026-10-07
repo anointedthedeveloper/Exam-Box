@@ -6,8 +6,8 @@
             <TextBlock Text="Settings" Style="{StaticResource H1}"/>
             <TextBlock Text="Make ExamBox yours. Changes apply straight away." Style="{StaticResource Muted}" Margin="0,2,0,18"/>
 
-            <WrapPanel>
-                <Border Style="{StaticResource Card}" Width="430" Margin="0,0,18,18">
+            <UniformGrid Columns="2">
+                <Border Style="{StaticResource Card}" Margin="0,0,9,18">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <Border Style="{StaticResource IconBadge}"><TextBlock Text="&#xE825;" Style="{StaticResource IconGlyph}"/></Border>
@@ -22,7 +22,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource Card}" Width="430" Margin="0,0,0,18">
+                <Border Style="{StaticResource Card}" Margin="9,0,0,18">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <Border Style="{StaticResource IconBadge}"><TextBlock Text="&#xE916;" Style="{StaticResource IconGlyph}"/></Border>
@@ -44,7 +44,7 @@
                         </Grid>
                     </StackPanel>
                 </Border>
-            </WrapPanel>
+            </UniformGrid>
 
             <StackPanel Orientation="Horizontal" Margin="0,0,0,22">
                 <Button Content="Save changes" Style="{StaticResource PrimaryButton}" Click="Save_Click"/>
@@ -52,8 +52,8 @@
                 <TextBlock x:Name="ErrorText" Style="{StaticResource ErrorText}" Margin="0" VerticalAlignment="Center" Visibility="Collapsed"/>
             </StackPanel>
 
-            <WrapPanel>
-                <Border Style="{StaticResource Card}" Width="430" Margin="0,0,18,18">
+            <UniformGrid Columns="2">
+                <Border Style="{StaticResource Card}" Margin="0,0,9,18">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <Border Style="{StaticResource IconBadge}"><TextBlock Text="&#xE774;" Style="{StaticResource IconGlyph}"/></Border>
@@ -70,7 +70,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource Card}" Width="430" Margin="0,0,0,18">
+                <Border Style="{StaticResource Card}" Margin="9,0,0,18">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <Border Style="{StaticResource IconBadge}"><TextBlock Text="&#xE8B7;" Style="{StaticResource IconGlyph}"/></Border>
@@ -90,7 +90,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource Card}" Width="430" Margin="0,0,18,18">
+                <Border Style="{StaticResource Card}" Margin="0,0,9,18">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <Border Style="{StaticResource IconBadge}"><TextBlock Text="&#xE72E;" Style="{StaticResource IconGlyph}"/></Border>
@@ -104,7 +104,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource Card}" Width="430" Margin="0,0,0,18">
+                <Border Style="{StaticResource Card}" Margin="9,0,0,18">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <Border Style="{StaticResource IconBadge}"><TextBlock Text="&#xE946;" Style="{StaticResource IconGlyph}"/></Border>
@@ -115,7 +115,7 @@
                         <TextBlock x:Name="AboutText" Margin="0,14,0,0" TextWrapping="Wrap" Foreground="{StaticResource InkBrush}" LineHeight="21"/>
                     </StackPanel>
                 </Border>
-            </WrapPanel>
+            </UniformGrid>
         </StackPanel>
     </ScrollViewer>
 </UserControl>
