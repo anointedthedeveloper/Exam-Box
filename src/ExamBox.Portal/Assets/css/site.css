@@ -380,3 +380,19 @@ textarea.theory{min-height:150px;line-height:1.55;background:rgba(255,255,255,.8
 .res-stats{margin-bottom:26px}
 .stat .n small{font-size:1rem;color:var(--mut);font-weight:700;margin-left:2px}
 .typed{line-height:1.6}
+
+
+/* ===================== v10: change password ===================== */
+.pw-card{margin:8px auto 0;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);max-width:900px;border-radius:22px;overflow:hidden;background:rgba(255,255,255,.72);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.9);box-shadow:0 20px 60px rgba(31,60,140,.16)}
+.pw-side{background:linear-gradient(150deg,#0847b8,#0b5ff0 65%,#3d8bff);color:#fff;padding:34px 30px;position:relative;overflow:hidden}
+.pw-side::after{content:"";position:absolute;width:260px;height:260px;border-radius:50%;background:#fff;opacity:.07;right:-90px;bottom:-90px}
+.pw-side h2{font-size:1.45rem;margin:16px 0 8px}
+.pw-side p{color:#dbe6ff;margin:0 0 16px}
+.pw-side ul{margin:0;padding-left:18px;color:#cfdcff}.pw-side li{margin:7px 0}
+.pw-shield{width:60px;height:60px;border-radius:18px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);display:grid;place-items:center}
+.pw-shield svg{width:30px;height:30px;fill:#fff}
+.pw-form{padding:30px 32px}
+.pw-form .form-actions{margin-top:20px;flex-wrap:wrap}
+.match{min-height:1.4em;margin-top:10px;font-weight:700;font-size:.9rem}
+.match.ok{color:var(--ok)}.match.bad{color:var(--err)}
+@media(max-width:760px){.pw-card{grid-template-columns:1fr}.pw-side{padding:24px}}
