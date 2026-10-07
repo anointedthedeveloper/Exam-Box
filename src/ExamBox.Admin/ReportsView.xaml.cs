@@ -39,6 +39,9 @@ public partial class ReportsView : UserControl
     private void Reload()
     {
         var r = App.Reports.Build(ExamId, Since);
+        var waiting = App.Marking.PendingCount();
+        PendingBanner.Visibility = waiting > 0 ? Visibility.Visible : Visibility.Collapsed;
+        PendingText.Text = $"{waiting} submission(s) are still awaiting theory marking and are not counted in these figures yet.";
 
         Anim.CountUp(KpiAttempts, r.Attempts);
         KpiAttemptsSub.Text = "submitted exams";
@@ -75,6 +78,8 @@ public partial class ReportsView : UserControl
         TopTable.ItemsSource = r.TopStudents.Select(s => new TopRow(++rank, s.Name.Length > 0 ? s.Name[..1].ToUpperInvariant() : "?", s.Name, s.Username, s.Exams, $"{s.AvgPercent}%")).ToList();
         TopEmpty.Visibility = r.TopStudents.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
     }
+
+    private void Marking_Click(object sender, RoutedEventArgs e) => MainWindow.Current.Go("marking");
 
     private static string Csv(string s) => "\"" + s.Replace("\"", "\"\"") + "\"";
 

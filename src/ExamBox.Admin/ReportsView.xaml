@@ -23,13 +23,20 @@
                 </StackPanel>
             </DockPanel>
 
+            <Border x:Name="PendingBanner" Background="{StaticResource WarnBgBrush}" CornerRadius="12" Padding="16,11" Margin="0,0,0,14" Visibility="Collapsed">
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" Content="Go to marking" Style="{StaticResource GhostButton}" Click="Marking_Click" Margin="12,0,0,0" Padding="12,5"/>
+                    <TextBlock x:Name="PendingText" Foreground="{StaticResource WarnBrush}" FontWeight="SemiBold" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                </DockPanel>
+            </Border>
+
             <UniformGrid x:Name="KpiRow" Rows="1">
                 <Border Style="{StaticResource Card}" Margin="0,0,8,0">
                     <DockPanel>
-                        <Border DockPanel.Dock="Right" Width="42" Height="42" CornerRadius="12" Background="#3D8BFF" VerticalAlignment="Top">
+                        <Border DockPanel.Dock="Left" Width="44" Height="44" CornerRadius="12" Background="#3D8BFF" VerticalAlignment="Center">
                             <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
-                        <StackPanel>
+                        <StackPanel Margin="14,0,0,0" VerticalAlignment="Center">
                             <TextBlock x:Name="KpiAttempts" Style="{StaticResource StatNumber}"/>
                             <TextBlock Text="Submissions" FontWeight="SemiBold" Foreground="{StaticResource MutedBrush}"/>
                             <TextBlock x:Name="KpiAttemptsSub" FontSize="12" Foreground="{StaticResource MutedBrush}"/>
@@ -38,10 +45,10 @@
                 </Border>
                 <Border Style="{StaticResource Card}" Margin="0,0,8,0">
                     <DockPanel>
-                        <Border DockPanel.Dock="Right" Width="42" Height="42" CornerRadius="12" Background="#7B61FF" VerticalAlignment="Top">
+                        <Border DockPanel.Dock="Left" Width="44" Height="44" CornerRadius="12" Background="#7B61FF" VerticalAlignment="Center">
                             <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
-                        <StackPanel>
+                        <StackPanel Margin="14,0,0,0" VerticalAlignment="Center">
                             <TextBlock x:Name="KpiAvg" Style="{StaticResource StatNumber}"/>
                             <TextBlock Text="Average score" FontWeight="SemiBold" Foreground="{StaticResource MutedBrush}"/>
                             <TextBlock x:Name="KpiAvgSub" FontSize="12" Foreground="{StaticResource MutedBrush}"/>
@@ -50,10 +57,10 @@
                 </Border>
                 <Border Style="{StaticResource Card}" Margin="0,0,8,0">
                     <DockPanel>
-                        <Border DockPanel.Dock="Right" Width="42" Height="42" CornerRadius="12" Background="#19B58A" VerticalAlignment="Top">
+                        <Border DockPanel.Dock="Left" Width="44" Height="44" CornerRadius="12" Background="#19B58A" VerticalAlignment="Center">
                             <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
-                        <StackPanel>
+                        <StackPanel Margin="14,0,0,0" VerticalAlignment="Center">
                             <TextBlock x:Name="KpiPass" Style="{StaticResource StatNumber}"/>
                             <TextBlock Text="Pass rate" FontWeight="SemiBold" Foreground="{StaticResource MutedBrush}"/>
                             <TextBlock x:Name="KpiPassSub" FontSize="12" Foreground="{StaticResource MutedBrush}"/>
@@ -62,10 +69,10 @@
                 </Border>
                 <Border Style="{StaticResource Card}" Margin="0,0,0,0">
                     <DockPanel>
-                        <Border DockPanel.Dock="Right" Width="42" Height="42" CornerRadius="12" Background="#F2A900" VerticalAlignment="Top">
+                        <Border DockPanel.Dock="Left" Width="44" Height="44" CornerRadius="12" Background="#F2A900" VerticalAlignment="Center">
                             <TextBlock Text="&#xE734;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
-                        <StackPanel>
+                        <StackPanel Margin="14,0,0,0" VerticalAlignment="Center">
                             <TextBlock x:Name="KpiHigh" Style="{StaticResource StatNumber}"/>
                             <TextBlock Text="Highest score" FontWeight="SemiBold" Foreground="{StaticResource MutedBrush}"/>
                             <TextBlock x:Name="KpiHighSub" FontSize="12" Foreground="{StaticResource MutedBrush}"/>
@@ -108,10 +115,13 @@
                 </Border>
             </Grid>
 
-            <TextBlock Text="Exam performance" Style="{StaticResource H2}" Margin="0,22,0,10"/>
+            <Grid Margin="0,22,0,0">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="1.5*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+<TextBlock Text="Exam performance" Style="{StaticResource H2}" Margin="0,0,0,10"/>
             <Border Style="{StaticResource GridCard}">
                 <Grid>
-                    <DataGrid x:Name="ExamsTable" RowHeight="52" MinHeight="120" MaxHeight="420">
+                    <DataGrid x:Name="ExamsTable" RowHeight="52" MinHeight="120" MaxHeight="520">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="EXAM" Binding="{Binding Exam}" Width="2*"/>
                             <DataGridTextColumn Header="ATTEMPTS" Binding="{Binding Attempts}" Width="100"/>
@@ -120,7 +130,7 @@
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                            <ProgressBar Style="{StaticResource SlimProgress}" Value="{Binding PassRate, Mode=OneWay}" Maximum="100" Width="110"/>
+                                            <ProgressBar Style="{StaticResource SlimProgress}" Value="{Binding PassRate, Mode=OneWay}" Maximum="100" Width="80"/>
                                             <TextBlock Text="{Binding PassRateText}" FontWeight="SemiBold" Margin="10,0,0,0"/>
                                         </StackPanel>
                                     </DataTemplate>
@@ -134,7 +144,9 @@
                 </Grid>
             </Border>
 
-            <TextBlock Text="Top students" Style="{StaticResource H2}" Margin="0,22,0,10"/>
+                            </StackPanel>
+                <StackPanel Grid.Column="2">
+<TextBlock Text="Top students" Style="{StaticResource H2}" Margin="0,0,0,10"/>
             <Border Style="{StaticResource GridCard}" Margin="0,0,0,12">
                 <Grid>
                     <DataGrid x:Name="TopTable" RowHeight="54" MinHeight="120" MaxHeight="480">
@@ -152,14 +164,15 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="STUDENT ID" Binding="{Binding StudentId}" Width="*"/>
-                            <DataGridTextColumn Header="EXAMS TAKEN" Binding="{Binding Exams}" Width="130"/>
+                                                        <DataGridTextColumn Header="EXAMS" Binding="{Binding Exams}" Width="80"/>
                             <DataGridTextColumn Header="AVERAGE" Binding="{Binding Average}" Width="110"/>
                         </DataGrid.Columns>
                     </DataGrid>
                     <TextBlock x:Name="TopEmpty" Text="Top students appear once exams are submitted." Style="{StaticResource Muted}" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed"/>
                 </Grid>
             </Border>
+                </StackPanel>
+            </Grid>
         </StackPanel>
     </ScrollViewer>
 </UserControl>
