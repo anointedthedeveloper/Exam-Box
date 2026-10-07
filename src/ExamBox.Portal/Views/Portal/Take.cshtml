@@ -10,6 +10,8 @@
     <div><strong>@Model.Exam.Title</strong><div class="prog"><span id="answered">0</span> of @gradable answered · <span id="saved" class="saved">Saved</span></div></div>
     <div class="t" id="clock">--:--</div>
 </div>
+<div class="exam-layout">
+<div class="exam-main">
 <form method="post" id="examForm" asp-action="Submit" asp-route-id="@Model.Attempt.Id" data-loading="Submitting your exam…" data-overlay>
 @if (!string.IsNullOrWhiteSpace(Model.Exam.Description))
 {
@@ -21,7 +23,7 @@
     foreach (var q in objective)
     {
         Model.Saved.TryGetValue(q.Id, out var sv);
-        <div class="q"><div class="q-h"><span><span class="q-num">@labels[q.Id]</span>@q.Text</span><span class="badge">@q.Marks mark@(q.Marks == 1 ? "" : "s")</span></div>
+        <div class="q" id="qb_@q.Id"><div class="q-h"><span><span class="q-num">@labels[q.Id]</span>@q.Text</span><span class="badge">@q.Marks mark@(q.Marks == 1 ? "" : "s")</span></div>
         @if (q.HasImage) { <img class="q-img" loading="lazy" src="/portal/media/@q.Id" alt="Picture for question @labels[q.Id]" /> }
         @foreach (var o in q.Options())
         {
@@ -37,12 +39,12 @@
     {
         if (QLabel.IsPassage(q))
         {
-            <div class="q passage"><div class="q-h"><span><span class="q-num">@labels[q.Id]</span>@q.Text</span></div>
+            <div class="q passage" id="qb_@q.Id"><div class="q-h"><span><span class="q-num">@labels[q.Id]</span>@q.Text</span></div>
             @if (q.HasImage) { <img class="q-img" loading="lazy" src="/portal/media/@q.Id" alt="" /> }</div>
             continue;
         }
         Model.Saved.TryGetValue(q.Id, out var sv);
-        <div class="q"><div class="q-h"><span><span class="q-num">@labels[q.Id]</span>@q.Text</span><span class="badge">@q.Marks mark@(q.Marks == 1 ? "" : "s")</span></div>
+        <div class="q" id="qb_@q.Id"><div class="q-h"><span><span class="q-num">@labels[q.Id]</span>@q.Text</span><span class="badge">@q.Marks mark@(q.Marks == 1 ? "" : "s")</span></div>
         @if (q.HasImage) { <img class="q-img" loading="lazy" src="/portal/media/@q.Id" alt="Picture for question @labels[q.Id]" /> }
         <textarea class="theory" name="q_@q.Id" rows="6" maxlength="@AttemptService.MaxTheoryChars" placeholder="Type your answer to @labels[q.Id] here…" spellcheck="true">@sv?.Text</textarea>
         <div class="muted small right wc"></div></div>
@@ -50,6 +52,22 @@
 }
 <div class="actions"><button class="btn lg" id="submitBtn"><span class="lbl">Submit exam</span><span class="spinner sm"></span></button></div>
 </form>
+</div>
+<aside class="exam-side">
+    <div class="side-card">
+        <h3>Questions</h3>
+        <div class="progress"><i id="bar" style="width:0%"></i></div>
+        <p class="muted small" id="barText"></p>
+        <div class="palette">
+        @foreach (var q in Model.Questions.Where(q => !QLabel.IsPassage(q)))
+        {
+            <a href="#qb_@q.Id" data-q="@q.Id" data-type="@(q.Type == QuestionType.Theory ? "t" : "o")">@labels[q.Id]</a>
+        }
+        </div>
+        <p class="muted small legend"><i class="lgd done"></i> answered <i class="lgd"></i> not yet</p>
+    </div>
+</aside>
+</div>
 @section Scripts {
 <script>
 (function () {
@@ -70,6 +88,16 @@
       t.parentNode.querySelector('.wc').textContent = t.value.trim() ? t.value.trim().split(/\s+/).length + ' words' : '';
     });
     answered.textContent = n;
+    var pal = document.querySelectorAll('.palette a'), done = 0;
+    pal.forEach(function (a) {
+      var id = a.dataset.q, ok;
+      if (a.dataset.type === 'o') ok = !!form.querySelector('input[name="q_' + id + '"]:checked');
+      else { var t = form.querySelector('textarea[name="q_' + id + '"]'); ok = !!(t && t.value.trim()); }
+      a.classList.toggle('done', ok); if (ok) done++;
+    });
+    var pct = pal.length ? Math.round(done * 100 / pal.length) : 0;
+    document.getElementById('bar').style.width = pct + '%';
+    document.getElementById('barText').textContent = done + ' of ' + pal.length + ' answered';
   }
   function state(t, cls) { savedEl.textContent = t; savedEl.className = 'saved ' + (cls || ''); }
   function save() {
