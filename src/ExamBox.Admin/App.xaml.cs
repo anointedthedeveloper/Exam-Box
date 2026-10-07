@@ -15,6 +15,8 @@ public partial class App : Application
     public static ExamService Exams { get; private set; } = null!;
     public static DashboardService Dashboard { get; private set; } = null!;
     public static ReportService Reports { get; private set; } = null!;
+    public static AttemptService Attempts { get; private set; } = null!;
+    public static MarkingService Marking { get; private set; } = null!;
     public static AppSettings Settings { get; private set; } = null!;
     public static PortalManager Portal { get; } = new();
     public static User? CurrentUser { get; set; }
@@ -81,6 +83,8 @@ public partial class App : Application
         Exams = new ExamService(Db);
         Dashboard = new DashboardService(Db);
         Reports = new ReportService(Db);
+        Attempts = new AttemptService(Db);
+        Marking = new MarkingService(Db);
         Settings = AppSettings.Load(Db.DataDir);
 
         if (Settings.AutoStartServer)

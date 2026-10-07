@@ -1,0 +1,42 @@
+<Window UseLayoutRounding="True" SnapsToDevicePixels="True" x:Class="ExamBox.Admin.StudentImportDialog" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Width="600" SizeToContent="Height" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" ShowInTaskbar="False" Background="{StaticResource PageBackgroundBrush}" FontFamily="Segoe UI">
+    <Grid>
+        <Canvas IsHitTestVisible="False" ClipToBounds="True">
+            <Ellipse Width="340" Height="340" Fill="{StaticResource OrbBlueBrush}" Canvas.Right="-120" Canvas.Top="-130"/>
+            <Ellipse Width="300" Height="300" Fill="{StaticResource OrbPurpleBrush}" Canvas.Left="-110" Canvas.Bottom="-120"/>
+        </Canvas>
+        <Border Background="{StaticResource FrostBrush}" CornerRadius="16" Margin="12" BorderBrush="#B3FFFFFF" BorderThickness="1.5">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="780">
+            <StackPanel Margin="26">
+                <StackPanel Orientation="Horizontal"><Border Style="{StaticResource IconBadge}"><TextBlock Text="&#xE8F4;" Style="{StaticResource IconGlyph}"/></Border><TextBlock x:Name="Heading" Style="{StaticResource H2}" VerticalAlignment="Center" Margin="12,0,0,0"/></StackPanel>
+                <TextBlock x:Name="Sub" Style="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                <Button Content="Download the Excel template" Style="{StaticResource GhostButton}" HorizontalAlignment="Left" Click="Template_Click" Margin="0,12,0,0"/>
+                <TextBlock Text="Student list (.xlsx)" Style="{StaticResource FieldLabel}"/>
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" Content="Choose file…" Style="{StaticResource GhostButton}" Click="Pick_Click" Margin="10,0,0,0"/>
+                    <TextBox x:Name="FilePath" IsReadOnly="True"/>
+                </DockPanel>
+                <TextBlock Text="Class for students without one (optional)" Style="{StaticResource FieldLabel}"/>
+                <TextBox x:Name="DefaultClass"/>
+                <Border x:Name="PreviewBox" Visibility="Collapsed" Margin="0,16,0,0" Padding="14" CornerRadius="12" Background="#80FFFFFF" BorderBrush="{StaticResource LineBrush}" BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock x:Name="PreviewTitle" FontWeight="Bold" FontSize="14"/>
+                        <TextBlock x:Name="PreviewSub" Style="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                        <ItemsControl x:Name="IssueList" Margin="0,8,0,0">
+                            <ItemsControl.Template><ControlTemplate TargetType="ItemsControl"><ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="170"><ItemsPresenter/></ScrollViewer></ControlTemplate></ItemsControl.Template>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate><TextBlock Text="{Binding Text}" Foreground="{Binding Color}" TextWrapping="Wrap" FontSize="12.5" Margin="0,2,0,0"/></DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+                <TextBlock x:Name="ErrorText" Style="{StaticResource ErrorText}" Visibility="Collapsed"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,22,0,0">
+                    <Button x:Name="CloseBtn" Content="Cancel" Style="{StaticResource GhostButton}" IsCancel="True"/>
+                    <Button x:Name="LoginsBtn" Content="Save login sheet (Excel)" Style="{StaticResource GhostButton}" Click="Logins_Click" Visibility="Collapsed"/>
+                    <Button x:Name="SaveBtn" Content="Import students" Style="{StaticResource PrimaryButton}" IsDefault="True" Click="Import_Click" IsEnabled="False" Margin="0"/>
+                </StackPanel>
+            </StackPanel>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</Window>

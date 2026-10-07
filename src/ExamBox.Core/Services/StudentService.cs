@@ -22,6 +22,14 @@ public sealed class StudentService(DbFactory factory)
         return q.OrderBy(u => u.FullName).ToList();
     }
 
+    /// <summary>Distinct class/department names in use, for pickers.</summary>
+    public List<string> Classes()
+    {
+        using var db = factory.Create();
+        return db.Users.Where(u => u.Role == UserRole.Student && u.Department != null && u.Department != "")
+            .Select(u => u.Department!).Distinct().OrderBy(d => d).ToList();
+    }
+
     public User? Get(int id)
     {
         using var db = factory.Create();

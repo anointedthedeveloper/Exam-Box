@@ -683,6 +683,9 @@
                             <DataTrigger Binding="{Binding Status}" Value="Published"><Setter Property="Background" Value="{StaticResource OkBgBrush}"/></DataTrigger>
                             <DataTrigger Binding="{Binding Status}" Value="Inactive"><Setter Property="Background" Value="{StaticResource ErrBgBrush}"/></DataTrigger>
                             <DataTrigger Binding="{Binding Status}" Value="Draft"><Setter Property="Background" Value="{StaticResource WarnBgBrush}"/></DataTrigger>
+                            <DataTrigger Binding="{Binding Status}" Value="Live"><Setter Property="Background" Value="{StaticResource OkBgBrush}"/></DataTrigger>
+                            <DataTrigger Binding="{Binding Status}" Value="Closed"><Setter Property="Background" Value="{StaticResource ErrBgBrush}"/></DataTrigger>
+                            <DataTrigger Binding="{Binding Status}" Value="Awaiting marking"><Setter Property="Background" Value="{StaticResource WarnBgBrush}"/></DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </Border.Style>
@@ -695,6 +698,9 @@
                                 <DataTrigger Binding="{Binding Status}" Value="Published"><Setter Property="Foreground" Value="{StaticResource OkBrush}"/></DataTrigger>
                                 <DataTrigger Binding="{Binding Status}" Value="Inactive"><Setter Property="Foreground" Value="{StaticResource ErrBrush}"/></DataTrigger>
                                 <DataTrigger Binding="{Binding Status}" Value="Draft"><Setter Property="Foreground" Value="{StaticResource WarnBrush}"/></DataTrigger>
+                                <DataTrigger Binding="{Binding Status}" Value="Live"><Setter Property="Foreground" Value="{StaticResource OkBrush}"/></DataTrigger>
+                                <DataTrigger Binding="{Binding Status}" Value="Closed"><Setter Property="Foreground" Value="{StaticResource ErrBrush}"/></DataTrigger>
+                                <DataTrigger Binding="{Binding Status}" Value="Awaiting marking"><Setter Property="Foreground" Value="{StaticResource WarnBrush}"/></DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </TextBlock.Style>
@@ -709,6 +715,7 @@
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding Outcome}" Value="Pass"><Setter Property="Background" Value="{StaticResource OkBgBrush}"/></DataTrigger>
                             <DataTrigger Binding="{Binding Outcome}" Value="Fail"><Setter Property="Background" Value="{StaticResource ErrBgBrush}"/></DataTrigger>
+                            <DataTrigger Binding="{Binding Outcome}" Value="Awaiting"><Setter Property="Background" Value="{StaticResource WarnBgBrush}"/></DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </Border.Style>
@@ -719,6 +726,7 @@
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding Outcome}" Value="Pass"><Setter Property="Foreground" Value="{StaticResource OkBrush}"/></DataTrigger>
                                 <DataTrigger Binding="{Binding Outcome}" Value="Fail"><Setter Property="Foreground" Value="{StaticResource ErrBrush}"/></DataTrigger>
+                                <DataTrigger Binding="{Binding Outcome}" Value="Awaiting"><Setter Property="Foreground" Value="{StaticResource WarnBrush}"/></DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </TextBlock.Style>

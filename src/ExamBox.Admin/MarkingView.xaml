@@ -1,0 +1,36 @@
+<UserControl x:Class="ExamBox.Admin.MarkingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Margin="0,0,0,16">
+            <TextBlock Text="Marking" Style="{StaticResource H1}"/>
+            <TextBlock x:Name="Sub" Style="{StaticResource Muted}"/>
+        </StackPanel>
+        <Border Style="{StaticResource GridCard}">
+            <Grid>
+                <DataGrid x:Name="Table" RowHeight="58" MouseDoubleClick="Grid_DoubleClick">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="STUDENT" Binding="{Binding Student}" Width="2*"/>
+                        <DataGridTextColumn Header="STUDENT ID" Binding="{Binding StudentId}" Width="*"/>
+                        <DataGridTextColumn Header="EXAM" Binding="{Binding Exam}" Width="2*"/>
+                        <DataGridTextColumn Header="OBJECTIVE" Binding="{Binding Objective}" Width="100"/>
+                        <DataGridTextColumn Header="THEORY OUT OF" Binding="{Binding TheoryMax}" Width="130"/>
+                        <DataGridTextColumn Header="SUBMITTED" Binding="{Binding Submitted}" Width="140"/>
+                        <DataGridTemplateColumn Header="" Width="Auto">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="Mark" Style="{StaticResource PrimaryButton}" Padding="16,6" Margin="0" Click="Mark_Click"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+                <StackPanel x:Name="Empty" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed">
+                    <Border Style="{StaticResource IllustrationPanel}" Width="300" HorizontalAlignment="Center"><Image Source="/Assets/admin-exams.png"/></Border>
+                    <TextBlock Text="Nothing to mark" Style="{StaticResource H2}" HorizontalAlignment="Center" Margin="0,18,0,4"/>
+                    <TextBlock Text="Theory answers appear here after students submit. Objective answers are marked automatically." Style="{StaticResource Muted}" TextAlignment="Center" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </DockPanel>
+</UserControl>

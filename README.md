@@ -7,17 +7,25 @@ Exam platform in C#/.NET 8.
 - **Student side — web portal**: students sit exams in any browser. The exe hosts the portal itself
   (default `http://<this-pc-ip>:5109`), so there is nothing else to install.
 
+Existing databases are upgraded in place when a newer version starts; nothing is lost.
 Everything is stored locally in a SQLite database. No mock data: the first launch asks you to create the
 administrator account, and all other data is created in the app.
 
 ## Using it
 
 1. Run `ExamBox.exe`, create the administrator account.
-2. **Students** → *Add student*. A temporary password is shown once; give it to the student (they must change it at first sign-in).
-3. **Exams** → *New exam*, add multiple-choice questions, then *Publish*.
-4. **Student portal** page shows the address to give students (same network/Wi-Fi). Allow ExamBox through the
+2. **Students** → *Add student*, or *Import from Excel* (download the template, list ID, name and class; ExamBox gives you a login sheet with each student's temporary password).
+3. **Exams** → *New exam* (e.g. "SS1 English First Term"). Set the duration, pass mark and, optionally, the class it is for.
+4. **Questions**: open the exam → *Download template*, let the teacher fill it in Excel, then *Import from Excel*.
+   - One question per row. `Type` is `OBJ` (multiple choice, options A–E, `Correct` letter) or `THEORY` (typed answer, optional `Model answer` marking guide).
+   - Sub-parts: give each its own row and number it `1a`, `1b`, `1c`. A THEORY row with 0 marks is a reading passage students only read.
+   - Pictures: put `YES` in the `Image` column (or a file name plus a pictures folder when importing). Questions needing a picture show **Needed**; select each and *Attach picture*. The exam cannot be launched until all are attached.
+   - A preview lists any row that needs fixing before anything is added. Questions can also be added, edited and re-ordered by hand.
+5. **Templates**: an exam that has not been launched is a draft/template. *Duplicate* it for another class or term, and *Launch* it when it is time: for everyone or one class, opening now or at a chosen date/time, closing at a chosen time or when you close it.
+6. **Student portal** page shows the address to give students (same network/Wi-Fi). Allow ExamBox through the
    Windows firewall (Private networks) when prompted. Keep ExamBox open while exams run.
-5. Open an exam → **Results** to see scores, or export them as CSV.
+7. Students see *Available*, *Coming up* and their results. Objective answers are graded instantly; theory answers are typed in the browser (autosaved every few seconds, so a crash or closed tab loses nothing) and wait in **Marking**, where you give marks and comments per question. The final result appears once marking is finished.
+8. Open an exam → **Results** to see scores, or export them as CSV.
 
 Data folder: `%LOCALAPPDATA%\ExamBox` (override with the `EXAMBOX_DATA` environment variable). Back it up by copying it.
 
@@ -29,8 +37,8 @@ Data folder: `%LOCALAPPDATA%\ExamBox` (override with the `EXAMBOX_DATA` environm
 - The student site never reveals whether an ID belongs to an administrator (same generic error for every failure).
 - Slideshow sign-in screens, illustrations, loaders and page transitions in both the desktop app and the student portal.
 - Student management: add, edit, search, deactivate, delete, reset password, exam history.
-- Exams: timed multiple-choice, marks per question, pass mark, publish/unpublish. Questions lock once a student starts.
-- Students: one attempt per exam, server-enforced deadline, automatic grading, answer review.
+- Exams: objective (A–E) and theory questions in one exam, question pictures, shuffle, show/hide correct answers, pass mark, reusable templates, scheduled launch with class targeting. Questions lock once a student starts.
+- Students: one attempt per exam, server-enforced deadline (also when a window closes), autosaved typed answers, instant objective grading, teacher-marked theory with feedback, answer review.
 - Dashboard: live stats, enrolment sparkline, monthly growth, grade-distribution donut, pass/fail trend, searchable recent submissions, getting-started checklist.
 - Reports: filter by exam and period, KPIs, per-exam pass rates, top students, CSV export.
 - Settings: institution name (also shown on the student site), exam defaults, one-click database backup, security notes.

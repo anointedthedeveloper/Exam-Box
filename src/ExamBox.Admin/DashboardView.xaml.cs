@@ -33,7 +33,7 @@ public partial class DashboardView : UserControl
 
         var d = App.Dashboard.Get(40);
         var report = App.Reports.Build();
-        var inProgress = d.Attempts - d.Completed;
+        var inProgress = d.Attempts - d.Completed - d.AwaitingMarking;
 
         // hero: the three small cards
         Anim.CountUp(MiniPublished, d.PublishedExams);
@@ -51,7 +51,7 @@ public partial class DashboardView : UserControl
         Anim.CountUp(StatStudents, d.Students);
         StatStudentsSub.Text = $"{d.ActiveStudents} active";
         Anim.CountUp(StatCompleted, d.Completed);
-        StatCompletedSub.Text = $"{inProgress} in progress";
+        StatCompletedSub.Text = d.AwaitingMarking > 0 ? $"{inProgress} in progress · {d.AwaitingMarking} awaiting marking" : $"{inProgress} in progress";
         if (d.Completed == 0) StatAvg.Text = "—"; else Anim.CountUp(StatAvg, d.AvgPercent, 1, "%");
         StatAvgSub.Text = "across submitted exams";
 
@@ -137,7 +137,7 @@ public partial class DashboardView : UserControl
         {
             (d.Students > 0, "Add your first student", "Students sign in with their student ID.", "Add student", () => MainWindow.Current.Go("students", openAdd: true)),
             (d.Exams > 0, "Create an exam", "Set the title, timer and pass mark.", "New exam", () => MainWindow.Current.Go("exams", openAdd: true)),
-            (d.PublishedExams > 0, "Add questions and publish", "Students only see published exams.", "Open exams", () => MainWindow.Current.Go("exams")),
+            (d.PublishedExams > 0, "Add questions and launch", "Import a question sheet, then launch the exam for your students.", "Open exams", () => MainWindow.Current.Go("exams")),
             (App.Portal.Running, "Share the student portal address", "Students open it in any browser on your network.", "Show address", () => MainWindow.Current.Go("server")),
         };
         var done = steps.Count(s => s.Done);

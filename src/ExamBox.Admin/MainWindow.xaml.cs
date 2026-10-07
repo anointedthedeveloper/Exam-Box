@@ -23,13 +23,13 @@ public partial class MainWindow : Window
         ShowAuth();
     }
 
-    private RadioButton[] NavButtons => new[] { NavDashboard, NavStudents, NavExams, NavReports, NavSettings, NavServer };
+    private RadioButton[] NavButtons => new[] { NavDashboard, NavStudents, NavExams, NavMarking, NavReports, NavSettings, NavServer };
     private RadioButton? CurrentNav => NavButtons.FirstOrDefault(r => r.IsChecked == true);
 
     /// <summary>Narrow windows: icons only (labels move into tooltips), then hide the brand and profile text too.</summary>
     private void ApplyCompact()
     {
-        var iconsOnly = ActualWidth < 1290;
+        var iconsOnly = ActualWidth < 1420;
         foreach (var r in NavButtons)
         {
             var kids = ((StackPanel)r.Content).Children;
@@ -42,7 +42,7 @@ public partial class MainWindow : Window
 
     private void RefreshBadges(bool? iconsOnly = null)
     {
-        var compact = iconsOnly ?? ActualWidth < 1290;
+        var compact = iconsOnly ?? ActualWidth < 1420;
         ReportsBadge.Visibility = !compact && !App.Settings.SeenReports ? Visibility.Visible : Visibility.Collapsed;
         SettingsBadge.Visibility = !compact && !App.Settings.SeenSettings ? Visibility.Visible : Visibility.Collapsed;
     }
@@ -108,6 +108,7 @@ public partial class MainWindow : Window
         {
             "students" => ((RadioButton?)NavStudents, (UserControl)new StudentsView(openAdd)),
             "exams" => (NavExams, new ExamsView(openAdd)),
+            "marking" => (NavMarking, new MarkingView()),
             "reports" => (NavReports, new ReportsView()),
             "settings" => (NavSettings, new SettingsView()),
             "server" => (NavServer, new ServerView()),
@@ -118,7 +119,18 @@ public partial class MainWindow : Window
         MovePill(radio);
         if (page == "reports" && !App.Settings.SeenReports) { App.Settings.SeenReports = true; App.Settings.Save(); RefreshBadges(); }
         if (page == "settings" && !App.Settings.SeenSettings) { App.Settings.SeenSettings = true; App.Settings.Save(); RefreshBadges(); }
+        RefreshMarkingBadge();
         ShowPage(view);
+    }
+
+    /// <summary>Shows how many submissions wait for theory marking on the Marking tab.</summary>
+    public void RefreshMarkingBadge()
+    {
+        var n = 0;
+        try { n = App.Marking.PendingCount(); } catch { /* database busy: keep the old badge */ }
+        MarkingBadgeText.Text = n > 99 ? "99+" : n.ToString();
+        MarkingBadge.Visibility = n > 0 ? Visibility.Visible : Visibility.Collapsed;
+        MovePill(CurrentNav, animate: false);
     }
 
     /// <summary>Swap the page with a short fade/slide-in.</summary>

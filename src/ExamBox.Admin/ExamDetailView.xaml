@@ -13,56 +13,75 @@
                         </Border>
                     </StackPanel>
                     <TextBlock x:Name="Meta" Style="{StaticResource Muted}"/>
+                    <TextBlock x:Name="WindowInfo" Style="{StaticResource Muted}" FontSize="12"/>
                 </StackPanel>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button x:Name="PublishBtn" Style="{StaticResource PrimaryButton}" Click="Publish_Click"/>
+                    <Button x:Name="LaunchBtn" Style="{StaticResource PrimaryButton}" Click="Launch_Click"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE768;" FontFamily="Segoe MDL2 Assets" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center"/><TextBlock Text="Launch" VerticalAlignment="Center"/></StackPanel></Button>
+                    <Button x:Name="StopBtn" Style="{StaticResource DangerButton}" Click="Stop_Click"><StackPanel Orientation="Horizontal"><TextBlock Text="Close now" VerticalAlignment="Center"/></StackPanel></Button>
+                    <Button x:Name="TakeDownBtn" Style="{StaticResource GhostButton}" Click="TakeDown_Click"><StackPanel Orientation="Horizontal"><TextBlock Text="Take off portal" VerticalAlignment="Center"/></StackPanel></Button>
+                    <Button Content="Duplicate" Style="{StaticResource GhostButton}" Click="Duplicate_Click"/>
                     <Button Content="Edit details" Style="{StaticResource GhostButton}" Click="Edit_Click"/>
-                    <Button Content="Delete exam" Style="{StaticResource DangerButton}" Click="Delete_Click" Margin="0"/>
+                    <Button Content="Delete" Style="{StaticResource DangerButton}" Click="Delete_Click" Margin="0"/>
                 </StackPanel>
             </DockPanel>
             <Border x:Name="LockedNote" Background="{StaticResource WarnBgBrush}" CornerRadius="10" Padding="14,10" Margin="0,12,0,0" Visibility="Collapsed">
                 <TextBlock Foreground="{StaticResource WarnBrush}" FontWeight="SemiBold" TextWrapping="Wrap"
-                           Text="Students have started this exam, so its questions are locked to keep grading consistent."/>
+                           Text="Students have started this exam, so its questions are locked to keep grading consistent. Use Duplicate to make an editable copy."/>
+            </Border>
+            <Border x:Name="PicNote" Background="{StaticResource WarnBgBrush}" CornerRadius="10" Padding="14,10" Margin="0,12,0,0" Visibility="Collapsed">
+                <TextBlock x:Name="PicNoteText" Foreground="{StaticResource WarnBrush}" FontWeight="SemiBold" TextWrapping="Wrap"/>
             </Border>
         </StackPanel>
         <TabControl>
             <TabItem Header="Questions" Padding="14,8" FontSize="14">
                 <DockPanel Margin="0,12,0,0">
-                    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,12,0,0">
-                        <Button x:Name="AddQ" Content="Add question" Style="{StaticResource PrimaryButton}" Click="AddQ_Click"/>
-                        <Button x:Name="EditQ" Content="Edit" Style="{StaticResource GhostButton}" Click="EditQ_Click"/>
-                        <Button x:Name="DelQ" Content="Delete" Style="{StaticResource DangerButton}" Click="DelQ_Click"/>
-                    </StackPanel>
+                    <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+                        <Button x:Name="AddQ" Style="{StaticResource PrimaryButton}" Click="AddQ_Click"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE710;" FontFamily="Segoe MDL2 Assets" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center"/><TextBlock Text="Add question" VerticalAlignment="Center"/></StackPanel></Button><Button x:Name="ImportQ" Style="{StaticResource GhostButton}" Click="Import_Click"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE8E5;" FontFamily="Segoe MDL2 Assets" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center"/><TextBlock Text="Import from Excel" VerticalAlignment="Center"/></StackPanel></Button><Button x:Name="TemplateQ" Style="{StaticResource GhostButton}" Click="Template_Click"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE896;" FontFamily="Segoe MDL2 Assets" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center"/><TextBlock Text="Download template" VerticalAlignment="Center"/></StackPanel></Button>
+                        <Border Width="1" Background="{StaticResource LineBrush}" Margin="4,4,12,4"/>
+                        <Button x:Name="EditQ" Style="{StaticResource GhostButton}" Click="EditQ_Click"><StackPanel Orientation="Horizontal"><TextBlock Text="Edit" VerticalAlignment="Center"/></StackPanel></Button><Button x:Name="PicQ" Style="{StaticResource GhostButton}" Click="Pic_Click"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE91B;" FontFamily="Segoe MDL2 Assets" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center"/><TextBlock Text="Attach picture" VerticalAlignment="Center"/></StackPanel></Button><Button x:Name="UpQ" Style="{StaticResource GhostButton}" Click="Up_Click"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE70E;" FontFamily="Segoe MDL2 Assets" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center"/><TextBlock Text="Move up" VerticalAlignment="Center"/></StackPanel></Button><Button x:Name="DownQ" Style="{StaticResource GhostButton}" Click="Down_Click"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE70D;" FontFamily="Segoe MDL2 Assets" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center"/><TextBlock Text="Move down" VerticalAlignment="Center"/></StackPanel></Button><Button x:Name="DelQ" Style="{StaticResource DangerButton}" Click="DelQ_Click"><StackPanel Orientation="Horizontal"><TextBlock Text="Delete" VerticalAlignment="Center"/></StackPanel></Button>
+                    </WrapPanel>
+                    <TextBlock x:Name="QSummary" DockPanel.Dock="Bottom" Style="{StaticResource Muted}" Margin="4,10,0,0"/>
                     <Border Style="{StaticResource GridCard}">
-                        <DataGrid x:Name="QTable" SelectionChanged="QTable_SelectionChanged">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="#" Binding="{Binding No}" Width="50"/>
-                            <DataGridTextColumn Header="QUESTION" Binding="{Binding Text}" Width="3*"/>
-                            <DataGridTextColumn Header="OPTIONS" Binding="{Binding Options}" Width="2*"/>
-                            <DataGridTextColumn Header="CORRECT" Binding="{Binding Correct}" Width="90"/>
-                            <DataGridTextColumn Header="MARKS" Binding="{Binding Marks}" Width="80"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
+                        <Grid>
+                            <DataGrid x:Name="QTable" SelectionChanged="QTable_SelectionChanged" MouseDoubleClick="QTable_DoubleClick">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="NO." Binding="{Binding No}" Width="60"/>
+                                    <DataGridTextColumn Header="TYPE" Binding="{Binding Kind}" Width="90"/>
+                                    <DataGridTextColumn Header="QUESTION" Binding="{Binding Text}" Width="3*"/>
+                                    <DataGridTextColumn Header="DETAILS" Binding="{Binding Details}" Width="2*"/>
+                                    <DataGridTextColumn Header="MARKS" Binding="{Binding Marks}" Width="75"/>
+                                    <DataGridTextColumn Header="PICTURE" Binding="{Binding Picture}" Width="100"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <StackPanel x:Name="QEmpty" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed" Margin="0,24">
+                                <Border Style="{StaticResource IllustrationPanel}" Width="280" HorizontalAlignment="Center"><Image Source="/Assets/admin-exams.png"/></Border>
+                                <TextBlock Text="No questions yet" Style="{StaticResource H2}" HorizontalAlignment="Center" Margin="0,16,0,4"/>
+                                <TextBlock Text="Import a filled-in Excel sheet, or add questions one by one." Style="{StaticResource Muted}" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
                     </Border>
                 </DockPanel>
             </TabItem>
             <TabItem Header="Results" Padding="14,8" FontSize="14">
                 <DockPanel Margin="0,12,0,0">
                     <DockPanel DockPanel.Dock="Bottom" LastChildFill="False" Margin="0,12,0,0">
+                        <Button DockPanel.Dock="Left" x:Name="MarkBtn" Content="Mark selected" Style="{StaticResource PrimaryButton}" Click="Mark_Click"/>
                         <Button DockPanel.Dock="Left" Content="Export CSV" Style="{StaticResource GhostButton}" Click="Export_Click"/>
                         <TextBlock x:Name="ResultSummary" DockPanel.Dock="Left" Style="{StaticResource Muted}" VerticalAlignment="Center" Margin="8,0,0,0"/>
                     </DockPanel>
                     <Border Style="{StaticResource GridCard}">
-                        <DataGrid x:Name="RTable">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="STUDENT" Binding="{Binding Student}" Width="2*"/>
-                            <DataGridTextColumn Header="STUDENT ID" Binding="{Binding StudentId}" Width="*"/>
-                            <DataGridTextColumn Header="SCORE" Binding="{Binding Score}" Width="100"/>
-                            <DataGridTextColumn Header="PERCENT" Binding="{Binding Percent}" Width="100"/>
-                            <DataGridTemplateColumn Header="OUTCOME" Width="110" SortMemberPath="Outcome" CellTemplate="{StaticResource OutcomeCell}"/>
-                            <DataGridTextColumn Header="SUBMITTED" Binding="{Binding Submitted}" Width="170"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
+                        <DataGrid x:Name="RTable" SelectionChanged="RTable_SelectionChanged" MouseDoubleClick="RTable_DoubleClick">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="STUDENT" Binding="{Binding Student}" Width="2*"/>
+                                <DataGridTextColumn Header="STUDENT ID" Binding="{Binding StudentId}" Width="*"/>
+                                <DataGridTextColumn Header="OBJECTIVE" Binding="{Binding Objective}" Width="95"/>
+                                <DataGridTextColumn Header="THEORY" Binding="{Binding Theory}" Width="85"/>
+                                <DataGridTextColumn Header="TOTAL" Binding="{Binding Score}" Width="100"/>
+                                <DataGridTextColumn Header="PERCENT" Binding="{Binding Percent}" Width="90"/>
+                                <DataGridTemplateColumn Header="OUTCOME" Width="120" SortMemberPath="Outcome" CellTemplate="{StaticResource OutcomeCell}"/>
+                                <DataGridTextColumn Header="SUBMITTED" Binding="{Binding Submitted}" Width="160"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
                     </Border>
                 </DockPanel>
             </TabItem>

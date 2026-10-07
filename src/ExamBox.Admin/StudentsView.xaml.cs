@@ -90,6 +90,11 @@ public partial class StudentsView : UserControl
             new TempPasswordDialog(dlg.Created.Student.FullName, dlg.Created.Student.Username, dlg.Created.TempPassword, isNew: true) { Owner = Window.GetWindow(this) }.ShowDialog();
     }
 
+    private void Import_Click(object sender, RoutedEventArgs e)
+    {
+        if (new StudentImportDialog { Owner = Window.GetWindow(this) }.ShowDialog() == true) Reload();
+    }
+
     private void Edit(StudentRow row)
     {
         var s = App.Students.Get(row.Id);
