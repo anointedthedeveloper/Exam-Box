@@ -95,7 +95,22 @@ public partial class ExamsView : UserControl
     private void New_Click(object sender, RoutedEventArgs e)
     {
         var dlg = new ExamDialog(null) { Owner = Window.GetWindow(this) };
-        if (dlg.ShowDialog() == true && dlg.Saved != null) MainWindow.Current.OpenExam(dlg.Saved.Id);
+        if (dlg.ShowDialog() != true || dlg.Saved == null) return;
+        if (Ui.Confirm("Exam created.\n\nImport its questions from an Excel sheet now?\n(Choose No to add them one by one or import later.)"))
+            new ImportQuestionsDialog(dlg.Saved.Id, false) { Owner = Window.GetWindow(this) }.ShowDialog();
+        MainWindow.Current.OpenExam(dlg.Saved.Id);
+    }
+
+    private void Template_Click(object sender, RoutedEventArgs e) =>
+        Templates.Save("ExamBox question template.xlsx", ExamBox.Services.QuestionImporter.BuildTemplate(), Window.GetWindow(this)!);
+
+    private void Import_Click(object sender, RoutedEventArgs e)
+    {
+        if (RowOf(sender) is not { } row) return;
+        var exam = App.Exams.Get(row.Id);
+        if (exam == null) { Reload(); return; }
+        if (exam.Attempts.Count > 0) { Ui.Error("Students have already started this exam, so its questions are locked. Duplicate it to make an editable copy."); return; }
+        if (new ImportQuestionsDialog(row.Id, exam.Questions.Count > 0) { Owner = Window.GetWindow(this) }.ShowDialog() == true) Reload();
     }
 
     private void Launch_Click(object sender, RoutedEventArgs e)
