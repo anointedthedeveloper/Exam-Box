@@ -300,3 +300,27 @@ textarea.theory{min-height:150px;line-height:1.55;background:rgba(255,255,255,.8
 @keyframes beat{0%,100%{transform:scale(.8);opacity:.7}50%{transform:scale(1.15);opacity:1}}
 .badge:hover{transform:none}
 @media(max-width:760px){.nav-capsule{border-radius:24px;flex-wrap:wrap;gap:8px}.nav-capsule nav{order:3;flex-basis:100%}.me-info{display:none}.timer{top:72px}}
+
+
+/* ===================== v7: student sign-in polish ===================== */
+.auth-card{max-width:440px;border-radius:26px;padding:clamp(22px,4.5vh,40px) clamp(22px,3vw,38px);box-shadow:0 40px 90px rgba(3,30,110,.45),inset 0 1px 0 rgba(255,255,255,.6)}
+.auth-card-wrap{flex-direction:column;justify-content:center;gap:14px}
+.auth-card-wrap .auth-card{margin:0}
+.portal-pill{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);border-radius:99px;padding:5px 14px;font-size:.78rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#fff;margin-bottom:14px}
+.portal-pill i{width:8px;height:8px;border-radius:50%;background:#7ff0c0;box-shadow:0 0 0 4px rgba(127,240,192,.25);animation:beat 2s ease-in-out infinite}
+.auth-head h2{font-size:1.9rem;letter-spacing:-.02em}
+.auth-card .btn.lg{border-radius:14px;padding:14px 18px;font-size:1.05rem}
+.auth-foot{margin:0;text-align:center;font-size:.8rem;color:rgba(255,255,255,.75)}
+.hero-chips{position:relative;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:0 0 16px}
+.hero-chips span{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);backdrop-filter:blur(8px);border-radius:99px;padding:6px 14px;font-size:.88rem;font-weight:700;color:#fff}
+.slide figcaption h2{font-size:2rem;letter-spacing:-.02em}
+.slide figcaption p{font-size:1.1rem}
+@media (max-height:700px){.hero-chips{display:none}.auth-foot{display:none}}
+.auth-card-wrap{align-items:center!important}
+.auth-card-wrap .auth-card{width:100%}
+@media(max-width:860px){
+  .auth-wrap{grid-template-columns:minmax(0,1fr)}
+  .auth-card-wrap{padding:16px}
+  .auth-card{max-width:520px}
+  .auth-card-wrap .auth-card{overflow-x:hidden}
+}
