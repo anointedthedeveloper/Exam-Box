@@ -359,3 +359,24 @@ textarea.theory{min-height:150px;line-height:1.55;background:rgba(255,255,255,.8
 .nav-wrap{padding-bottom:12px;background:linear-gradient(180deg,rgba(234,240,255,.97) 75%,rgba(234,240,255,0))}
 .timer{top:84px}
 @media(max-width:760px){.timer{top:auto;position:static}}
+
+
+/* ===================== v9: result page ===================== */
+.res-hero{display:flex;gap:28px;align-items:center;flex-wrap:wrap;border-radius:20px;padding:26px 32px;margin-bottom:18px;color:#fff;background:linear-gradient(120deg,#0847b8,#0b5ff0 70%,#3d8bff);box-shadow:0 18px 44px rgba(11,95,240,.3)}
+.res-hero.pass{background:linear-gradient(120deg,#0b7a52,#12a06f 70%,#34c98f);box-shadow:0 18px 44px rgba(18,160,111,.3)}
+.res-hero.fail{background:linear-gradient(120deg,#0847b8,#0b5ff0 70%,#3d8bff)}
+.res-hero.pending{background:linear-gradient(120deg,#b86e00,#e0952b 70%,#f2b653);box-shadow:0 18px 44px rgba(224,149,43,.3)}
+.res-text{flex:1;min-width:220px}
+.res-text h2{font-size:1.8rem;margin:8px 0 4px;letter-spacing:-.02em}
+.res-text p{margin:0;color:rgba(255,255,255,.88)}
+.res-badge{display:inline-block;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:99px;padding:3px 14px;font-weight:800;font-size:.85rem}
+.res-hero .badge.warn{background:rgba(255,255,255,.9)}
+.res-hero .btn.ghost{background:rgba(255,255,255,.95);border-color:transparent;color:var(--blue-d)}
+.res-hero .ring{background:conic-gradient(#fff calc(var(--p)*1%),rgba(255,255,255,.28) 0)}
+.res-hero .ring.pass{background:conic-gradient(#fff calc(var(--p)*1%),rgba(255,255,255,.28) 0)}
+.res-hero .ring>div{font-size:1.35rem;color:var(--ink)}
+.res-hero .await{background:rgba(255,255,255,.25)}
+.res-hero .pulse{background:#fff}
+.res-stats{margin-bottom:26px}
+.stat .n small{font-size:1rem;color:var(--mut);font-weight:700;margin-left:2px}
+.typed{line-height:1.6}

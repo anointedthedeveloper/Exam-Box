@@ -11,29 +11,39 @@
     var theoryMax = qs.Where(q => q.Type == QuestionType.Theory).Sum(q => q.Marks);
     var objMax = qs.Where(q => q.Type == QuestionType.Objective).Sum(q => q.Marks);
 }
-<div class="page-head"><div><div class="crumbs"><a asp-action="Index">My dashboard</a> /</div><h1>@e.Title</h1></div></div>
+<div class="page-head"><div><div class="crumbs"><a asp-action="Index">My exams</a> / Result</div><h1>@e.Title</h1></div></div>
+@{
+    var grade = Model.Percent >= 90 ? "A" : Model.Percent >= 80 ? "B" : Model.Percent >= 70 ? "C" : Model.Percent >= 60 ? "D" : "E";
+    var correct = qs.Count(q => q.Type == QuestionType.Objective && ans.TryGetValue(q.Id, out var x) && x.Selected != null && x.Selected == q.CorrectOption);
+}
 @if (pending)
 {
-    <div class="card" style="display:flex;gap:28px;align-items:center;flex-wrap:wrap">
+    <div class="res-hero pending">
         <div class="await"><div class="pulse"></div></div>
-        <div style="flex:1;min-width:220px">
+        <div class="res-text">
             <span class="badge warn">Awaiting marking</span>
-            <h2 style="margin:8px 0 2px">Your exam has been submitted</h2>
-            <p class="muted" style="margin:0">Your teacher is marking the theory section.@(objMax > 0 ? $" Objective score so far: {Model.ObjectiveScore} of {objMax}." : "") Check back here for your final result.</p>
+            <h2>Your exam has been submitted</h2>
+            <p>Your teacher is marking the theory section.@(objMax > 0 ? $" Objective score so far: {Model.ObjectiveScore} of {objMax}." : "") Check back here for your final result.</p>
         </div>
         <a class="btn ghost" asp-action="Index">Back to dashboard</a>
     </div>
 }
 else
 {
-    <div class="card" style="display:flex;gap:28px;align-items:center;flex-wrap:wrap">
+    <div class="res-hero @(pass ? "pass" : "fail")">
         <div class="ring @(pass ? "pass" : "")" style="--p:@Model.Percent.ToString(inv)"><div>@Model.Percent%</div></div>
-        <div style="flex:1;min-width:220px">
-            <span class="badge @(pass ? "ok" : "err")">@(pass ? "Passed 🎉" : "Not passed")</span>
-            <h2 style="margin:8px 0 2px">@Model.Score of @Model.TotalMarks marks</h2>
-            <p class="muted" style="margin:0">Pass mark: @e.PassMarkPercent%@(objMax > 0 && theoryMax > 0 ? $" · Objective {Model.ObjectiveScore}/{objMax} · Theory {Model.TheoryScore}/{theoryMax}" : "")</p>
+        <div class="res-text">
+            <span class="res-badge">@(pass ? "Passed 🎉" : "Not passed")</span>
+            <h2>@Model.Score of @Model.TotalMarks marks</h2>
+            <p>@(pass ? "Well done! You met the pass mark of " : "The pass mark was ")@(e.PassMarkPercent)%.</p>
         </div>
         <a class="btn ghost" asp-action="Index">Back to dashboard</a>
+    </div>
+    <div class="stats res-stats">
+        @if (objMax > 0) { <div class="stat"><div class="n">@Model.ObjectiveScore<small>/@objMax</small></div><div class="l">Objective</div><div class="s">@correct of @qs.Count(q => q.Type == QuestionType.Objective) correct</div></div> }
+        @if (theoryMax > 0) { <div class="stat"><div class="n">@Model.TheoryScore<small>/@theoryMax</small></div><div class="l">Theory</div><div class="s">Marked by your teacher</div></div> }
+        <div class="stat"><div class="n">@grade</div><div class="l">Grade</div><div class="s">Based on @Model.Percent%</div></div>
+        <div class="stat"><div class="n">@e.PassMarkPercent<small>%</small></div><div class="l">Pass mark</div><div class="s">@(pass ? "You passed" : "Keep going")</div></div>
     </div>
 }
 <h2 class="section-title">Your answers</h2>
@@ -67,6 +77,6 @@ else
         @if (string.IsNullOrWhiteSpace(a?.Text)) { <div class="muted small">Not answered.</div> }
         else { <div class="typed">@a!.Text</div> }
         @if (!pending && !string.IsNullOrWhiteSpace(a?.Comment)) { <div class="feedback"><strong>Teacher's comment:</strong> @a!.Comment</div> }
-        @if (e.ShowCorrectAnswers && !string.IsNullOrWhiteSpace(q.ModelAnswer)) { <div class="feedback model"><strong>Suggested answer:</strong> @q.ModelAnswer</div> }</div>
+        @if (!pending && e.ShowCorrectAnswers && !string.IsNullOrWhiteSpace(q.ModelAnswer)) { <div class="feedback model"><strong>Suggested answer:</strong> @q.ModelAnswer</div> }</div>
     }
 }
