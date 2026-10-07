@@ -55,6 +55,10 @@ public partial class ExamDetailView : UserControl
             _ => ("Draft", "WarnBrush", "WarnBgBrush"),
         };
         StateText.Text = txt;
+        LiveDot.Visibility = state == ExamState.Open ? Visibility.Visible : Visibility.Collapsed;
+        LiveDot.BeginAnimation(OpacityProperty, state == ExamState.Open
+            ? new System.Windows.Media.Animation.DoubleAnimation(1, 0.2, TimeSpan.FromMilliseconds(900)) { AutoReverse = true, RepeatBehavior = System.Windows.Media.Animation.RepeatBehavior.Forever }
+            : null);
         StateText.Foreground = (System.Windows.Media.Brush)FindResource(fg);
         StatePill.Background = (System.Windows.Media.Brush)FindResource(bg);
 

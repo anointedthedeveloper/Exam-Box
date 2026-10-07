@@ -38,11 +38,11 @@ else
     @foreach (var e in Model.Available)
     {
         <div class="exam-card">
-            <div class="ec-top"><span class="ec-ic">✎</span><span class="badge ok">Open now</span></div>
+            <div class="ec-top"><span class="ec-ic">✎</span><span class="badge ok live"><i></i>Open now</span></div>
             <h3>@e.Title</h3>
             <p>@(string.IsNullOrWhiteSpace(e.Description) ? "No extra instructions." : e.Description)</p>
             <div class="meta"><span>@e.Questions.Count(q => q.Marks > 0) question@(e.Questions.Count(q => q.Marks > 0) == 1 ? "" : "s")</span>@if (e.Questions.Any(q => q.Type == QuestionType.Theory)) { <span>@(e.Questions.Any(q => q.Type == QuestionType.Objective) ? "Objective + theory" : "Theory")</span> }<span>@e.DurationMinutes min</span><span>Pass @e.PassMarkPercent%</span></div>
-            <form asp-action="Start" asp-route-examId="@e.Id" method="post" data-confirm="Start '@e.Title'? The timer starts immediately and you only get one attempt." data-loading="Starting your exam…" data-overlay>
+            <form asp-action="Start" asp-route-examId="@e.Id" method="post" data-confirm="The timer starts immediately and you only get one attempt at '@e.Title'. Ready?" data-confirm-title="Start this exam?" data-loading="Starting your exam…" data-overlay>
                 <button class="btn block"><span class="lbl">Start exam</span><span class="spinner sm"></span></button>
             </form>
         </div>
@@ -60,7 +60,7 @@ else
             <div class="ec-top"><span class="ec-ic soon">⏳</span><span class="badge warn">Not open yet</span></div>
             <h3>@e.Title</h3>
             <p>@(string.IsNullOrWhiteSpace(e.Description) ? "Not open yet." : e.Description)</p>
-            <div class="meta"><span>@e.DurationMinutes min</span><span>Opens <time datetime="@e.OpensAt!.Value.ToString("o")"></time></span></div>
+            <div class="meta"><span>@e.DurationMinutes min</span><span>Opens <time datetime="@e.OpensAt!.Value.ToString("o")"></time></span><span class="cd">in <b data-countdown="@e.OpensAt!.Value.ToString("o")"></b></span></div>
             <button class="btn block" disabled>Not open yet</button>
         </div>
     }

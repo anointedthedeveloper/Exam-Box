@@ -4,8 +4,34 @@ document.querySelectorAll('time[datetime]').forEach(function (t) {
   if (isNaN(d)) return;
   t.textContent = t.dataset.fmt === 'date' ? d.toLocaleDateString() : d.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
 });
+// Friendly in-page confirm dialog (returns a Promise<boolean>).
+window.exConfirm = function (opts) {
+  var m = document.getElementById('confirmModal');
+  if (!m) return Promise.resolve(window.confirm(opts.text || 'Are you sure?'));
+  document.getElementById('modalTitle').textContent = opts.title || 'Are you sure?';
+  document.getElementById('modalText').textContent = opts.text || '';
+  var yes = document.getElementById('modalYes'), no = document.getElementById('modalNo');
+  yes.textContent = opts.yes || 'Yes, continue'; no.textContent = opts.no || 'Go back';
+  m.classList.add('show'); m.setAttribute('aria-hidden', 'false'); yes.focus();
+  return new Promise(function (res) {
+    function done(v) {
+      m.classList.remove('show'); m.setAttribute('aria-hidden', 'true');
+      yes.onclick = no.onclick = null; document.removeEventListener('keydown', key); res(v);
+    }
+    function key(e) { if (e.key === 'Escape') done(false); }
+    yes.onclick = function () { done(true); }; no.onclick = function () { done(false); };
+    m.onclick = function (e) { if (e.target === m) done(false); };
+    document.addEventListener('keydown', key);
+  });
+};
 document.querySelectorAll('form[data-confirm]').forEach(function (f) {
-  f.addEventListener('submit', function (e) { if (!confirm(f.dataset.confirm)) e.preventDefault(); });
+  f.addEventListener('submit', function (e) {
+    if (f.dataset.ok) return;
+    e.preventDefault();
+    window.exConfirm({ title: f.dataset.confirmTitle || 'Start this exam?', text: f.dataset.confirm, yes: f.dataset.confirmYes || 'Yes, start' }).then(function (ok) {
+      if (ok) { f.dataset.ok = '1'; if (f.requestSubmit) f.requestSubmit(); else f.submit(); }
+    });
+  });
 });
 document.querySelectorAll('[data-copy]').forEach(function (b) {
   b.addEventListener('click', function () {
@@ -77,4 +103,52 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   function check(e) { caps.classList.toggle('show', !!(e.getModifierState && e.getModifierState('CapsLock'))); }
   pw.addEventListener('keydown', check); pw.addEventListener('keyup', check);
   pw.addEventListener('blur', function () { caps.classList.remove('show'); });
+})();
+
+
+// Live countdowns ("Opens in 1d 2h 5m"); reloads the page the moment an exam opens.
+(function () {
+  var els = document.querySelectorAll('[data-countdown]');
+  if (!els.length) return;
+  function tick() {
+    var reload = false;
+    els.forEach(function (el) {
+      var s = Math.round((new Date(el.dataset.countdown) - Date.now()) / 1000);
+      if (s <= 0) { el.textContent = 'Opening now…'; reload = true; return; }
+      var d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60), sec = s % 60;
+      el.textContent = (d ? d + 'd ' : '') + (d || h ? h + 'h ' : '') + m + 'm' + (d ? '' : ' ' + sec + 's');
+    });
+    if (reload) setTimeout(function () { location.reload(); }, 1200);
+  }
+  tick(); setInterval(tick, 1000);
+})();
+
+// Cards glide in as they scroll into view.
+(function () {
+  if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { rootMargin: '0px 0px -8% 0px' });
+  document.querySelectorAll('.q,.feedback').forEach(function (el) { el.classList.add('reveal'); io.observe(el); });
+})();
+
+// Confetti once when a result shows a pass.
+(function () {
+  var hero = document.querySelector('.res-hero.pass');
+  if (!hero || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var key = 'confetti:' + location.pathname;
+  try { if (sessionStorage.getItem(key)) return; sessionStorage.setItem(key, '1'); } catch (e) { }
+  var box = document.createElement('div'); box.className = 'confetti'; document.body.appendChild(box);
+  var colors = ['#0b5ff0', '#3d8bff', '#12a06f', '#ffd166', '#ff7a90', '#b794ff'];
+  for (var i = 0; i < 90; i++) {
+    var p = document.createElement('i');
+    p.style.left = Math.random() * 100 + '%';
+    p.style.background = colors[i % colors.length];
+    p.style.animationDelay = Math.random() * 0.8 + 's';
+    p.style.animationDuration = 2.2 + Math.random() * 1.8 + 's';
+    p.style.setProperty('--dx', (Math.random() * 160 - 80) + 'px');
+    p.style.transform = 'rotate(' + Math.random() * 360 + 'deg)';
+    box.appendChild(p);
+  }
+  setTimeout(function () { box.remove(); }, 5200);
 })();

@@ -7,6 +7,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>document.documentElement.classList.add("js")</script>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@ViewData["Title"] · @Brand.Name</title>
@@ -33,6 +34,21 @@
     <partial name="_Flash" />
     @RenderBody()
 </main>
+<div class="modal" id="confirmModal" aria-hidden="true">
+    <div class="modal-box" role="dialog" aria-modal="true">
+        <div class="modal-ic"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></div>
+        <h3 id="modalTitle">Are you sure?</h3>
+        <p id="modalText" class="muted"></p>
+        <div class="modal-actions"><button type="button" class="btn ghost" id="modalNo">Go back</button><button type="button" class="btn" id="modalYes">Yes, continue</button></div>
+    </div>
+</div>
+<div class="submit-overlay" id="submitOverlay" aria-hidden="true">
+    <div class="so-box">
+        <svg class="so-ring" viewBox="0 0 120 120"><circle class="so-track" cx="60" cy="60" r="50"/><circle class="so-arc" cx="60" cy="60" r="50"/><path class="so-check" d="M38 62l15 15 30-34"/></svg>
+        <h3 id="soTitle">Submitting your exam…</h3>
+        <p id="soText" class="muted">Please don't close this page.</p>
+    </div>
+</div>
 <div class="overlay" id="overlay"><div class="spinner lg"></div><p id="overlayMsg">Please wait…</p></div>
 <script src="/assets/js/site.js"></script>
 @await RenderSectionAsync("Scripts", required: false)

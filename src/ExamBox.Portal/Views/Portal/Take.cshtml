@@ -7,12 +7,12 @@
     var gradable = Model.Questions.Count(q => !QLabel.IsPassage(q));
 }
 <div class="timer" id="timer">
-    <div><strong>@Model.Exam.Title</strong><div class="prog"><span id="answered">0</span> of @gradable answered · <span id="saved" class="saved">Saved</span></div></div>
+    <div><strong>@Model.Exam.Title</strong> <span class="livepill"><i></i>LIVE</span><div class="prog"><span id="answered">0</span> of @gradable answered · <span id="saved" class="saved">Saved</span></div></div>
     <div class="t" id="clock">--:--</div>
 </div>
 <div class="exam-layout">
 <div class="exam-main">
-<form method="post" id="examForm" asp-action="Submit" asp-route-id="@Model.Attempt.Id" data-loading="Submitting your exam…" data-overlay>
+<form method="post" id="examForm" asp-action="Submit" asp-route-id="@Model.Attempt.Id" >
 @if (!string.IsNullOrWhiteSpace(Model.Exam.Description))
 {
     <div class="callout">@Model.Exam.Description</div>
@@ -79,7 +79,7 @@
     var s = Math.max(0, Math.round((end - Date.now()) / 1000));
     clock.textContent = Math.floor(s / 3600) > 0 ? Math.floor(s / 3600) + ':' + pad(Math.floor(s / 60) % 60) + ':' + pad(s % 60) : pad(Math.floor(s / 60)) + ':' + pad(s % 60);
     timer.classList.toggle('low', s <= 60);
-    if (s <= 0 && !sent) { sent = true; form.submit(); }
+    if (s <= 0 && !sent) { sent = true; confirmed = true; celebrate("Time's up", 'Submitting what you have written…'); setTimeout(function () { form.submit(); }, 900); }
   }
   function count() {
     var n = new Set(Array.from(form.querySelectorAll('input[type=radio]:checked')).map(function (r) { return r.name; })).size;
@@ -102,7 +102,7 @@
   function state(t, cls) { savedEl.textContent = t; savedEl.className = 'saved ' + (cls || ''); }
   function save() {
     if (sent || saving || !dirty) return;
-    saving = true; dirty = false; state('Saving…');
+    saving = true; dirty = false; state('Saving…', 'saving');
     fetch(location.pathname + '/save', { method: 'POST', body: new FormData(form), credentials: 'same-origin' })
       .then(function (r) { return r.json(); })
       .then(function (j) { saving = false; if (j.ok) { state('Saved', 'ok'); end = Date.now() + j.left * 1000; } else { state(j.error || 'Not saved', 'bad'); } })
@@ -113,9 +113,27 @@
   form.addEventListener('input', touched);
   count(); state('Saved', 'ok'); tick(); setInterval(tick, 500); setInterval(save, 15000);
   document.addEventListener('visibilitychange', function () { if (document.hidden) save(); });
+  var confirmed = false;
+  function celebrate(title, text) {
+    var o = document.getElementById('submitOverlay');
+    document.getElementById('soTitle').textContent = title; document.getElementById('soText').textContent = text;
+    o.classList.add('show'); o.setAttribute('aria-hidden', 'false');
+  }
   form.addEventListener('submit', function (e) {
-    if (!sent && !confirm('Submit your exam now? You cannot change answers afterwards.')) { e.preventDefault(); return; }
-    sent = true;
+    if (confirmed) return;
+    e.preventDefault();
+    var total = document.querySelectorAll('.palette a').length, done = document.querySelectorAll('.palette a.done').length;
+    var left = total - done;
+    window.exConfirm({
+      title: 'Submit your exam?',
+      text: left > 0 ? 'You still have ' + left + ' unanswered question' + (left === 1 ? '' : 's') + '. You cannot change answers after submitting.' : 'All ' + total + ' questions are answered. You cannot change answers after submitting.',
+      yes: 'Submit now', no: 'Keep working'
+    }).then(function (ok) {
+      if (!ok) return;
+      confirmed = true; sent = true;
+      celebrate('Submitting your exam…', "Saving your answers. Please don't close this page.");
+      setTimeout(function () { form.submit(); }, 1100);
+    });
   });
   window.addEventListener('beforeunload', function (e) { if (!sent) { save(); e.preventDefault(); e.returnValue = ''; } });
 })();

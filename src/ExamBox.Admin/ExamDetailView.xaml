@@ -9,7 +9,10 @@
                     <StackPanel Orientation="Horizontal">
                         <TextBlock x:Name="TitleText" Style="{StaticResource H1}"/>
                         <Border x:Name="StatePill" CornerRadius="10" Padding="11,3" Margin="14,0,0,0" VerticalAlignment="Center">
-                            <TextBlock x:Name="StateText" FontSize="12" FontWeight="Bold"/>
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse x:Name="LiveDot" Width="8" Height="8" Fill="{StaticResource OkBrush}" Margin="0,0,7,0" VerticalAlignment="Center" Visibility="Collapsed"/>
+                                <TextBlock x:Name="StateText" FontSize="12" FontWeight="Bold"/>
+                            </StackPanel>
                         </Border>
                     </StackPanel>
                     <TextBlock x:Name="Meta" Style="{StaticResource Muted}"/>
