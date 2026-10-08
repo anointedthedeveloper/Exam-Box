@@ -80,8 +80,9 @@ public class PortalTests
         var qids = Regex.Matches(started.Html, "name=\"q_(\\d+)\"").Select(m => m.Groups[1].Value).Distinct().ToList();
         Assert.Equal(2, qids.Count);
         var result = await c.Post(started.Url, new() { [$"q_{qids[0]}"] = "B", [$"q_{qids[1]}"] = "B" });
-        Assert.Contains("50%", result.Html);
-        Assert.Contains("2 of 4", result.Html);
+        Assert.Contains("Exam completed", result.Html);
+        Assert.DoesNotContain("50%", result.Html);            // students never see scores
+        Assert.DoesNotContain("2 of 4", result.Html);
 
         // one attempt only
         var again = await c.Post($"/portal/start/{exam.Id}", new(), "/portal");
@@ -161,12 +162,14 @@ public class PortalTests
         Assert.Contains("half written", (await c.Get(take.Url)).Html);          // survives a reload
 
         var done = await c.Post(take.Url, new() { [$"q_{qids[0]}"] = "A", [$"q_{qids[1]}"] = "a full answer" });
-        Assert.Contains("Awaiting marking", done.Html);
-        Assert.Contains("a full answer", done.Html);
+        Assert.Contains("Exam completed", done.Html);
+        Assert.DoesNotContain("Awaiting marking", done.Html);
+        Assert.DoesNotContain("a full answer", done.Html);
 
         var sheet = new MarkingService(t.Factory).Sheet(int.Parse(take.Url.Split('/').Last()))!;
         new MarkingService(t.Factory).Save(sheet.Attempt.Id, new[] { new MarkEntry(withPic.Id, 8, "Nice") }, true);
         var final = await c.Get(done.Url);
-        Assert.Contains("9 of 11", final.Html); Assert.Contains("Nice", final.Html);
+        Assert.Contains("Exam completed", final.Html);
+        Assert.DoesNotContain("9 of 11", final.Html); Assert.DoesNotContain("Nice", final.Html);   // marks stay with the teacher
     }
 }

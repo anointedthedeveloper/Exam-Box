@@ -3,7 +3,6 @@
     ViewData["Title"] = "My account";
     var u = Model;
     var initials = string.Concat(u.FullName.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(p => char.ToUpper(p[0])));
-    var done = u.Attempts.Where(a => a.SubmittedAt != null && !a.PendingMarking).ToList();
 }
 <div class="page-head"><div><div class="crumbs">Account</div><h1>My account</h1></div></div>
 <div class="me-grid">
@@ -15,10 +14,9 @@
             <span class="chip dark">ID: @u.Username</span>
             @if (!string.IsNullOrWhiteSpace(u.Department)) { <span class="chip dark">Class: @u.Department</span> }
         </div>
-        <div class="me-stats">
-            <div><b>@u.Attempts.Count(a => a.SubmittedAt != null)</b><span>Exams taken</span></div>
-            <div><b>@(done.Count == 0 ? "—" : Math.Round(done.Average(a => a.Percent), 1) + "%")</b><span>Average</span></div>
-            <div><b>@done.Count(a => a.Percent >= a.Exam!.PassMarkPercent)</b><span>Passed</span></div>
+        <div class="me-stats two">
+            <div><b>@u.Attempts.Count(a => a.SubmittedAt != null)</b><span>Exams completed</span></div>
+            <div><b>@u.Attempts.Count(a => a.SubmittedAt == null)</b><span>In progress</span></div>
         </div>
     </section>
     <section class="card me-details">

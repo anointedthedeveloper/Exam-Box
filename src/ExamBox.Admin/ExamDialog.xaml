@@ -30,7 +30,6 @@
         <TextBlock Text="Class (optional)" Style="{StaticResource FieldLabel}"/>
         <ComboBox x:Name="ClassBox" IsEditable="True" ToolTip="Leave empty for every student. Matches the class set on each student."/>
         <CheckBox x:Name="Shuffle" Content="Shuffle the order of objective questions for each student" Margin="0,14,0,0"/>
-        <CheckBox x:Name="ShowAnswers" Content="Show correct answers when students review their result" IsChecked="True" Margin="0,8,0,0"/>
         <TextBlock x:Name="ErrorText" Style="{StaticResource ErrorText}" Visibility="Collapsed"/>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,22,0,0">
             <Button Content="Cancel" Style="{StaticResource GhostButton}" IsCancel="True"/>

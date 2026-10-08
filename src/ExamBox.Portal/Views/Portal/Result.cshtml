@@ -1,82 +1,18 @@
 @model Attempt
 @{
     var e = Model.Exam!;
-    ViewData["Title"] = e.Title + " result";
-    var pass = Model.Percent >= e.PassMarkPercent;
-    var pending = Model.PendingMarking;
-    var qs = e.Questions;
-    var labels = QLabel.Build(qs);
-    var ans = Model.Answers.ToDictionary(a => a.QuestionId);
-    var inv = System.Globalization.CultureInfo.InvariantCulture;
-    var theoryMax = qs.Where(q => q.Type == QuestionType.Theory).Sum(q => q.Marks);
-    var objMax = qs.Where(q => q.Type == QuestionType.Objective).Sum(q => q.Marks);
+    ViewData["Title"] = e.Title + " submitted";
+    var answerable = e.Questions.Where(q => !QLabel.IsPassage(q)).ToList();
+    var answered = answerable.Count(q => Model.Answers.Any(a => a.QuestionId == q.Id && (a.Selected != null || !string.IsNullOrWhiteSpace(a.Text))));
 }
-<div class="page-head"><div><div class="crumbs"><a asp-action="Index">My exams</a> / Result</div><h1>@e.Title</h1></div></div>
-@{
-    var grade = Model.Percent >= 90 ? "A" : Model.Percent >= 80 ? "B" : Model.Percent >= 70 ? "C" : Model.Percent >= 60 ? "D" : "E";
-    var correct = qs.Count(q => q.Type == QuestionType.Objective && ans.TryGetValue(q.Id, out var x) && x.Selected != null && x.Selected == q.CorrectOption);
-}
-@if (pending)
-{
-    <div class="res-hero pending">
-        <div class="await"><div class="pulse"></div></div>
-        <div class="res-text">
-            <span class="badge warn">Awaiting marking</span>
-            <h2>Your exam has been submitted</h2>
-            <p>Your teacher is marking the theory section.@(objMax > 0 ? $" Objective score so far: {Model.ObjectiveScore} of {objMax}." : "") Check back here for your final result.</p>
-        </div>
-        <a class="btn ghost" asp-action="Index">Back to dashboard</a>
+<div class="page-head"><div><div class="crumbs"><a asp-action="Index">My exams</a> / Completed</div><h1>@e.Title</h1></div></div>
+<div class="card done-card">
+    <svg class="done-ic" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46"/><path d="M30 52l14 14 27-30"/></svg>
+    <h2>Exam completed</h2>
+    <p class="muted">Your answers have been recorded. Your teacher will share the results with you.</p>
+    <div class="done-meta">
+        <span>@answered of @answerable.Count answered</span>
+        <span>Submitted <time datetime="@Model.SubmittedAt!.Value.ToString("o")"></time></span>
     </div>
-}
-else
-{
-    <div class="res-hero @(pass ? "pass" : "fail")">
-        <div class="ring @(pass ? "pass" : "")" style="--p:@Model.Percent.ToString(inv)"><div>@Model.Percent%</div></div>
-        <div class="res-text">
-            <span class="res-badge">@(pass ? "Passed 🎉" : "Not passed")</span>
-            <h2>@Model.Score of @Model.TotalMarks marks</h2>
-            <p>@(pass ? "Well done! You met the pass mark of " : "The pass mark was ")@(e.PassMarkPercent)%.</p>
-        </div>
-        <a class="btn ghost" asp-action="Index">Back to dashboard</a>
-    </div>
-    <div class="stats res-stats">
-        @if (objMax > 0) { <div class="stat"><div class="n">@Model.ObjectiveScore<small>/@objMax</small></div><div class="l">Objective</div><div class="s">@correct of @qs.Count(q => q.Type == QuestionType.Objective) correct</div></div> }
-        @if (theoryMax > 0) { <div class="stat"><div class="n">@Model.TheoryScore<small>/@theoryMax</small></div><div class="l">Theory</div><div class="s">Marked by your teacher</div></div> }
-        <div class="stat"><div class="n">@grade</div><div class="l">Grade</div><div class="s">Based on @Model.Percent%</div></div>
-        <div class="stat"><div class="n">@e.PassMarkPercent<small>%</small></div><div class="l">Pass mark</div><div class="s">@(pass ? "You passed" : "Keep going")</div></div>
-    </div>
-}
-<h2 class="section-title">Your answers</h2>
-@foreach (var q in qs)
-{
-    ans.TryGetValue(q.Id, out var a);
-    if (QLabel.IsPassage(q))
-    {
-        <div class="q passage"><div class="q-h"><span><span class="q-num">@labels[q.Id]</span>@q.Text</span></div></div>
-        continue;
-    }
-    if (q.Type == QuestionType.Objective)
-    {
-        var sel = a?.Selected; var good = sel != null && sel == q.CorrectOption;
-        <div class="q"><div class="q-h"><span><span class="q-num">@labels[q.Id]</span>@q.Text</span>
-            <span class="badge @(good ? "ok" : "err")">@(good ? q.Marks : 0)/@q.Marks</span></div>
-        @if (q.HasImage) { <img class="q-img" loading="lazy" src="/portal/media/@q.Id" alt="" /> }
-        @foreach (var o in q.Options())
-        {
-            var cls = e.ShowCorrectAnswers && o.Key == q.CorrectOption ? "right" : (o.Key == sel ? "wrong" : "");
-            <div class="opt @cls"><span><strong>@o.Key.</strong> @o.Text @(o.Key == sel ? "(your answer)" : "") @(e.ShowCorrectAnswers && o.Key == q.CorrectOption ? "✓" : "")</span></div>
-        }
-        @if (sel == null) { <div class="muted small">Not answered.</div> }</div>
-    }
-    else
-    {
-        <div class="q"><div class="q-h"><span><span class="q-num">@labels[q.Id]</span>@q.Text</span>
-            @if (pending) { <span class="badge warn">Awaiting marks</span> }
-            else { <span class="badge @(a?.Marks == q.Marks ? "ok" : (a?.Marks > 0 ? "warn" : "err"))">@(a?.Marks ?? 0)/@q.Marks</span> }</div>
-        @if (q.HasImage) { <img class="q-img" loading="lazy" src="/portal/media/@q.Id" alt="" /> }
-        @if (string.IsNullOrWhiteSpace(a?.Text)) { <div class="muted small">Not answered.</div> }
-        else { <div class="typed">@a!.Text</div> }
-        @if (!pending && !string.IsNullOrWhiteSpace(a?.Comment)) { <div class="feedback"><strong>Teacher's comment:</strong> @a!.Comment</div> }
-        @if (!pending && e.ShowCorrectAnswers && !string.IsNullOrWhiteSpace(q.ModelAnswer)) { <div class="feedback model"><strong>Suggested answer:</strong> @q.ModelAnswer</div> }</div>
-    }
-}
+    <a class="btn lg" asp-action="Index">Back to my exams</a>
+</div>

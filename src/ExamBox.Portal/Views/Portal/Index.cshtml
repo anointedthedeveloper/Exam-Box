@@ -9,12 +9,11 @@
     <img src="/assets/img/slide-exams.svg" alt="" />
 </div>
 
-@{ var finals = done.Where(a => !a.PendingMarking).ToList(); }
 <div class="stats">
     <div class="stat"><div class="n">@Model.Available.Count</div><div class="l">Available now</div><div class="s">Ready for you to start</div></div>
     <div class="stat"><div class="n">@Model.Upcoming.Count</div><div class="l">Coming up</div><div class="s">Scheduled by your teacher</div></div>
-    <div class="stat"><div class="n">@done.Count</div><div class="l">Completed</div><div class="s">@(done.Count(a => a.PendingMarking) > 0 ? done.Count(a => a.PendingMarking) + " awaiting marking" : "All marked")</div></div>
-    <div class="stat"><div class="n">@(finals.Count == 0 ? "—" : Math.Round(finals.Average(a => a.Percent), 1) + "%")</div><div class="l">Average score</div><div class="s">@(finals.Count(a => a.Percent >= a.Exam!.PassMarkPercent)) passed</div></div>
+    <div class="stat"><div class="n">@Model.InProgress.Count</div><div class="l">In progress</div><div class="s">Resume any time before time is up</div></div>
+    <div class="stat"><div class="n">@done.Count</div><div class="l">Completed</div><div class="s">Exams you have handed in</div></div>
 </div>
 
 @if (Model.InProgress.Count > 0)
@@ -67,20 +66,17 @@ else
     </div>
 }
 
-<h2 class="section-title">My results</h2>
+<h2 class="section-title">Completed exams</h2>
 <div class="card flush">
 @if (done.Count == 0) { <div class="empty">You haven't completed any exams yet.</div> }
 else
 {
-    <table><thead><tr><th>Exam</th><th>Score</th><th>Outcome</th><th>Submitted</th><th></th></tr></thead><tbody>
+    <table><thead><tr><th>Exam</th><th>Status</th><th>Submitted</th></tr></thead><tbody>
     @foreach (var a in done)
     {
-        var pass = a.Percent >= a.Exam!.PassMarkPercent;
-        <tr><td><strong>@a.Exam.Title</strong></td>
-            @if (a.PendingMarking) { <td class="muted">Objective @a.ObjectiveScore so far</td><td><span class="badge warn">Awaiting marking</span></td> }
-            else { <td>@a.Score / @a.TotalMarks (@a.Percent%)</td><td><span class="badge @(pass ? "ok" : "err")">@(pass ? "Pass" : "Fail")</span></td> }
-            <td class="muted small"><time datetime="@a.SubmittedAt!.Value.ToString("o")"></time></td>
-            <td class="right"><a class="btn ghost sm" asp-action="Result" asp-route-id="@a.Id">Review</a></td></tr>
+        <tr><td><strong>@a.Exam!.Title</strong></td>
+            <td><span class="badge ok">Completed</span></td>
+            <td class="muted small"><time datetime="@a.SubmittedAt!.Value.ToString("o")"></time></td></tr>
     }
     </tbody></table>
 }
