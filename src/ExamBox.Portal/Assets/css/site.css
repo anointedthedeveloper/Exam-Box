@@ -612,7 +612,7 @@ textarea.theory:focus{min-height:190px}
 .ticks{list-style:none;padding:0;margin:0 0 16px}
 .ticks li{position:relative;padding:8px 0 8px 30px;border-bottom:1px solid var(--line)}
 .ticks li:last-child{border-bottom:0}
-.ticks li::before{content:"✓";position:absolute;left:0;top:8px;width:20px;height:20px;border-radius:50%;background:var(--okbg);color:var(--ok);display:grid;place-items:center;font-size:.75rem;font-weight:800}
+.ticks li::before{content:"";position:absolute;left:0;top:8px;width:20px;height:20px;border-radius:50%;background:var(--okbg) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%230f9d58' d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/></svg>") center/14px no-repeat}
 .ready{display:flex;gap:10px;align-items:center;font-weight:700;margin:14px 0;cursor:pointer}.ready input{width:20px;height:20px;accent-color:var(--blue)}
 .btn[disabled]{opacity:.5;cursor:not-allowed;box-shadow:none}
 
@@ -642,3 +642,29 @@ input[type=search]{width:100%;padding:10px 14px;border:1.5px solid #d5dcec;borde
 input[type=search]:focus{outline:0;border-color:var(--blue);box-shadow:0 0 0 4px rgba(11,95,240,.14)}
 .search-box input{height:46px;padding-left:44px;border-radius:99px}
 .eye-inline.on:hover{background:var(--blue-d)}
+
+
+/* ===================== v15: calmer navigation, svg icons ===================== */
+.main-nav{background:rgba(11,95,240,.07);border-radius:999px;padding:4px;flex:none;margin:0 auto}
+.main-nav .nav-pill{top:4px;height:calc(100% - 8px);left:0;background:#fff;box-shadow:0 4px 14px rgba(11,95,240,.18),0 0 0 1px rgba(11,95,240,.06);transition:transform .45s cubic-bezier(.22,.9,.3,1),width .45s cubic-bezier(.22,.9,.3,1)}
+.main-nav a{color:#4d5b7c;transition:color .2s,background .2s}
+.main-nav a svg{transition:transform .25s cubic-bezier(.2,.9,.3,1.4)}
+.main-nav a:hover:not(.active){background:rgba(11,95,240,.12);color:var(--blue-d)}
+.main-nav a:hover svg{transform:translateY(-2px) scale(1.12)}
+.main-nav a.active{color:var(--blue-d)}
+.main-nav a.active svg{fill:var(--blue)}
+.ec-ic svg,.mi svg{width:52%;height:52%;fill:#fff}
+.ec-ic,.mi{display:grid;place-items:center}
+.hero-chips span{display:inline-flex;align-items:center;gap:8px}
+.hero-chips svg{width:16px;height:16px;fill:#fff}
+.caps svg{width:14px;height:14px;fill:currentColor;margin-right:6px;vertical-align:-2px}
+.more::after{content:"";display:inline-block;width:7px;height:7px;border-right:2.2px solid currentColor;border-top:2.2px solid currentColor;transform:rotate(45deg);margin-left:8px;transition:transform .2s}
+.more:hover::after,.exam-row:hover .more::after,.done-row:hover .more::after{transform:translateX(4px) rotate(45deg)}
+.go.more::after{margin-left:6px}
+.nav-capsule .main-nav{flex:none;justify-content:flex-start;margin:0}
+.nav-capsule .brand{flex:1}
+.nav-capsule .me{flex:1;justify-content:flex-end}
+.nav-capsule .main-nav a{color:#4d5b7c;background:none;box-shadow:none}
+.nav-capsule .main-nav a:hover:not(.active){background:rgba(11,95,240,.12);color:var(--blue-d)}
+.nav-capsule .main-nav a.active{color:var(--blue-d);background:none;box-shadow:none}
+@media(max-width:860px){.nav-capsule .brand{flex:1}.nav-capsule .me{flex:none}}

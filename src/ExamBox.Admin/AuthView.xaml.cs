@@ -104,8 +104,8 @@ public partial class AuthView : UserControl
         StrengthText.Text = level switch
         {
             0 => "Choose any password you'll remember. Longer is safer.",
-            1 => "Weak — still allowed, but easy to guess.",
-            2 => "Okay — adding length or symbols makes it stronger.",
+            1 => "Weak, still allowed, but easy to guess.",
+            2 => "Okay, adding length or symbols makes it stronger.",
             _ => "Strong password."
         };
     }
@@ -114,7 +114,7 @@ public partial class AuthView : UserControl
     {
         if (Confirm.Password.Length == 0) { MatchText.Visibility = Visibility.Collapsed; return; }
         var ok = Confirm.Password == PasswordText;
-        MatchText.Text = ok ? "✓  Passwords match" : "✕  Passwords do not match yet";
+        MatchText.Text = ok ? "Passwords match" : "Passwords do not match yet";
         MatchText.Foreground = (Brush)FindResource(ok ? "OkBrush" : "ErrBrush");
         MatchText.Visibility = Visibility.Visible;
     }
@@ -157,7 +157,7 @@ public partial class AuthView : UserControl
     // ---------- messages ----------
     private void ShowError(string message, bool warning = false)
     {
-        ErrorText.Text = (warning ? "⚠  " : "") + message;
+        ErrorText.Text = message;
         ErrorBox.Background = (Brush)FindResource(warning ? "WarnBgBrush" : "ErrBgBrush");
         ErrorText.Foreground = (Brush)FindResource(warning ? "WarnBrush" : "ErrBrush");
         ErrorBox.Visibility = Visibility.Visible;
@@ -193,7 +193,7 @@ public partial class AuthView : UserControl
             Submit.IsEnabled = !_busy;
             return;
         }
-        ShowError($"Too many failed attempts. Locked — try again in {(int)left.TotalMinutes}:{left.Seconds:00}.");
+        ShowError($"Too many failed attempts. Locked, try again in {(int)left.TotalMinutes}:{left.Seconds:00}.");
     }
 
     private async void Submit_Click(object sender, RoutedEventArgs e)

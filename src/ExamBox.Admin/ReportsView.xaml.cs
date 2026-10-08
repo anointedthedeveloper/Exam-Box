@@ -47,7 +47,7 @@ public partial class ReportsView : UserControl
         KpiAttemptsSub.Text = "submitted exams";
         if (r.Attempts == 0)
         {
-            KpiAvg.Text = KpiPass.Text = KpiHigh.Text = "—";
+            KpiAvg.Text = KpiPass.Text = KpiHigh.Text = "-";
             KpiAvgSub.Text = KpiPassSub.Text = KpiHighSub.Text = "no data yet";
         }
         else

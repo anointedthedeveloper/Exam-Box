@@ -172,24 +172,20 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   });
 })();
 
-// Sliding highlight behind the active navigation item.
+// The active tab's highlight glides from where it was on the previous page to where it belongs now.
 (function () {
   var nav = document.getElementById('mainNav'), pill = document.getElementById('navPill');
   if (!nav || !pill) return;
-  function place(el, instant) {
-    if (!el) { pill.style.opacity = 0; return; }
-    if (instant) pill.style.transition = 'none';
-    pill.style.opacity = 1; pill.style.width = el.offsetWidth + 'px'; pill.style.transform = 'translateX(' + el.offsetLeft + 'px)';
-    if (instant) { pill.offsetWidth; pill.style.transition = ''; }
-  }
   var active = nav.querySelector('a.active');
-  place(active, true);
-  nav.querySelectorAll('a').forEach(function (a) {
-    a.addEventListener('mouseenter', function () { place(a); });
-    a.addEventListener('focus', function () { place(a); });
-  });
-  nav.addEventListener('mouseleave', function () { place(active); });
-  window.addEventListener('resize', function () { place(active, true); });
+  if (!active) { pill.style.opacity = 0; return; }
+  function geo(el) { return { x: el.offsetLeft, w: el.offsetWidth }; }
+  var now = geo(active), from = null;
+  try { from = JSON.parse(sessionStorage.getItem('navPill') || 'null'); } catch (e) { }
+  function put(g) { pill.style.width = g.w + 'px'; pill.style.transform = 'translateX(' + g.x + 'px)'; }
+  pill.style.transition = 'none'; pill.style.opacity = 1; put(from || now); pill.offsetWidth;
+  pill.style.transition = ''; requestAnimationFrame(function () { put(now); });
+  try { sessionStorage.setItem('navPill', JSON.stringify(now)); } catch (e) { }
+  window.addEventListener('resize', function () { pill.style.transition = 'none'; put(geo(active)); pill.offsetWidth; pill.style.transition = ''; });
 })();
 
 // Cards get a soft spotlight that follows the pointer.
@@ -199,3 +195,15 @@ document.querySelectorAll('.exam-card,.panel,.stat,.mini,.exam-row').forEach(fun
     c.style.setProperty('--mx', (e.clientX - r.left) + 'px'); c.style.setProperty('--my', (e.clientY - r.top) + 'px');
   });
 });
+
+// If an administrator ends this sign-in, go to the sign-in page right away.
+(function () {
+  if (!document.getElementById('mainNav')) return;
+  function check() {
+    fetch('/portal/ping', { credentials: 'same-origin', cache: 'no-store' }).then(function (r) {
+      if (r.redirected || r.status === 401 || r.status === 403) location.href = '/account/login?ended=1';
+    }).catch(function () { });
+  }
+  setInterval(check, 8000);
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) check(); });
+})();

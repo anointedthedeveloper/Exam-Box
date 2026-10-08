@@ -2,9 +2,9 @@
 
 Exam platform in C#/.NET 8.
 
-- **Admin side — `ExamBox.exe`**: a Windows desktop app (WPF). Self-contained single file: no .NET install,
+- **Admin side, `ExamBox.exe`**: a Windows desktop app (WPF). Self-contained single file: no .NET install,
   no web server to set up. Staff create students and exams, publish them, and see results.
-- **Student side — web portal**: students sit exams in any browser. The exe hosts the portal itself
+- **Student side, web portal**: students sit exams in any browser. The exe hosts the portal itself
   (default `http://<this-pc-ip>:5109`), so there is nothing else to install.
 
 Existing databases are upgraded in place when a newer version starts; nothing is lost.
@@ -17,7 +17,7 @@ administrator account, and all other data is created in the app.
 2. **Students** → *Add student* (you choose the password, or click *Generate*), or *Import from Excel* (download the template; list ID, name, class and optionally a password, and ExamBox gives you a login sheet). Passwords are only ever changed by the admin: use the key icon on a student's row. Students see their profile and password under *My account*, but cannot change it themselves.
 3. **Exams** → *New exam* (e.g. "SS1 English First Term"). Set the duration, pass mark and, optionally, the class it is for.
 4. **Questions**: open the exam → *Download template*, let the teacher fill it in Excel, then *Import from Excel*.
-   - One question per row. `Type` is `OBJ` (multiple choice, options A–E, `Correct` letter) or `THEORY` (typed answer, optional `Model answer` marking guide).
+   - One question per row. `Type` is `OBJ` (multiple choice, options A-E, `Correct` letter) or `THEORY` (typed answer, optional `Model answer` marking guide).
    - Sub-parts: give each its own row and number it `1a`, `1b`, `1c`. A THEORY row with 0 marks is a reading passage students only read.
    - Pictures: put `YES` in the `Image` column (or a file name plus a pictures folder when importing). Questions needing a picture show **Needed**; select each and *Attach picture*. The exam cannot be launched until all are attached.
    - A preview lists any row that needs fixing before anything is added. Questions can also be added, edited and re-ordered by hand.
@@ -37,7 +37,7 @@ Data folder: `%LOCALAPPDATA%\ExamBox` (override with the `EXAMBOX_DATA` environm
 - The student site never reveals whether an ID belongs to an administrator (same generic error for every failure).
 - Slideshow sign-in screens, illustrations, loaders and page transitions in both the desktop app and the student portal.
 - Student management: add, edit, search, deactivate, delete, reset password, exam history.
-- Exams: objective (A–E) and theory questions in one exam, question pictures, shuffle, show/hide correct answers, pass mark, reusable templates, scheduled launch with class targeting. Questions lock once a student starts.
+- Exams: objective (A-E) and theory questions in one exam, question pictures, shuffle, show/hide correct answers, pass mark, reusable templates, scheduled launch with class targeting. Questions lock once a student starts.
 - Students: one attempt per exam, server-enforced deadline (also when a window closes), autosaved typed answers, instant objective grading, teacher-marked theory with feedback, answer review.
 - Dashboard: live stats, enrolment sparkline, monthly growth, grade-distribution donut, pass/fail trend, searchable recent submissions, getting-started checklist.
 - Reports: filter by exam and period, KPIs, per-exam pass rates, top students, CSV export.

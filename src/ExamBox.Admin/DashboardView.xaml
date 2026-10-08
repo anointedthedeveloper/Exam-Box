@@ -37,7 +37,7 @@
                                         </LinearGradientBrush>
                                     </TextBlock.Foreground>
                                 </TextBlock>
-                                <TextBlock Text="Manage exams, monitor students, and keep everything running smoothly — all from one place."
+                                <TextBlock Text="Manage exams, monitor students, and keep everything running smoothly, all from one place."
                                            Foreground="#D3E2FF" FontSize="15" TextWrapping="Wrap" MaxWidth="560" Margin="0,12,0,24" HorizontalAlignment="Left"/>
                                 <WrapPanel>
                             <Button Style="{StaticResource LightButton}" Click="NewExam_Click" Padding="7,6,16,6" Margin="0,0,10,10">
@@ -185,7 +185,7 @@
                 <Border x:Name="InsightsCard" Grid.Column="0" Style="{StaticResource Card}" VerticalAlignment="Top">
                     <StackPanel>
                         <DockPanel>
-                            <Button DockPanel.Dock="Right" Content="Open reports  →" Style="{StaticResource GhostButton}" Click="Results_Click" Padding="12,6" Margin="0"/>
+                            <Button DockPanel.Dock="Right" Content="Open reports" Style="{StaticResource GhostButton}" Click="Results_Click" Padding="12,6" Margin="0"/>
                             <StackPanel Orientation="Horizontal">
                                 <Border Style="{StaticResource IconBadge}"><TextBlock Text="&#xE9D2;" Style="{StaticResource IconGlyph}"/></Border>
                                 <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">

@@ -76,7 +76,7 @@ public partial class ExamDetailView : UserControl
 
         var labels = QLabel(e.Questions);
         QTable.ItemsSource = e.Questions.Select(q => new QuestionRow(q.Id, labels[q.Id], q.Type == QuestionType.Theory ? (q.Marks == 0 ? "Passage" : "Theory") : "Objective",
-            q.Text.Replace("\r", " ").Replace("\n", " "), Details(q), q.Marks, q.HasImage ? "Attached" : q.MissingImage ? "Needed" : "—")).ToList();
+            q.Text.Replace("\r", " ").Replace("\n", " "), Details(q), q.Marks, q.HasImage ? "Attached" : q.MissingImage ? "Needed" : "-")).ToList();
         QEmpty.Visibility = e.Questions.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         QTable.Visibility = e.Questions.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
         QSummary.Text = e.Questions.Count == 0 ? "" :
@@ -86,8 +86,8 @@ public partial class ExamDetailView : UserControl
         var done = e.Attempts.Where(a => a.SubmittedAt != null).OrderByDescending(a => a.PendingMarking).ThenByDescending(a => a.Score).ToList();
         var hasTheory = e.Questions.Any(q => q.Type == QuestionType.Theory && q.Marks > 0);
         RTable.ItemsSource = done.Select(a => new ResultRow(a.Id, a.Student!.FullName, a.Student.Username,
-            hasTheory ? $"{a.ObjectiveScore}" : $"{a.ObjectiveScore}", a.PendingMarking ? "—" : hasTheory ? $"{a.TheoryScore}" : "—",
-            a.PendingMarking ? "—" : $"{a.Score} / {a.TotalMarks}", a.PendingMarking ? "—" : $"{a.Percent}%",
+            hasTheory ? $"{a.ObjectiveScore}" : $"{a.ObjectiveScore}", a.PendingMarking ? "-" : hasTheory ? $"{a.TheoryScore}" : "-",
+            a.PendingMarking ? "-" : $"{a.Score} / {a.TotalMarks}", a.PendingMarking ? "-" : $"{a.Percent}%",
             a.PendingMarking ? "Awaiting" : a.Percent >= e.PassMarkPercent ? "Pass" : "Fail", Ui.Local(a.SubmittedAt))).ToList();
         var final = done.Where(a => !a.PendingMarking).ToList();
         var waiting = done.Count - final.Count;

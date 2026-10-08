@@ -13,7 +13,7 @@ public partial class LaunchDialog : Window
         _exam = exam;
         InitializeComponent();
         Title = Heading.Text = "Launch exam";
-        Sub.Text = $"“{exam.Title}” — {exam.Questions.Count} question(s), {exam.DurationMinutes} minutes. Students see it on the portal once it opens.";
+        Sub.Text = $"“{exam.Title}”, {exam.Questions.Count} question(s), {exam.DurationMinutes} minutes. Students see it on the portal once it opens.";
         foreach (var c in App.Students.Classes()) ClassBox.Items.Add(c);
         if (!string.IsNullOrWhiteSpace(exam.ForDepartment)) { WhoClass.IsChecked = true; ClassBox.Text = exam.ForDepartment; }
         var tomorrow = DateTime.Now.Date.AddDays(1);

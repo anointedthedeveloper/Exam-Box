@@ -5,6 +5,7 @@
     <div><h2>Welcome back</h2><p class="muted">Sign in with the student ID your teacher gave you.</p></div>
 </div>
 <partial name="_Flash" />
+@if (ViewBag.Ended == true) { <div class="alert alert-err">You were signed out by your administrator. Please sign in again.</div> }
 <form method="post" asp-action="Login" data-loading="Signing you in…">
     <div asp-validation-summary="ModelOnly" class="form-alert"></div>
     <input type="hidden" asp-for="ReturnUrl" />
@@ -22,7 +23,7 @@
             <svg viewBox="0 0 24 24"><path d="M12 5C7 5 2.7 8.1 1 12c1.7 3.9 6 7 11 7s9.3-3.1 11-7c-1.7-3.9-6-7-11-7zm0 11.5a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9zm0-7a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z"/></svg>
         </button>
     </div>
-    <div class="caps" id="caps">⇪ Caps Lock is on</div>
+    <div class="caps" id="caps"><svg viewBox="0 0 24 24"><path d="M12 3 3 13h5v4h8v-4h5L12 3zm-4 16h8v2H8v-2z"/></svg>Caps Lock is on</div>
     <span asp-validation-for="Password" class="field-validation-error"></span>
     <button class="btn block lg" style="margin-top:22px"><span class="lbl">Sign in</span><span class="spinner sm"></span></button>
 </form>

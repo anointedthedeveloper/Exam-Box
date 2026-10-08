@@ -16,7 +16,7 @@ public partial class SettingsView : UserControl
         DefaultPass.Text = App.Settings.DefaultPassMark.ToString();
         DataPath.Text = App.Db.DataDir;
         var v = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3) ?? "1.0.0";
-        AboutText.Text = $"ExamBox {v}\nTimed exams for your students — everything runs on this computer.";
+        AboutText.Text = $"ExamBox {v}\nTimed exams for your students, everything runs on this computer.";
         Loaded += (_, _) => { App.Portal.Changed += RenderPortal; RenderPortal(); };
         Unloaded += (_, _) => App.Portal.Changed -= RenderPortal;
     }
@@ -44,7 +44,7 @@ public partial class SettingsView : UserControl
         App.Settings.Save();
 
         if (nameChanged && App.Portal.Running) await App.Portal.StartAsync(App.Settings.Port);   // restart so the website shows the new name
-        SavedText.Text = "  ✓ Saved";
+        SavedText.Text = "  Saved";
         SavedText.Visibility = Visibility.Visible;
     }
 

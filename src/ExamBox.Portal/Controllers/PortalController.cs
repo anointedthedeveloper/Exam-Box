@@ -13,6 +13,10 @@ public class PortalController(AttemptService attempts) : Controller
     [HttpGet("")]
     public IActionResult Index() => View(attempts.Home(Me));
 
+    /// <summary>Called every few seconds by open pages; a rejected sign-in redirects, which tells the page to leave.</summary>
+    [HttpGet("ping")]
+    public IActionResult Ping() => Ok();
+
     [HttpGet("exams")]
     public IActionResult Exams() => View(attempts.Home(Me));
 
@@ -62,7 +66,7 @@ public class PortalController(AttemptService attempts) : Controller
     {
         var r = attempts.Submit(Me, id, ReadAnswers());
         if (!r.Ok) return NotFound();
-        TempData["Success"] = r.Value ? "Time was up — your exam was submitted automatically." : "Exam submitted.";
+        TempData["Success"] = r.Value ? "Time was up, your exam was submitted automatically." : "Exam submitted.";
         return RedirectToAction(nameof(Result), new { id });
     }
 

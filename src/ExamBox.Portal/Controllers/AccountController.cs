@@ -21,8 +21,9 @@ public class HomeController : Controller
 public class AccountController(AuthService auth) : Controller
 {
     [HttpGet("login")]
-    public IActionResult Login(string? returnUrl)
+    public IActionResult Login(string? returnUrl, string? ended = null)
     {
+        ViewBag.Ended = !string.IsNullOrEmpty(ended);
         if (User.Identity?.IsAuthenticated == true) return RedirectToAction("Index", "Home");
         return View(new LoginVm { ReturnUrl = returnUrl });
     }
@@ -30,6 +31,7 @@ public class AccountController(AuthService auth) : Controller
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginVm vm)
     {
+        ViewBag.Ended = false;
         if (!ModelState.IsValid) return View(vm);
         var r = auth.Authenticate(vm.Identifier, vm.Password, UserRole.Student);
         if (r.User == null)

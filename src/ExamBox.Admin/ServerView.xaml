@@ -6,7 +6,7 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel>
             <TextBlock Text="Student portal" Style="{StaticResource H1}"/>
-            <TextBlock Text="Students sit exams in a web browser. ExamBox hosts that site for you — keep this app open while exams are running."
+            <TextBlock Text="Students sit exams in a web browser. ExamBox hosts that site for you, keep this app open while exams are running."
                        Style="{StaticResource Muted}" Margin="0,2,0,18"/>
 
             <Grid r:Responsive.StackBelow="1000">

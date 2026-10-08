@@ -8,7 +8,7 @@
             <DockPanel LastChildFill="False" Margin="0,0,0,18">
                 <StackPanel DockPanel.Dock="Left">
                     <TextBlock Text="Reports" Style="{StaticResource H1}"/>
-                    <TextBlock Text="Results across your exams — filter, explore and export." Style="{StaticResource Muted}"/>
+                    <TextBlock Text="Results across your exams, filter, explore and export." Style="{StaticResource Muted}"/>
                 </StackPanel>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
                     <ComboBox x:Name="ExamFilter" Width="220" Margin="0,0,10,0" SelectionChanged="Filter_Changed"/>

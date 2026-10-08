@@ -9,7 +9,7 @@
     <div class="dash-top">
         <div class="greet">
             <p class="eyebrow"><span id="greetWord">Welcome</span> · <time id="today"></time></p>
-            <h1>Hello, @first <span class="wave">👋</span></h1>
+            <h1>Hello, @first</h1>
             <div class="greet-line">
                 @if (Model.InProgress.Count > 0)
                 {
@@ -22,16 +22,16 @@
             </div>
         </div>
         <div class="mini-stats">
-            <a class="mini" asp-action="Exams"><span class="mi blue">✎</span><b data-count="@Model.Available.Count">0</b><small>Available</small></a>
-            <a class="mini" asp-action="Exams"><span class="mi violet">⏳</span><b data-count="@Model.Upcoming.Count">0</b><small>Coming up</small></a>
-            <a class="mini" asp-action="Exams"><span class="mi amber">▶</span><b data-count="@Model.InProgress.Count">0</b><small>In progress</small></a>
-            <a class="mini" asp-action="Completed"><span class="mi green">✓</span><b data-count="@done.Count">0</b><small>Completed</small></a>
+            <a class="mini" asp-action="Exams"><span class="mi blue"><svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></span><b data-count="@Model.Available.Count">0</b><small>Available</small></a>
+            <a class="mini" asp-action="Exams"><span class="mi violet"><svg viewBox="0 0 24 24"><path d="M6 2v6l4 4-4 4v6h12v-6l-4-4 4-4V2H6zm10 14.5V20H8v-3.5l4-4 4 4zm-4-5l-4-4V4h8v3.5l-4 4z"/></svg></span><b data-count="@Model.Upcoming.Count">0</b><small>Coming up</small></a>
+            <a class="mini" asp-action="Exams"><span class="mi amber"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span><b data-count="@Model.InProgress.Count">0</b><small>In progress</small></a>
+            <a class="mini" asp-action="Completed"><span class="mi green"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span><b data-count="@done.Count">0</b><small>Completed</small></a>
         </div>
     </div>
 
     <div class="dash-cols">
         <section class="panel">
-            <header class="panel-h"><h2>Available now</h2><a asp-action="Exams">All exams →</a></header>
+            <header class="panel-h"><h2>Available now</h2><a class="more" asp-action="Exams">All exams</a></header>
             <div class="panel-b">
             @if (Model.Available.Count == 0)
             {
@@ -43,13 +43,13 @@
                 {
                     var q = e.Questions.Count(x => x.Marks > 0);
                     <a class="exam-row" asp-action="Instructions" asp-route-examId="@e.Id">
-                        <span class="ec-ic">✎</span>
+                        <span class="ec-ic"><svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></span>
                         <span class="er-main">
                             <strong>@e.Title</strong>
                             <span class="er-meta"><span>@q question@(q == 1 ? "" : "s")</span><span>@e.DurationMinutes min</span>@if (e.Questions.Any(x => x.Type == QuestionType.Theory && x.Marks > 0)) { <span>Typed answers</span> }</span>
                         </span>
                         <span class="badge ok live"><i></i>Open</span>
-                        <span class="go">Start →</span>
+                        <span class="go more">Start</span>
                     </a>
                 }
             }
@@ -62,17 +62,17 @@
                 @if (Model.Upcoming.Count == 0) { <div class="empty-mini">No scheduled exams.</div> }
                 @foreach (var e in Model.Upcoming.Take(4))
                 {
-                    <div class="up-row"><span class="ec-ic soon">⏳</span><span class="er-main"><strong>@e.Title</strong><span class="er-meta"><span>Opens <time datetime="@e.OpensAt!.Value.ToString("o")"></time></span></span></span><span class="cd-chip" data-countdown="@e.OpensAt!.Value.ToString("o")"></span></div>
+                    <div class="up-row"><span class="ec-ic soon"><svg viewBox="0 0 24 24"><path d="M6 2v6l4 4-4 4v6h12v-6l-4-4 4-4V2H6zm10 14.5V20H8v-3.5l4-4 4 4zm-4-5l-4-4V4h8v3.5l-4 4z"/></svg></span><span class="er-main"><strong>@e.Title</strong><span class="er-meta"><span>Opens <time datetime="@e.OpensAt!.Value.ToString("o")"></time></span></span></span><span class="cd-chip" data-countdown="@e.OpensAt!.Value.ToString("o")"></span></div>
                 }
                 </div>
             </section>
             <section class="panel">
-                <header class="panel-h"><h2>Recently completed</h2><a asp-action="Completed">View all →</a></header>
+                <header class="panel-h"><h2>Recently completed</h2><a class="more" asp-action="Completed">View all</a></header>
                 <div class="panel-b">
                 @if (done.Count == 0) { <div class="empty-mini">Exams you hand in will be listed here.</div> }
                 @foreach (var a in done.Take(3))
                 {
-                    <div class="up-row"><span class="ec-ic ok">✓</span><span class="er-main"><strong>@a.Exam!.Title</strong><span class="er-meta"><span><time datetime="@a.SubmittedAt!.Value.ToString("o")"></time></span></span></span><span class="badge ok">Completed</span></div>
+                    <div class="up-row"><span class="ec-ic ok"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span><span class="er-main"><strong>@a.Exam!.Title</strong><span class="er-meta"><span><time datetime="@a.SubmittedAt!.Value.ToString("o")"></time></span></span></span><span class="badge ok">Completed</span></div>
                 }
                 </div>
             </section>

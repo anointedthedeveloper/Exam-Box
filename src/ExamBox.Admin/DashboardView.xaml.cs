@@ -52,7 +52,7 @@ public partial class DashboardView : UserControl
         StatStudentsSub.Text = $"{d.ActiveStudents} active";
         Anim.CountUp(StatCompleted, d.Completed);
         StatCompletedSub.Text = d.AwaitingMarking > 0 ? $"{inProgress} in progress · {d.AwaitingMarking} awaiting marking" : $"{inProgress} in progress";
-        if (d.Completed == 0) StatAvg.Text = "—"; else Anim.CountUp(StatAvg, d.AvgPercent, 1, "%");
+        if (d.Completed == 0) StatAvg.Text = "-"; else Anim.CountUp(StatAvg, d.AvgPercent, 1, "%");
         StatAvgSub.Text = "across submitted exams";
 
         // insights

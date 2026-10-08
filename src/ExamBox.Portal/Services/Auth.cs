@@ -30,6 +30,7 @@ public static class AuthExtensions
             new(ClaimTypes.NameIdentifier, u.Id.ToString()),
             new(ClaimTypes.Name, u.FullName),
             new("username", u.Username),
+            new("sv", u.SessionVersion.ToString()),
             new(ClaimTypes.Role, u.Role.ToString()),
             new("boot", http.RequestServices.GetRequiredService<PortalBoot>().Id),
         };

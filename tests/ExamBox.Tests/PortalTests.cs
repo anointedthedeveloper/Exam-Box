@@ -172,4 +172,31 @@ public class PortalTests
         Assert.Contains("Exam completed", final.Html);
         Assert.DoesNotContain("9 of 11", final.Html); Assert.DoesNotContain("Nice", final.Html);   // marks stay with the teacher
     }
+
+    [Fact]
+    public async Task Admin_can_force_students_out()
+    {
+        using var t = new TempDb();
+        t.Auth.CreateAdmin("admin", "pw");
+        var a = t.Students.Create(new StudentInput("A One", "F1", null, null, true, "pw")).Value!;
+        var b = t.Students.Create(new StudentInput("B Two", "F2", null, null, true, "pw")).Value!;
+        var port = FreePort();
+        await using var host = await PortalHost.StartAsync(t.Factory, port);
+        var ca = new Client($"http://127.0.0.1:{port}"); var cb = new Client($"http://127.0.0.1:{port}");
+        await ca.Post("/account/login", new() { ["Identifier"] = "F1", ["Password"] = "pw" }, "/account/login");
+        await cb.Post("/account/login", new() { ["Identifier"] = "F2", ["Password"] = "pw" }, "/account/login");
+        Assert.EndsWith("/portal", (await ca.Get("/portal")).Url);
+        Assert.Equal(HttpStatusCode.OK, (await ca.Http.GetAsync("/portal/ping")).StatusCode);
+
+        Assert.True(t.Students.ForceLogout(a.Student.Id).Ok);                       // one student
+        Assert.Contains("/account/login", (await ca.Get("/portal")).Url);
+        Assert.EndsWith("/portal", (await cb.Get("/portal")).Url);                  // the other one is untouched
+        var login = await ca.Post("/account/login", new() { ["Identifier"] = "F1", ["Password"] = "pw" }, "/account/login");
+        Assert.EndsWith("/portal", login.Url);                                      // signing back in works
+
+        Assert.Equal(2, t.Students.ForceLogoutAll());                               // everyone
+        Assert.Contains("/account/login", (await ca.Get("/portal")).Url);
+        Assert.Contains("/account/login", (await cb.Get("/portal")).Url);
+        Assert.Contains("signed out by your administrator", (await ca.Get("/account/login?ended=true")).Html);
+    }
 }

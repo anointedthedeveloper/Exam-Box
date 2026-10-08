@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <DockPanel>
         <StackPanel DockPanel.Dock="Top" Margin="0,0,0,14">
-            <Button Content="← All exams" Style="{StaticResource GhostButton}" Click="Back_Click" HorizontalAlignment="Left" Padding="10,5" Margin="0,0,0,10"/>
+            <Button Content="All exams" Style="{StaticResource GhostButton}" Click="Back_Click" HorizontalAlignment="Left" Padding="10,5" Margin="0,0,0,10"/>
             <DockPanel LastChildFill="False">
                 <StackPanel DockPanel.Dock="Left">
                     <StackPanel Orientation="Horizontal">

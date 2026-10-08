@@ -122,6 +122,21 @@ public sealed class StudentService(DbFactory factory)
         return OpResult<string>.Success(temp);
     }
 
+    /// <summary>Ends every open sign-in of one student. They land on the sign-in page at their next click or within seconds.</summary>
+    public OpResult ForceLogout(int id)
+    {
+        using var db = factory.Create();
+        var n = db.Users.Where(u => u.Id == id && u.Role == UserRole.Student).ExecuteUpdate(s => s.SetProperty(u => u.SessionVersion, u => u.SessionVersion + 1));
+        return n == 0 ? OpResult.Fail("Student not found.") : OpResult.Success();
+    }
+
+    /// <summary>Ends every student sign-in on every device. Returns how many students were affected.</summary>
+    public int ForceLogoutAll()
+    {
+        using var db = factory.Create();
+        return db.Users.Where(u => u.Role == UserRole.Student).ExecuteUpdate(s => s.SetProperty(u => u.SessionVersion, u => u.SessionVersion + 1));
+    }
+
     public OpResult Delete(int id)
     {
         using var db = factory.Create();

@@ -306,7 +306,7 @@ internal static class Palette
 {
     private static SolidColorBrush B(string hex) { var b = new SolidColorBrush((Color)ColorConverter.ConvertFromString(hex)); b.Freeze(); return b; }
     public static readonly Brush[] Grade = { B("#0B5FF0"), B("#19B58A"), B("#6AA9FF"), B("#7B61FF"), B("#F2A900") };
-    public static readonly string[] GradeRange = { "90% +", "80–89%", "70–79%", "60–69%", "Below 60%" };
+    public static readonly string[] GradeRange = { "90% +", "80-89%", "70-79%", "60-69%", "Below 60%" };
     private static readonly (Brush Bg, Brush Fg)[] Avatars =
     {
         (B("#E3EDFF"), B("#0B5FF0")), (B("#DDF6EC"), B("#0F9D58")), (B("#EBE6FF"), B("#6B4FE8")),

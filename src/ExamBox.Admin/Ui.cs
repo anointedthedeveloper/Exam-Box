@@ -16,7 +16,7 @@ internal static class Ui
         MessageBox.Show(Owner!, message, "ExamBox", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
 
     /// <summary>Timestamps are stored in UTC.</summary>
-    public static string Local(DateTime? utc, string none = "—") =>
+    public static string Local(DateTime? utc, string none = "-") =>
         utc == null ? none : DateTime.SpecifyKind(utc.Value, DateTimeKind.Utc).ToLocalTime().ToString("g");
 
     /// <summary>"Just now", "3 hours ago", "Yesterday", "12 Sep 2026" (timestamps are stored in UTC).</summary>

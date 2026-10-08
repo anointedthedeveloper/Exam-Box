@@ -54,8 +54,8 @@ public partial class StudentsView : UserControl
             var done = s.Attempts.Where(a => a.SubmittedAt != null).ToList();
             var (bg, fg) = Palette.Avatar(s.FullName);
             return new StudentRow(s.Id, s.FullName, s.FullName.Length > 0 ? s.FullName[..1].ToUpperInvariant() : "?", bg, fg, s.Username,
-                s.Department ?? "—", s.Email ?? "No email", s.IsActive ? "Active" : "Inactive", done.Count,
-                done.Count == 0 ? "—" : $"{Math.Round(done.Average(a => a.Percent), 1)}%", Ui.Ago(s.LastLoginAt));
+                s.Department ?? "-", s.Email ?? "No email", s.IsActive ? "Active" : "Inactive", done.Count,
+                done.Count == 0 ? "-" : $"{Math.Round(done.Average(a => a.Percent), 1)}%", Ui.Ago(s.LastLoginAt));
         }).ToList();
 
         Count.Text = _all.Count == 0 ? "" : $"Showing {list.Count} of {_all.Count}";
@@ -114,6 +114,22 @@ public partial class StudentsView : UserControl
     {
         if (RowOf(sender) is not { } row) return;
         if (new PasswordDialog(row.Id, row.Name, row.StudentId) { Owner = Window.GetWindow(this) }.ShowDialog() == true) Ui.Info($"New password set for {row.Name}.");
+    }
+
+    private void ForceOut_Click(object sender, RoutedEventArgs e)
+    {
+        if (RowOf(sender) is not { } row) return;
+        if (!Ui.Confirm($"Sign {row.Name} out everywhere?\n\nThey are sent to the sign-in page right away on every device. Answers they already typed in an exam are kept.")) return;
+        var r = App.Students.ForceLogout(row.Id);
+        if (!r.Ok) { Ui.Error(r.Error!); return; }
+        Ui.Info($"{row.Name} has been signed out.");
+    }
+
+    private void ForceAll_Click(object sender, RoutedEventArgs e)
+    {
+        if (!Ui.Confirm("Sign out ALL students on every device?\n\nEveryone, including students in the middle of an exam, is sent to the sign-in page and must sign in again. Answers already typed are kept.")) return;
+        var n = App.Students.ForceLogoutAll();
+        Ui.Info($"All {n} student(s) have been signed out.");
     }
 
     private void Delete_Click(object sender, RoutedEventArgs e)

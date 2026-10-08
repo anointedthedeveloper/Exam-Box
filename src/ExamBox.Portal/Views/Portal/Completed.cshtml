@@ -5,7 +5,7 @@
 <div class="stats three">
     <div class="stat"><div class="n" data-count="@done.Count">0</div><div class="l">Exams completed</div><div class="s">All time</div></div>
     <div class="stat"><div class="n" data-count="@done.Count(a => a.SubmittedAt >= DateTime.UtcNow.AddDays(-30))">0</div><div class="l">Last 30 days</div><div class="s">Recently handed in</div></div>
-    <div class="stat"><div class="n small">@if (last == null) { <span>—</span> } else { <time datetime="@last.SubmittedAt!.Value.ToString("o")" data-fmt="date"></time> }</div><div class="l">Latest exam</div><div class="s">@(last?.Exam?.Title ?? "Nothing yet")</div></div>
+    <div class="stat"><div class="n small">@if (last == null) { <span>-</span> } else { <time datetime="@last.SubmittedAt!.Value.ToString("o")" data-fmt="date"></time> }</div><div class="l">Latest exam</div><div class="s">@(last?.Exam?.Title ?? "Nothing yet")</div></div>
 </div>
 @if (done.Count == 0)
 {
@@ -18,10 +18,10 @@ else
     {
         var mins = a.SubmittedAt!.Value - a.StartedAt;
         <a class="done-row" asp-action="Result" asp-route-id="@a.Id" data-name="@a.Exam!.Title.ToLowerInvariant()">
-            <span class="ec-ic ok">✓</span>
+            <span class="ec-ic ok"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span>
             <span class="er-main"><strong>@a.Exam.Title</strong><span class="er-meta"><span>Submitted <time datetime="@a.SubmittedAt.Value.ToString("o")"></time></span><span>Took @(mins.TotalMinutes < 1 ? "under a minute" : Math.Round(mins.TotalMinutes) + " min")</span></span></span>
             <span class="badge ok">Completed</span>
-            <span class="go">Details →</span>
+            <span class="go more">Details</span>
         </a>
     }
     </div>

@@ -12,6 +12,9 @@
                 <Button DockPanel.Dock="Right" Style="{StaticResource PrimaryButton}" Click="Add_Click" Margin="0" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE710;" FontFamily="Segoe MDL2 Assets" FontSize="14" Margin="0,0,8,0" VerticalAlignment="Center"/><TextBlock Text="Add student" VerticalAlignment="Center"/></StackPanel>
                 </Button>
+                <Button DockPanel.Dock="Right" Style="{StaticResource DangerButton}" Click="ForceAll_Click" VerticalAlignment="Center" Margin="0,0,10,0">
+                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE7E8;" FontFamily="Segoe MDL2 Assets" FontSize="14" Margin="0,0,8,0" VerticalAlignment="Center"/><TextBlock Text="Sign out all students" VerticalAlignment="Center"/></StackPanel>
+                </Button>
                 <Button DockPanel.Dock="Right" Style="{StaticResource GhostButton}" Click="Import_Click" VerticalAlignment="Center" Margin="0,0,10,0">
                     <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE8E5;" FontFamily="Segoe MDL2 Assets" FontSize="14" Margin="0,0,8,0" VerticalAlignment="Center"/><TextBlock Text="Import from Excel" VerticalAlignment="Center"/></StackPanel>
                 </Button>
@@ -122,6 +125,7 @@
                                             <Button Content="&#xE70F;" ToolTip="Edit student" Style="{StaticResource IconButtonBlue}" Click="Edit_Click"/>
                                             <Button Content="&#xE81C;" ToolTip="Exam history" Style="{StaticResource IconButton}" Click="History_Click"/>
                                             <Button Content="&#xE192;" ToolTip="Set a new password" Style="{StaticResource IconButton}" Click="Reset_Click"/>
+                                            <Button Content="&#xE7E8;" ToolTip="Sign out this student everywhere" Style="{StaticResource IconButton}" Click="ForceOut_Click"/>
                                             <Button Content="&#xE74D;" ToolTip="Delete student" Style="{StaticResource IconButtonDanger}" Click="Delete_Click"/>
                                         </StackPanel>
                                     </DataTemplate>

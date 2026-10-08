@@ -18,6 +18,8 @@ public class User
     public UserRole Role { get; set; }
     public bool IsActive { get; set; } = true;
     public bool MustChangePassword { get; set; }
+    /// <summary>Bumped by the admin to end every open sign-in of this student ("force sign-out").</summary>
+    public int SessionVersion { get; set; }
     public int FailedLogins { get; set; }
     public DateTime? LockoutEnd { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

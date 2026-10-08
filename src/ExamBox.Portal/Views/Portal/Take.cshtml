@@ -104,9 +104,9 @@
     if (sent || saving || !dirty) return;
     saving = true; dirty = false; state('Saving…', 'saving');
     fetch(location.pathname + '/save', { method: 'POST', body: new FormData(form), credentials: 'same-origin' })
-      .then(function (r) { return r.json(); })
+      .then(function (r) { if (r.redirected || r.status === 401) { sent = true; location.href = '/account/login?ended=1'; throw new Error('ended'); } return r.json(); })
       .then(function (j) { saving = false; if (j.ok) { state('Saved', 'ok'); end = Date.now() + j.left * 1000; } else { state(j.error || 'Not saved', 'bad'); } })
-      .catch(function () { saving = false; dirty = true; state('Offline — will retry', 'bad'); });
+      .catch(function (e) { if (e && e.message === 'ended') return; saving = false; dirty = true; state('Offline, will retry', 'bad'); });
   }
   function touched() { dirty = true; count(); state('Unsaved changes'); }
   form.addEventListener('change', touched);

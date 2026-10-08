@@ -66,7 +66,8 @@ public sealed class PortalHost : IAsyncDisposable
                     var ctxDb = ctx.HttpContext.RequestServices.GetRequiredService<AppDb>();
                     var boot = ctx.HttpContext.RequestServices.GetRequiredService<PortalBoot>().Id;
                     // Sign-ins do not survive closing/restarting ExamBox, whether or not the student signed out.
-                    var ok = ctx.Principal?.FindFirst("boot")?.Value == boot && id != null && await ctxDb.Users.AsNoTracking().AnyAsync(u => u.Id == id && u.IsActive);
+                    var sv = int.TryParse(ctx.Principal?.FindFirst("sv")?.Value, out var svn) ? svn : -1;
+                    var ok = ctx.Principal?.FindFirst("boot")?.Value == boot && id != null && await ctxDb.Users.AsNoTracking().AnyAsync(u => u.Id == id && u.IsActive && u.SessionVersion == sv);
                     if (!ok) { ctx.RejectPrincipal(); await ctx.HttpContext.SignOutAsync(); }
                 };
             });
