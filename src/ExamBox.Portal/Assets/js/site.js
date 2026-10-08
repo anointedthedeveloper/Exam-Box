@@ -152,3 +152,50 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   }
   setTimeout(function () { box.remove(); }, 5200);
 })();
+
+// Greeting by the student's own clock.
+(function () {
+  var g = document.getElementById('greetWord'), d = document.getElementById('today');
+  if (g) { var h = new Date().getHours(); g.textContent = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'; }
+  if (d) d.textContent = new Date().toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long' });
+})();
+
+// Numbers count up once.
+(function () {
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('[data-count]').forEach(function (el) {
+    var target = parseInt(el.dataset.count, 10) || 0;
+    if (reduce || target === 0) { el.textContent = target; return; }
+    var t0 = null;
+    function step(ts) { t0 = t0 || ts; var k = Math.min(1, (ts - t0) / 900); el.textContent = Math.round(target * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(step); }
+    requestAnimationFrame(step);
+  });
+})();
+
+// Sliding highlight behind the active navigation item.
+(function () {
+  var nav = document.getElementById('mainNav'), pill = document.getElementById('navPill');
+  if (!nav || !pill) return;
+  function place(el, instant) {
+    if (!el) { pill.style.opacity = 0; return; }
+    if (instant) pill.style.transition = 'none';
+    pill.style.opacity = 1; pill.style.width = el.offsetWidth + 'px'; pill.style.transform = 'translateX(' + el.offsetLeft + 'px)';
+    if (instant) { pill.offsetWidth; pill.style.transition = ''; }
+  }
+  var active = nav.querySelector('a.active');
+  place(active, true);
+  nav.querySelectorAll('a').forEach(function (a) {
+    a.addEventListener('mouseenter', function () { place(a); });
+    a.addEventListener('focus', function () { place(a); });
+  });
+  nav.addEventListener('mouseleave', function () { place(active); });
+  window.addEventListener('resize', function () { place(active, true); });
+})();
+
+// Cards get a soft spotlight that follows the pointer.
+document.querySelectorAll('.exam-card,.panel,.stat,.mini,.exam-row').forEach(function (c) {
+  c.addEventListener('pointermove', function (e) {
+    var r = c.getBoundingClientRect();
+    c.style.setProperty('--mx', (e.clientX - r.left) + 'px'); c.style.setProperty('--my', (e.clientY - r.top) + 'px');
+  });
+});

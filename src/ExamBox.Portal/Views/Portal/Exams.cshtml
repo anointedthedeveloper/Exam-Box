@@ -1,0 +1,69 @@
+@model StudentHome
+@{ ViewData["Title"] = "Exams"; var total = Model.Available.Count + Model.Upcoming.Count + Model.InProgress.Count; }
+<div class="page-head"><div><div class="crumbs">Exams</div><h1>My exams</h1><p>Everything your teacher has set for you.</p></div>
+    <div class="search-box"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg><input id="examSearch" type="search" placeholder="Search exams" autocomplete="off" /></div></div>
+<div class="seg" id="examTabs" role="tablist">
+    <button class="on" data-f="all">All <b>@total</b></button>
+    <button data-f="available">Available <b>@Model.Available.Count</b></button>
+    <button data-f="soon">Coming up <b>@Model.Upcoming.Count</b></button>
+    <button data-f="running">In progress <b>@Model.InProgress.Count</b></button>
+</div>
+@if (total == 0)
+{
+    <div class="card empty-card"><div class="illus"><img src="/assets/img/slide-timer.svg" alt="" /></div><strong>No exams right now</strong><div>When your teacher launches an exam for you it will appear here.</div></div>
+}
+<div class="exam-grid" id="examGrid">
+@foreach (var a in Model.InProgress)
+{
+    <div class="exam-card" data-kind="running" data-name="@a.Exam!.Title.ToLowerInvariant()">
+        <div class="ec-top"><span class="ec-ic amber">▶</span><span class="badge warn">In progress</span></div>
+        <h3>@a.Exam.Title</h3><p>Started <time datetime="@a.StartedAt.ToString("o")"></time>. Your answers are saved as you go.</p>
+        <div class="meta"><span>@a.Exam.DurationMinutes min</span></div>
+        <a class="btn block" asp-action="Take" asp-route-id="@a.Id">Resume exam</a>
+    </div>
+}
+@foreach (var e in Model.Available)
+{
+    var q = e.Questions.Count(x => x.Marks > 0);
+    <div class="exam-card" data-kind="available" data-name="@e.Title.ToLowerInvariant()">
+        <div class="ec-top"><span class="ec-ic">✎</span><span class="badge ok live"><i></i>Open now</span></div>
+        <h3>@e.Title</h3>
+        <p>@(string.IsNullOrWhiteSpace(e.Description) ? "No extra instructions." : e.Description)</p>
+        <div class="meta"><span>@q question@(q == 1 ? "" : "s")</span><span>@e.DurationMinutes min</span>@if (e.Questions.Any(x => x.Type == QuestionType.Theory && x.Marks > 0)) { <span>Typed answers</span> }</div>
+        <a class="btn block" asp-action="Instructions" asp-route-examId="@e.Id">View &amp; start</a>
+    </div>
+}
+@foreach (var e in Model.Upcoming)
+{
+    <div class="exam-card soon" data-kind="soon" data-name="@e.Title.ToLowerInvariant()">
+        <div class="ec-top"><span class="ec-ic soon">⏳</span><span class="badge warn">Not open yet</span></div>
+        <h3>@e.Title</h3>
+        <p>Opens <time datetime="@e.OpensAt!.Value.ToString("o")"></time></p>
+        <div class="meta"><span>@e.DurationMinutes min</span><span class="cd">in <b data-countdown="@e.OpensAt!.Value.ToString("o")"></b></span></div>
+        <button class="btn block" disabled>Opens soon</button>
+    </div>
+}
+</div>
+<p class="muted center none-msg" id="noMatch" hidden>No exams match your search.</p>
+@section Scripts {
+<script>
+(function () {
+  var cards = Array.from(document.querySelectorAll('#examGrid .exam-card')), f = 'all', q = '';
+  function apply() {
+    var n = 0;
+    cards.forEach(function (c) {
+      var ok = (f === 'all' || c.dataset.kind === f) && (!q || c.dataset.name.indexOf(q) > -1);
+      c.hidden = !ok; if (ok) n++;
+    });
+    var nm = document.getElementById('noMatch'); if (nm) nm.hidden = n > 0 || !cards.length;
+  }
+  document.querySelectorAll('#examTabs button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('#examTabs button').forEach(function (x) { x.classList.remove('on'); });
+      b.classList.add('on'); f = b.dataset.f; apply();
+    });
+  });
+  var s = document.getElementById('examSearch'); if (s) s.addEventListener('input', function () { q = s.value.trim().toLowerCase(); apply(); });
+})();
+</script>
+}

@@ -14,7 +14,7 @@ administrator account, and all other data is created in the app.
 ## Using it
 
 1. Run `ExamBox.exe`, create the administrator account.
-2. **Students** → *Add student* (you choose the password, or click *Generate*), or *Import from Excel* (download the template; list ID, name, class and optionally a password, and ExamBox gives you a login sheet). Passwords are only ever changed by the admin: use the key icon on a student's row. Students see their profile under *My account*, but cannot change their own password.
+2. **Students** → *Add student* (you choose the password, or click *Generate*), or *Import from Excel* (download the template; list ID, name, class and optionally a password, and ExamBox gives you a login sheet). Passwords are only ever changed by the admin: use the key icon on a student's row. Students see their profile and password under *My account*, but cannot change it themselves.
 3. **Exams** → *New exam* (e.g. "SS1 English First Term"). Set the duration, pass mark and, optionally, the class it is for.
 4. **Questions**: open the exam → *Download template*, let the teacher fill it in Excel, then *Import from Excel*.
    - One question per row. `Type` is `OBJ` (multiple choice, options A–E, `Correct` letter) or `THEORY` (typed answer, optional `Model answer` marking guide).

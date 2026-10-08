@@ -13,6 +13,25 @@ public class PortalController(AttemptService attempts) : Controller
     [HttpGet("")]
     public IActionResult Index() => View(attempts.Home(Me));
 
+    [HttpGet("exams")]
+    public IActionResult Exams() => View(attempts.Home(Me));
+
+    [HttpGet("completed")]
+    public IActionResult Completed() => View(attempts.Home(Me));
+
+    /// <summary>The "before you begin" page. Starting is a POST from here.</summary>
+    [HttpGet("instructions/{examId:int}")]
+    public IActionResult Instructions(int examId)
+    {
+        var home = attempts.Home(Me);
+        var exam = home.Available.FirstOrDefault(e => e.Id == examId);
+        if (exam != null) return View(exam);
+        var running = home.InProgress.FirstOrDefault(a => a.ExamId == examId);
+        if (running != null) return RedirectToAction(nameof(Take), new { id = running.Id });
+        TempData["Error"] = "This exam is not available to you right now.";
+        return RedirectToAction(nameof(Exams));
+    }
+
     [HttpPost("start/{examId:int}")]
     public IActionResult Start(int examId)
     {

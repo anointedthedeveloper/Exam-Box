@@ -1,0 +1,48 @@
+@model Exam
+@{
+    ViewData["Title"] = Model.Title;
+    var scored = Model.Questions.Where(q => q.Marks > 0).ToList();
+    var obj = scored.Count(q => q.Type == QuestionType.Objective);
+    var th = scored.Count(q => q.Type == QuestionType.Theory);
+    var pics = Model.Questions.Count(q => q.HasImage);
+}
+<div class="page-head"><div><div class="crumbs"><a asp-action="Exams">Exams</a> / Before you begin</div><h1>@Model.Title</h1></div></div>
+<div class="ins-grid">
+    <section class="card ins-main">
+        <p class="lead">@(string.IsNullOrWhiteSpace(Model.Description) ? "Read the guidelines carefully, then begin when you are ready." : Model.Description)</p>
+        <div class="ins-tiles">
+            <div><b>@Model.DurationMinutes</b><span>minutes</span></div>
+            <div><b>@scored.Count</b><span>questions</span></div>
+            <div><b>@scored.Sum(q => q.Marks)</b><span>total marks</span></div>
+        </div>
+        <h2>What is in this exam</h2>
+        <ul class="ticks">
+            @if (obj > 0) { <li><b>Objective</b>: @obj multiple-choice question@(obj == 1 ? "" : "s"). Pick one answer for each.</li> }
+            @if (th > 0) { <li><b>Theory</b>: @th question@(th == 1 ? "" : "s") answered by typing. No pen and paper needed.</li> }
+            @if (pics > 0) { <li>@pics question@(pics == 1 ? " has" : "s have") a picture or diagram to look at.</li> }
+        </ul>
+    </section>
+    <aside class="card ins-side">
+        <h2>Before you begin</h2>
+        <ul class="ticks">
+            <li>The timer starts the moment you click <b>Begin</b> and does not stop.</li>
+            <li>You get <b>one attempt</b>. You can't retake it.</li>
+            <li>Your answers are <b>saved automatically</b>. If your connection drops, reopen this page to continue.</li>
+            <li>When time runs out, what you have written is submitted for you.</li>
+            <li>Use a charged device and a steady connection.</li>
+        </ul>
+        <form asp-action="Start" asp-route-examId="@Model.Id" method="post" data-loading="Starting your exam…" data-overlay>
+            <label class="ready"><input type="checkbox" id="ready" /> <span>I have read this and I'm ready to begin</span></label>
+            <button class="btn lg block" id="beginBtn" disabled><span class="lbl">Begin exam</span><span class="spinner sm"></span></button>
+        </form>
+        <a class="btn ghost block" asp-action="Exams" style="margin-top:10px">Not now</a>
+    </aside>
+</div>
+@section Scripts {
+<script>
+(function () {
+  var r = document.getElementById('ready'), b = document.getElementById('beginBtn');
+  r.addEventListener('change', function () { b.disabled = !r.checked; });
+})();
+</script>
+}

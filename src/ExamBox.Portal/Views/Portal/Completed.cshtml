@@ -1,0 +1,42 @@
+@model StudentHome
+@{ ViewData["Title"] = "Completed exams"; var done = Model.Completed; var last = done.FirstOrDefault(); }
+<div class="page-head"><div><div class="crumbs">Exams</div><h1>Completed exams</h1><p>Exams you have handed in. Your teacher shares results separately.</p></div>
+    <div class="search-box"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg><input id="doneSearch" type="search" placeholder="Search completed exams" autocomplete="off" /></div></div>
+<div class="stats three">
+    <div class="stat"><div class="n" data-count="@done.Count">0</div><div class="l">Exams completed</div><div class="s">All time</div></div>
+    <div class="stat"><div class="n" data-count="@done.Count(a => a.SubmittedAt >= DateTime.UtcNow.AddDays(-30))">0</div><div class="l">Last 30 days</div><div class="s">Recently handed in</div></div>
+    <div class="stat"><div class="n small">@if (last == null) { <span>—</span> } else { <time datetime="@last.SubmittedAt!.Value.ToString("o")" data-fmt="date"></time> }</div><div class="l">Latest exam</div><div class="s">@(last?.Exam?.Title ?? "Nothing yet")</div></div>
+</div>
+@if (done.Count == 0)
+{
+    <div class="card empty-card"><div class="illus"><img src="/assets/img/slide-results.svg" alt="" /></div><strong>No completed exams yet</strong><div>Once you hand in an exam it is listed here.</div></div>
+}
+else
+{
+    <div class="done-list" id="doneList">
+    @foreach (var a in done)
+    {
+        var mins = a.SubmittedAt!.Value - a.StartedAt;
+        <a class="done-row" asp-action="Result" asp-route-id="@a.Id" data-name="@a.Exam!.Title.ToLowerInvariant()">
+            <span class="ec-ic ok">✓</span>
+            <span class="er-main"><strong>@a.Exam.Title</strong><span class="er-meta"><span>Submitted <time datetime="@a.SubmittedAt.Value.ToString("o")"></time></span><span>Took @(mins.TotalMinutes < 1 ? "under a minute" : Math.Round(mins.TotalMinutes) + " min")</span></span></span>
+            <span class="badge ok">Completed</span>
+            <span class="go">Details →</span>
+        </a>
+    }
+    </div>
+    <p class="muted center none-msg" id="noDone" hidden>No exams match your search.</p>
+}
+@section Scripts {
+<script>
+(function () {
+  var s = document.getElementById('doneSearch'), rows = Array.from(document.querySelectorAll('#doneList .done-row'));
+  if (!s) return;
+  s.addEventListener('input', function () {
+    var q = s.value.trim().toLowerCase(), n = 0;
+    rows.forEach(function (r) { var ok = !q || r.dataset.name.indexOf(q) > -1; r.hidden = !ok; if (ok) n++; });
+    var m = document.getElementById('noDone'); if (m) m.hidden = n > 0;
+  });
+})();
+</script>
+}
