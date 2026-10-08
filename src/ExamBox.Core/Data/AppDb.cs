@@ -11,6 +11,7 @@ public class AppDb(DbContextOptions<AppDb> options) : DbContext(options)
     public DbSet<Attempt> Attempts => Set<Attempt>();
     public DbSet<Answer> Answers => Set<Answer>();
     public DbSet<SchoolClass> Classes => Set<SchoolClass>();
+    public DbSet<QuestionImage> Images => Set<QuestionImage>();
     public DbSet<ActivityEntry> Activity => Set<ActivityEntry>();
 
     protected override void OnModelCreating(ModelBuilder b)
@@ -28,6 +29,7 @@ public class AppDb(DbContextOptions<AppDb> options) : DbContext(options)
             e.HasIndex(c => c.Name).IsUnique();
         });
         b.Entity<ActivityEntry>().HasIndex(a => a.At);
+        b.Entity<QuestionImage>().HasOne<Question>().WithMany().HasForeignKey(i => i.QuestionId).OnDelete(DeleteBehavior.Cascade);
         b.Entity<Question>(e =>
         {
             e.Property(q => q.Type).HasConversion<string>();

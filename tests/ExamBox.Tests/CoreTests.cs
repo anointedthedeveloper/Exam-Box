@@ -620,4 +620,30 @@ public class ProductionTests
         }
         finally { Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools(); try { Directory.Delete(dir, true); } catch { } }
     }
+
+    [Fact]
+    public void Pictures_move_to_their_own_table_when_upgrading()
+    {
+        var dir = Path.Combine(Path.GetTempPath(), "exambox-img2-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(dir);
+        try
+        {
+            var f = new ExamBox.Data.DbFactory(dir);
+            f.Initialize();
+            var exams = new ExamService(f);
+            var e = exams.Save(0, "Pics", null, 10, 50).Value!;
+            exams.SaveQuestion(e.Id, 0, "Q", "a", "b", null, null, "A", 1);
+            var qid = exams.Get(e.Id)!.Questions[0].Id;
+            using (var db = f.Create())   // recreate the old layout: picture bytes inside the question row
+            {
+                db.Database.ExecuteSqlRaw("DROP TABLE Images");
+                db.Database.ExecuteSqlRaw("ALTER TABLE Questions ADD COLUMN ImageData BLOB NULL");
+                db.Database.ExecuteSqlRaw("UPDATE Questions SET ImageData = x'89504E470D0A1A0A0000', ImageType = 'image/png'");
+                db.Database.ExecuteSqlRaw("PRAGMA user_version = 7");
+            }
+            f.Initialize();
+            Assert.Equal(new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0, 0 }, exams.GetImage(qid));
+            Assert.True(exams.Get(e.Id)!.Questions[0].HasImage);
+        }
+        finally { Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools(); try { Directory.Delete(dir, true); } catch { } }
+    }
 }

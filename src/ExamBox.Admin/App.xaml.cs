@@ -95,6 +95,17 @@ public partial class App : Application
         Log = new ActivityLog(Db);
         Settings = AppSettings.Load(Db.DataDir);
 
+        // Warm the data layer in the background while the splash plays, so the first click on every page is quick.
+        _ = Task.Run(() =>
+        {
+            try
+            {
+                Dashboard.Get(); Students.List(); Exams.List(); Reports.Build(); Classes.List(); Marking.PendingCount();
+                Presence.Online(); Log.List(null, null, 5); Log.Trim();
+            }
+            catch { /* warm-up only */ }
+        });
+
         if (Settings.AutoStartServer)
         {
             splash.SetStatus("Starting the student portal…");
@@ -103,7 +114,7 @@ public partial class App : Application
 
         splash.SetStatus("Almost ready…");
         // Let the intro play for a moment so it reads as a start-up, not a flash.
-        var remaining = 1300 - (int)clock.ElapsedMilliseconds;
+        var remaining = 800 - (int)clock.ElapsedMilliseconds;
         if (remaining > 0) await Task.Delay(remaining);
         MainWindow = new MainWindow();   // becomes the main window before the splash closes, so closing it can't end the app
         var drawn = new TaskCompletionSource();

@@ -103,12 +103,13 @@ public class Question
     [Range(0, 100)] public int Marks { get; set; } = 1;
     /// <summary>Marking guide shown to the teacher (and optionally the student) for theory questions.</summary>
     [StringLength(4000)] public string? ModelAnswer { get; set; }
-    public byte[]? ImageData { get; set; }
+    /// <summary>The picture bytes. Not stored on the question row (that made every exam list slow); filled in on demand from <see cref="QuestionImage"/>.</summary>
+    [System.ComponentModel.DataAnnotations.Schema.NotMapped] public byte[]? ImageData { get; set; }
     [StringLength(60)] public string? ImageType { get; set; }
     /// <summary>The import said this question needs a picture; the exam cannot launch until it is attached.</summary>
     public bool ImageRequired { get; set; }
 
-    public bool HasImage => ImageData is { Length: > 0 };
+    public bool HasImage => !string.IsNullOrEmpty(ImageType);
     public bool MissingImage => ImageRequired && !HasImage;
 
     public IEnumerable<(string Key, string Text)> Options()
@@ -120,6 +121,13 @@ public class Question
         if (!string.IsNullOrWhiteSpace(OptionD)) yield return ("D", OptionD!);
         if (!string.IsNullOrWhiteSpace(OptionE)) yield return ("E", OptionE!);
     }
+}
+
+/// <summary>A question's picture, kept in its own table so listing exams never drags image bytes along.</summary>
+public class QuestionImage
+{
+    [System.ComponentModel.DataAnnotations.Key] public int QuestionId { get; set; }
+    public byte[] Data { get; set; } = Array.Empty<byte>();
 }
 
 public class Attempt

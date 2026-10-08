@@ -111,6 +111,8 @@ public sealed class ExamService(DbFactory factory)
         using var db = factory.Create();
         var src = db.Exams.AsNoTracking().Include(x => x.Questions).FirstOrDefault(x => x.Id == id);
         if (src == null) return OpResult<Exam>.Fail("Exam not found.");
+        var qids = src.Questions.Select(q => q.Id).ToList();
+        var pics = db.Images.AsNoTracking().Where(i => qids.Contains(i.QuestionId)).ToDictionary(i => i.QuestionId, i => i.Data);
         var copy = new Exam
         {
             Title = string.IsNullOrWhiteSpace(title) ? Trunc(src.Title, 152) + " (copy)" : title.Trim(),
@@ -122,10 +124,12 @@ public sealed class ExamService(DbFactory factory)
             {
                 Type = q.Type, Number = q.Number, SortOrder = q.SortOrder, Text = q.Text, OptionA = q.OptionA, OptionB = q.OptionB,
                 OptionC = q.OptionC, OptionD = q.OptionD, OptionE = q.OptionE, CorrectOption = q.CorrectOption, Marks = q.Marks,
-                ModelAnswer = q.ModelAnswer, ImageData = q.ImageData, ImageType = q.ImageType, ImageRequired = q.ImageRequired,
+                ModelAnswer = q.ModelAnswer, ImageData = pics.GetValueOrDefault(q.Id), ImageType = q.ImageType, ImageRequired = q.ImageRequired,
             });
         db.Exams.Add(copy);
         db.SaveChanges();
+        PersistImages(db, copy.Questions);
+        _log.Write("exam", "Admin", "Exam duplicated", $"{src.Title} to {copy.Title}");
         return OpResult<Exam>.Success(copy);
     }
 
@@ -225,7 +229,24 @@ public sealed class ExamService(DbFactory factory)
             db.Questions.Add(q);
         }
         db.SaveChanges();
+        PersistImages(db, questions);
         return OpResult<int>.Success(questions.Count);
+    }
+
+    /// <summary>The picture bytes of one question (loaded only when something needs to show it).</summary>
+    public byte[]? GetImage(int questionId)
+    {
+        using var db = factory.Create();
+        return db.Images.AsNoTracking().Where(i => i.QuestionId == questionId).Select(i => i.Data).FirstOrDefault();
+    }
+
+    /// <summary>Stores the pictures that questions carry in memory (after import or duplicate) in their own table.</summary>
+    private static void PersistImages(AppDb db, IEnumerable<Question> questions)
+    {
+        var any = false;
+        foreach (var q in questions.Where(q => q.ImageData is { Length: > 0 } && q.Id != 0))
+        { db.Images.Add(new QuestionImage { QuestionId = q.Id, Data = q.ImageData! }); any = true; }
+        if (any) db.SaveChanges();
     }
 
     public OpResult SetImage(int examId, int questionId, byte[] data, string contentType)
@@ -238,7 +259,9 @@ public sealed class ExamService(DbFactory factory)
         if (db.Attempts.Any(x => x.ExamId == examId)) return OpResult.Fail(Locked);
         var q = db.Questions.FirstOrDefault(x => x.Id == questionId && x.ExamId == examId);
         if (q == null) return OpResult.Fail("Question not found.");
-        q.ImageData = data; q.ImageType = type;
+        q.ImageType = type;
+        var row = db.Images.Find(q.Id);
+        if (row == null) db.Images.Add(new QuestionImage { QuestionId = q.Id, Data = data }); else row.Data = data;
         db.SaveChanges();
         return OpResult.Success();
     }
@@ -250,7 +273,8 @@ public sealed class ExamService(DbFactory factory)
         if (db.Attempts.Any(x => x.ExamId == examId)) return OpResult.Fail(Locked);
         var q = db.Questions.FirstOrDefault(x => x.Id == questionId && x.ExamId == examId);
         if (q == null) return OpResult.Fail("Question not found.");
-        q.ImageData = null; q.ImageType = null; q.ImageRequired = stillRequired;
+        q.ImageType = null; q.ImageRequired = stillRequired;
+        db.Images.Where(i => i.QuestionId == q.Id).ExecuteDelete();
         db.SaveChanges();
         return OpResult.Success();
     }

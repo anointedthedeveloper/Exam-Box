@@ -4,20 +4,6 @@
         Title="ExamBox" Width="1220" Height="780" MinWidth="900" MinHeight="620"
         Background="{StaticResource BgBrush}"
         FontFamily="Segoe UI" Icon="/Assets/logo.ico">
-    <Window.Triggers>
-        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
-            <BeginStoryboard>
-                <Storyboard RepeatBehavior="Forever" AutoReverse="True">
-                    <DoubleAnimation Storyboard.TargetName="OrbA" Storyboard.TargetProperty="X" From="0" To="-70" Duration="0:0:13" AccelerationRatio="0.4" DecelerationRatio="0.4"/>
-                    <DoubleAnimation Storyboard.TargetName="OrbA" Storyboard.TargetProperty="Y" From="0" To="60" Duration="0:0:13" AccelerationRatio="0.4" DecelerationRatio="0.4"/>
-                    <DoubleAnimation Storyboard.TargetName="OrbB" Storyboard.TargetProperty="X" From="0" To="80" Duration="0:0:16" AccelerationRatio="0.4" DecelerationRatio="0.4"/>
-                    <DoubleAnimation Storyboard.TargetName="OrbB" Storyboard.TargetProperty="Y" From="0" To="-70" Duration="0:0:16" AccelerationRatio="0.4" DecelerationRatio="0.4"/>
-                    <DoubleAnimation Storyboard.TargetName="OrbC" Storyboard.TargetProperty="X" From="0" To="-90" Duration="0:0:11" AccelerationRatio="0.4" DecelerationRatio="0.4"/>
-                    <DoubleAnimation Storyboard.TargetName="OrbC" Storyboard.TargetProperty="Y" From="0" To="-40" Duration="0:0:11" AccelerationRatio="0.4" DecelerationRatio="0.4"/>
-                </Storyboard>
-            </BeginStoryboard>
-        </EventTrigger>
-    </Window.Triggers>
     <Grid>
         <Grid x:Name="Shell" Visibility="Collapsed">
             <Grid.RowDefinitions>

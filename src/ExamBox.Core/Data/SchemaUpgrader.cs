@@ -8,7 +8,7 @@ namespace ExamBox.Data;
 /// </summary>
 public static class SchemaUpgrader
 {
-    public const int Current = 7;
+    public const int Current = 8;
 
     public static void Run(AppDb db)
     {
@@ -31,6 +31,17 @@ public static class SchemaUpgrader
             // v3: temporary passwords no longer exist; nobody is forced to change a password.
             if (v < 3) Exec(conn, "UPDATE Users SET MustChangePassword = 0", tx);
             if (v < 4) Exec(conn, "ALTER TABLE Users ADD COLUMN PasswordCipher TEXT NULL", tx);
+            if (v < 8)
+            {
+                Exec(conn, "CREATE TABLE IF NOT EXISTS Images (QuestionId INTEGER NOT NULL CONSTRAINT PK_Images PRIMARY KEY, Data BLOB NOT NULL, CONSTRAINT FK_Images_Questions_QuestionId FOREIGN KEY (QuestionId) REFERENCES Questions (Id) ON DELETE CASCADE)", tx);
+                if (HasColumn(conn, "Questions", "ImageData", tx))
+                {
+                    Exec(conn, "INSERT OR IGNORE INTO Images (QuestionId, Data) SELECT Id, ImageData FROM Questions WHERE ImageData IS NOT NULL", tx);
+                    Exec(conn, "UPDATE Questions SET ImageType = 'image/png' WHERE ImageData IS NOT NULL AND (ImageType IS NULL OR ImageType = '')", tx);
+                    try { Exec(conn, "ALTER TABLE Questions DROP COLUMN ImageData", tx); }
+                    catch { Exec(conn, "UPDATE Questions SET ImageData = NULL", tx); }   // older SQLite: just free the bytes
+                }
+            }
             if (v < 7)
             {
                 Exec(conn, "ALTER TABLE Users ADD COLUMN LastSeenAt TEXT NULL", tx);
@@ -83,6 +94,14 @@ public static class SchemaUpgrader
             "UPDATE Attempts SET ObjectiveScore = Score",
         };
         foreach (var s in sql) Exec(c, s, tx);
+    }
+
+    static bool HasColumn(System.Data.Common.DbConnection c, string table, string column, System.Data.Common.DbTransaction tx)
+    {
+        using var cmd = c.CreateCommand();
+        cmd.Transaction = tx;
+        cmd.CommandText = $"SELECT COUNT(*) FROM pragma_table_info('{table}') WHERE name = '{column}'";
+        return Convert.ToInt64(cmd.ExecuteScalar()) > 0;
     }
 
     static long Scalar(System.Data.Common.DbConnection c, string sql)

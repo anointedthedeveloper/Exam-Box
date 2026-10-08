@@ -32,6 +32,12 @@ public sealed class PresenceService(DbFactory factory)
         }).ToList();
     }
 
+    public int TotalStudents()
+    {
+        using var db = factory.Create();
+        return db.Users.Count(u => u.Role == UserRole.Student);
+    }
+
     public int OnlineCount()
     {
         using var db = factory.Create();

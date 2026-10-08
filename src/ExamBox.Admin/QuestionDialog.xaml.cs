@@ -31,7 +31,7 @@ public partial class QuestionDialog : Window
             Correct.SelectedIndex = Math.Max(0, "ABCDE".IndexOf(existing.CorrectOption ?? "A", StringComparison.Ordinal));
             ModelAnswer.Text = existing.ModelAnswer;
             NeedPic.IsChecked = existing.ImageRequired;
-            if (existing.HasImage) Show(existing.ImageData!);
+            if (existing.HasImage && App.Exams.GetImage(existing.Id) is { } pic) Show(pic);
         }
         Loaded += (_, _) => QText.Focus();
     }

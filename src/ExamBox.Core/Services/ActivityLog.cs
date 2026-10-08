@@ -36,6 +36,18 @@ public sealed class ActivityLog(DbFactory factory)
         return q.OrderByDescending(a => a.At).ThenByDescending(a => a.Id).Take(take).ToList();
     }
 
+    public sealed record Today(int Events, int SignIns, int Failed, int AdminActions);
+
+    /// <summary>Counts since local midnight, for the page header.</summary>
+    public Today CountToday()
+    {
+        using var db = factory.Create();
+        var since = DateTime.Now.Date.ToUniversalTime();
+        var g = db.Activity.AsNoTracking().Where(a => a.At >= since).GroupBy(a => a.Kind).Select(x => new { x.Key, N = x.Count() }).ToList();
+        int N(string k) => g.FirstOrDefault(x => x.Key == k)?.N ?? 0;
+        return new Today(g.Sum(x => x.N), N("signin"), N("failed"), N("admin"));
+    }
+
     /// <summary>Keeps the table from growing without limit.</summary>
     public void Trim()
     {

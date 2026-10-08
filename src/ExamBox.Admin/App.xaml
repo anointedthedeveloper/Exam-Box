@@ -311,7 +311,6 @@
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="12"/>
             <Setter Property="Padding" Value="20"/>
-            <Setter Property="Effect" Value="{StaticResource CardShadow}"/>
         </Style>
 
         <Style x:Key="LogoBadge" TargetType="Border">
@@ -670,7 +669,6 @@
             <Setter Property="BorderBrush" Value="{StaticResource GlassBorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="14"/>
-            <Setter Property="Effect" Value="{StaticResource CardShadow}"/>
             <Setter Property="local:Round.Clip" Value="True"/>
         </Style>
         <DataTemplate x:Key="StatusCell">

@@ -46,6 +46,13 @@ public sealed class MarkingService(DbFactory factory)
         var items = a.Exam!.Questions.Where(q => q.Type == QuestionType.Theory && q.Marks > 0).OrderBy(q => q.SortOrder).ThenBy(q => q.Id)
             .Select(q => (q, a.Answers.FirstOrDefault(x => x.QuestionId == q.Id) ?? new Answer { QuestionId = q.Id, AttemptId = a.Id }))
             .ToList();
+        var withPics = items.Where(i => i.Item1.HasImage).Select(i => i.Item1).ToList();
+        if (withPics.Count > 0)
+        {
+            var ids = withPics.Select(q => q.Id).ToList();
+            var pics = db.Images.AsNoTracking().Where(i => ids.Contains(i.QuestionId)).ToDictionary(i => i.QuestionId, i => i.Data);
+            foreach (var q in withPics) q.ImageData = pics.GetValueOrDefault(q.Id);
+        }
         return new MarkingSheet { Attempt = a, Exam = a.Exam, Student = a.Student!, Items = items };
     }
 

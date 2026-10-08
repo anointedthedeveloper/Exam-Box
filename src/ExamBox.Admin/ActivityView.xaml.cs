@@ -30,12 +30,15 @@ public partial class ActivityView : UserControl
 
     private void Reload()
     {
+        var today = App.Log.CountToday();
+        StatToday.Text = today.Events.ToString(); StatIn.Text = today.SignIns.ToString(); StatFail.Text = today.Failed.ToString(); StatAdmin.Text = today.AdminActions.ToString();
         var kind = KindFilter;
         var list = App.Log.List(kind, Search.Text, 600);
         // Sign-in and sign-out are shown together under "Sign-ins"
         if (kind == "signin") list = App.Log.List("signin", Search.Text, 400).Concat(App.Log.List("signout", Search.Text, 400)).OrderByDescending(a => a.At).Take(600).ToList();
         Table.ItemsSource = list.Select(a => new LogVm(Ui.Local(a.At), Pretty(a.Kind), a.Kind, a.Actor ?? "", a.Subject ?? "", a.Details ?? "")).ToList();
         Empty.Visibility = list.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        TableCard.MinHeight = list.Count == 0 ? 300 : 0;
         Sub.Text = $"Showing the latest {list.Count} entr{(list.Count == 1 ? "y" : "ies")}. Updates every 10 seconds.";
     }
 

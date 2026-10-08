@@ -23,15 +23,39 @@ public partial class OnlineView : UserControl
         Unloaded += (_, _) => _timer?.Stop();
     }
 
+    private List<ExamBox.Services.OnlineRow> _all = new();
+    private int _total;
+
     private void Reload()
     {
-        var list = App.Presence.Online();
+        _all = App.Presence.Online();
+        _total = App.Presence.TotalStudents();
+        StatOnline.Text = _all.Count.ToString();
+        StatSitting.Text = _all.Count(o => o.Exam != null).ToString();
+        StatPaused.Text = _all.Count(o => o.Paused).ToString();
+        StatTotal.Text = _total.ToString();
+        ApplyFilter();
+    }
+
+    private void Search_Changed(object sender, TextChangedEventArgs e)
+    {
+        SearchHint.Visibility = Search.Text.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
+        if (IsLoaded) ApplyFilter();
+    }
+
+    private void ApplyFilter()
+    {
+        var q = Search.Text.Trim();
+        var list = q.Length == 0 ? _all : _all.Where(o => o.Name.Contains(q, StringComparison.OrdinalIgnoreCase) || o.Code.Contains(q, StringComparison.OrdinalIgnoreCase)
+            || (o.Class ?? "").Contains(q, StringComparison.OrdinalIgnoreCase) || (o.Exam ?? "").Contains(q, StringComparison.OrdinalIgnoreCase)).ToList();
+        var keep = (Table.SelectedItem as OnlineVm)?.Id;
         Table.ItemsSource = list.Select(o => new OnlineVm(o.StudentId, o.Name, o.Code, o.Class ?? "-",
             o.Exam == null ? "Browsing the portal" : o.Paused ? $"{o.Exam} (paused)" : $"Sitting {o.Exam}", Ui.Ago(o.LastSeenUtc))).ToList();
         Empty.Visibility = list.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         Table.Visibility = list.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
-        var sitting = list.Count(o => o.Exam != null);
-        Sub.Text = list.Count == 0 ? "No students on the portal right now." : $"{list.Count} student(s) online, {sitting} sitting an exam.";
+        TableCard.MinHeight = list.Count == 0 ? 340 : 0;
+        Count.Text = $"Updates every 5 seconds";
+        Sub.Text = _all.Count == 0 ? "No students on the portal right now." : $"{_all.Count} of {_total} student(s) online.";
     }
 
     private void Out_Click(object sender, RoutedEventArgs e)

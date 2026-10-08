@@ -141,11 +141,7 @@ public partial class MainWindow : Window
     private void ShowPage(UserControl view)
     {
         Page.Content = view;
-        var fade = new System.Windows.Media.Animation.DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(260));
-        view.RenderTransform = new System.Windows.Media.TranslateTransform(0, 14);
-        view.BeginAnimation(UIElement.OpacityProperty, fade);
-        view.RenderTransform.BeginAnimation(System.Windows.Media.TranslateTransform.YProperty,
-            new System.Windows.Media.Animation.DoubleAnimation(14, 0, TimeSpan.FromMilliseconds(260)) { EasingFunction = new System.Windows.Media.Animation.CubicEase { EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut } });
+        view.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(140)));   // fade only: cheap even on busy pages
     }
 
     /// <summary>Open one exam's detail page (keeps "Exams" highlighted).</summary>
@@ -165,7 +161,6 @@ public partial class MainWindow : Window
     // ---- hover menus under the navigation items ----
     private readonly System.Windows.Threading.DispatcherTimer _menuTimer = new() { Interval = TimeSpan.FromMilliseconds(220) };
     private System.Windows.Controls.Primitives.Popup? _openMenu;
-    private System.Windows.Controls.Primitives.Popup? _pending;
     private bool _menuHooked;
 
     private System.Windows.Controls.Primitives.Popup? PopupFor(RadioButton r) =>

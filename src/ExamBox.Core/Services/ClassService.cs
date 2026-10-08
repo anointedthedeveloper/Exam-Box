@@ -32,6 +32,12 @@ public sealed class ClassService(DbFactory factory)
         return null;
     }
 
+    public int Unassigned()
+    {
+        using var db = factory.Create();
+        return db.Users.Count(u => u.Role == UserRole.Student && (u.Department == null || u.Department == ""));
+    }
+
     public OpResult<SchoolClass> Create(string name)
     {
         var err = Check(name); if (err != null) return OpResult<SchoolClass>.Fail(err);

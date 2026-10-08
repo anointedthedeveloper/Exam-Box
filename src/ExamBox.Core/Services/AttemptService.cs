@@ -196,9 +196,10 @@ public sealed class AttemptService(DbFactory factory)
     public Question? GetImageFor(int studentId, int questionId)
     {
         using var db = factory.Create();
-        var q = db.Questions.AsNoTracking().FirstOrDefault(x => x.Id == questionId && x.ImageData != null);
-        if (q == null) return null;
-        return db.Attempts.Any(a => a.ExamId == q.ExamId && a.StudentId == studentId) ? q : null;
+        var q = db.Questions.AsNoTracking().FirstOrDefault(x => x.Id == questionId && x.ImageType != null);
+        if (q == null || !db.Attempts.Any(a => a.ExamId == q.ExamId && a.StudentId == studentId)) return null;
+        q.ImageData = db.Images.AsNoTracking().Where(i => i.QuestionId == q.Id).Select(i => i.Data).FirstOrDefault();
+        return q.ImageData == null ? null : q;
     }
 
     /// <summary>Submits every unfinished attempt (of one student, or everyone) whose time is up, using the saved drafts.</summary>
