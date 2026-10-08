@@ -51,20 +51,20 @@ public class CoreTests
         using var t = new TempDb();
         var c = t.Students.Create(new StudentInput("Stu Dent", "S001", "stu@x.com", "CS"));
         Assert.True(c.Ok);
-        Assert.True(c.Value!.Student.MustChangePassword);
+        Assert.False(c.Value!.Student.MustChangePassword);
         Assert.False(t.Students.Create(new StudentInput("Dup", "s001", null, null)).Ok);           // ID unique, case-insensitive
         Assert.False(t.Students.Create(new StudentInput("Dup", "S002", "STU@x.com", null)).Ok);    // email unique
         Assert.False(t.Students.Create(new StudentInput("", "S003", null, null)).Ok);
         Assert.False(t.Students.Create(new StudentInput("Bad", "S004", "not-an-email", null)).Ok);
 
-        var login = t.Auth.Authenticate("S001", c.Value.TempPassword, UserRole.Student);
+        var login = t.Auth.Authenticate("S001", c.Value.Password, UserRole.Student);
         Assert.NotNull(login.User);
 
-        Assert.True(t.Auth.ChangePassword(login.User!.Id, c.Value.TempPassword, "NewPass123").Ok);
+        Assert.True(t.Auth.ChangePassword(login.User!.Id, c.Value.Password, "NewPass123").Ok);
         Assert.True(t.Auth.ChangePassword(login.User.Id, "NewPass123", "abc").Ok);        // short passwords are fine
         Assert.True(t.Auth.ChangePassword(login.User.Id, "abc", "NewPass123").Ok);
         Assert.False(t.Auth.ChangePassword(login.User.Id, "wrong", "NewPass456").Ok);
-        Assert.False(t.Auth.Authenticate("S001", c.Value.TempPassword, UserRole.Student).User != null);
+        Assert.False(t.Auth.Authenticate("S001", c.Value.Password, UserRole.Student).User != null);
 
         var reset = t.Students.ResetPassword(login.User.Id);
         Assert.NotNull(t.Auth.Authenticate("S001", reset.Value!, UserRole.Student).User);
@@ -251,7 +251,7 @@ public class ProductionTests
                     "CREATE TABLE Questions (Id INTEGER PRIMARY KEY AUTOINCREMENT, ExamId INTEGER NOT NULL, Text TEXT NOT NULL, OptionA TEXT NOT NULL, OptionB TEXT NOT NULL, OptionC TEXT NULL, OptionD TEXT NULL, CorrectOption TEXT NOT NULL, Marks INTEGER NOT NULL)",
                     "CREATE TABLE Attempts (Id INTEGER PRIMARY KEY AUTOINCREMENT, ExamId INTEGER NOT NULL, StudentId INTEGER NOT NULL, StartedAt TEXT NOT NULL, SubmittedAt TEXT NULL, Score INTEGER NOT NULL, TotalMarks INTEGER NOT NULL)",
                     "CREATE TABLE Answers (Id INTEGER PRIMARY KEY AUTOINCREMENT, AttemptId INTEGER NOT NULL, QuestionId INTEGER NOT NULL, Selected TEXT NULL)",
-                    "INSERT INTO Users VALUES (1,'Old Student','S1',NULL,NULL,'x','Student',1,0,0,NULL,'2025-01-01 00:00:00',NULL)",
+                    "INSERT INTO Users VALUES (1,'Old Student','S1',NULL,NULL,'x','Student',1,1,0,NULL,'2025-01-01 00:00:00',NULL)",
                     "INSERT INTO Exams VALUES (1,'Old exam',NULL,30,50,1,'2025-01-01 00:00:00')",
                     "INSERT INTO Questions VALUES (1,1,'2+2?','3','4',NULL,NULL,'B',2)",
                     "INSERT INTO Questions VALUES (2,1,'3+3?','5','6',NULL,NULL,'B',2)",
@@ -273,6 +273,7 @@ public class ProductionTests
             var a = db.Attempts.Single();
             Assert.Equal(4, a.ObjectiveScore); Assert.Equal(4, a.Score); Assert.False(a.PendingMarking);
             Assert.Equal("B", db.Answers.Single().Selected);
+            Assert.False(db.Users.Single().MustChangePassword);   // forced password changes no longer exist
             Assert.True(exams.SaveQuestion(1, 0, new QuestionInput(ExamBox.Models.QuestionType.Theory, "3a", "Explain.", 5)).Ok == false); // locked: attempt exists
         }
         finally { Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools(); try { Directory.Delete(dir, true); } catch { } }
@@ -438,5 +439,34 @@ public class ProductionTests
         Assert.True(sheet.Length > 100);
         var (parsed, issues) = StudentImporter.Parse(new MemoryStream(StudentImporter.BuildTemplate()));
         Assert.Single(issues); Assert.Empty(parsed);
+    }
+
+    [Fact]
+    public void Admin_chooses_student_passwords()
+    {
+        using var t = new TempDb();
+        var c = t.Students.Create(new StudentInput("Ada", "A1", null, "SS1", true, "mypass")).Value!;
+        Assert.Equal("mypass", c.Password);
+        Assert.NotNull(t.Auth.Authenticate("A1", "mypass", UserRole.Student).User);
+        var gen = t.Students.Create(new StudentInput("Bola", "B1", null, null)).Value!;        // no password given: one is generated
+        Assert.False(string.IsNullOrEmpty(gen.Password));
+        Assert.NotNull(t.Auth.Authenticate("B1", gen.Password, UserRole.Student).User);
+        Assert.True(t.Students.Update(c.Student.Id, new StudentInput("Ada", "A1", null, "SS1", true, "newer")).Ok);   // edit dialog sets a new one
+        Assert.Null(t.Auth.Authenticate("A1", "mypass", UserRole.Student).User);
+        Assert.NotNull(t.Auth.Authenticate("A1", "newer", UserRole.Student).User);
+        Assert.True(t.Students.Update(c.Student.Id, new StudentInput("Ada O", "A1", null, "SS1", true, "")).Ok);      // empty = keep
+        Assert.NotNull(t.Auth.Authenticate("A1", "newer", UserRole.Student).User);
+        Assert.Equal("typed", t.Students.ResetPassword(c.Student.Id, "typed").Value);
+        Assert.NotNull(t.Auth.Authenticate("A1", "typed", UserRole.Student).User);
+    }
+
+    [Fact]
+    public void Student_import_uses_password_column_when_given()
+    {
+        using var t = new TempDb();
+        var res = t.Students.CreateMany(new List<ImportedStudent> { new("One", "I1", "", "SS1", "pw-one"), new("Two", "I2", "", "SS1", "") });
+        Assert.Equal("pw-one", res.Created[0].Password);
+        Assert.NotNull(t.Auth.Authenticate("I1", "pw-one", UserRole.Student).User);
+        Assert.False(string.IsNullOrEmpty(res.Created[1].Password));
     }
 }

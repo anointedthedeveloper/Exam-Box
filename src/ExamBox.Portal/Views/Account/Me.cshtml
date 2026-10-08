@@ -1,0 +1,41 @@
+@model User
+@{
+    ViewData["Title"] = "My account";
+    var u = Model;
+    var initials = string.Concat(u.FullName.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(p => char.ToUpper(p[0])));
+    var done = u.Attempts.Where(a => a.SubmittedAt != null && !a.PendingMarking).ToList();
+}
+<div class="page-head"><div><div class="crumbs">Account</div><h1>My account</h1></div></div>
+<div class="me-grid">
+    <section class="card me-profile">
+        <div class="me-avatar">@initials</div>
+        <h2>@u.FullName</h2>
+        <span class="badge">Student</span>
+        <div class="me-chips">
+            <span class="chip dark">ID: @u.Username</span>
+            @if (!string.IsNullOrWhiteSpace(u.Department)) { <span class="chip dark">Class: @u.Department</span> }
+        </div>
+        <div class="me-stats">
+            <div><b>@u.Attempts.Count(a => a.SubmittedAt != null)</b><span>Exams taken</span></div>
+            <div><b>@(done.Count == 0 ? "—" : Math.Round(done.Average(a => a.Percent), 1) + "%")</b><span>Average</span></div>
+            <div><b>@done.Count(a => a.Percent >= a.Exam!.PassMarkPercent)</b><span>Passed</span></div>
+        </div>
+    </section>
+    <section class="card me-details">
+        <h2>Your details</h2>
+        <dl class="details">
+            <div><dt>Full name</dt><dd>@u.FullName</dd></div>
+            <div><dt>Student ID</dt><dd class="mono">@u.Username</dd></div>
+            <div><dt>Class</dt><dd>@(string.IsNullOrWhiteSpace(u.Department) ? "Not set" : u.Department)</dd></div>
+            @if (!string.IsNullOrWhiteSpace(u.Email)) { <div><dt>Email</dt><dd>@u.Email</dd></div> }
+            <div><dt>Password</dt><dd><span class="mask">••••••••</span> <span class="muted small">Managed by your teacher</span></dd></div>
+            <div><dt>Member since</dt><dd><time datetime="@u.CreatedAt.ToString("o")" data-fmt="date"></time></dd></div>
+            <div><dt>Last sign-in</dt><dd>@if (u.LastLoginAt != null) { <time datetime="@u.LastLoginAt.Value.ToString("o")"></time> } else { <span>This is your first sign-in</span> }</dd></div>
+        </dl>
+        <div class="info-note">
+            <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+            <span>Need a different password, or something here is wrong? Ask your teacher or school administrator. They can change it for you.</span>
+        </div>
+        <form asp-action="Logout" method="post" class="me-signout"><button class="btn ghost">Sign out</button></form>
+    </section>
+</div>

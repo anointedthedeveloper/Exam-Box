@@ -483,3 +483,23 @@ textarea.theory:focus{min-height:190px}
   .modal-actions{flex-direction:column-reverse}
 }
 @media(max-width:360px){.nav-capsule .brand span{display:none}.stats{grid-template-columns:1fr}}
+
+
+/* ===================== v13: my account ===================== */
+.me-grid{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.4fr);gap:20px;align-items:start}
+.me-profile{text-align:center;padding:30px 24px}
+.me-avatar{width:92px;height:92px;border-radius:50%;margin:0 auto 14px;display:grid;place-items:center;font-size:2rem;font-weight:800;color:#fff;background:linear-gradient(135deg,#0847b8,#3d8bff);box-shadow:0 14px 30px rgba(11,95,240,.35)}
+.me-profile h2{font-size:1.4rem;margin-bottom:6px}
+.me-chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:14px 0 4px}
+.chip.dark{background:var(--blue-l);color:var(--blue-d);border-color:transparent}
+.me-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:20px;padding-top:18px;border-top:1px solid var(--line)}
+.me-stats b{display:block;font-size:1.4rem;color:var(--blue)}.me-stats span{font-size:.8rem;color:var(--mut);font-weight:600}
+.me-details h2{margin-bottom:6px}
+.details{margin:0}
+.details>div{display:flex;justify-content:space-between;gap:16px;padding:13px 0;border-bottom:1px solid var(--line)}
+.details dt{color:var(--mut);font-weight:600}.details dd{margin:0;font-weight:700;text-align:right}
+.mask{letter-spacing:.15em}
+.info-note{display:flex;gap:12px;align-items:flex-start;margin-top:18px;padding:14px 16px;border-radius:12px;background:var(--blue-l);color:var(--blue-d);font-weight:600}
+.info-note svg{width:20px;height:20px;fill:var(--blue);flex:none;margin-top:2px}
+.me-signout{margin-top:18px}
+@media(max-width:860px){.me-grid{grid-template-columns:1fr}}

@@ -121,7 +121,7 @@
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                             <Button Content="&#xE70F;" ToolTip="Edit student" Style="{StaticResource IconButtonBlue}" Click="Edit_Click"/>
                                             <Button Content="&#xE81C;" ToolTip="Exam history" Style="{StaticResource IconButton}" Click="History_Click"/>
-                                            <Button Content="&#xE192;" ToolTip="Reset password" Style="{StaticResource IconButton}" Click="Reset_Click"/>
+                                            <Button Content="&#xE192;" ToolTip="Set a new password" Style="{StaticResource IconButton}" Click="Reset_Click"/>
                                             <Button Content="&#xE74D;" ToolTip="Delete student" Style="{StaticResource IconButtonDanger}" Click="Delete_Click"/>
                                         </StackPanel>
                                     </DataTemplate>
@@ -136,7 +136,7 @@
                     </StackPanel>
                 </Grid>
             </Border>
-            <TextBlock Text="Tip: double-click a row to edit. Temporary passwords are shown once, so copy them before closing the dialog." Style="{StaticResource Muted}" FontSize="12" Margin="4,12,0,8"/>
+            <TextBlock Text="Tip: double-click a row to edit. Use the key icon to set a new password for a student; passwords are only ever changed here." Style="{StaticResource Muted}" FontSize="12" Margin="4,12,0,8"/>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

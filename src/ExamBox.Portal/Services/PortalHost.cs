@@ -80,7 +80,6 @@ public sealed class PortalHost : IAsyncDisposable
         });
         app.UseRouting();
         app.UseAuthentication();
-        app.UseMiddleware<ForcePasswordChangeMiddleware>();
         app.UseAuthorization();
         app.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
 

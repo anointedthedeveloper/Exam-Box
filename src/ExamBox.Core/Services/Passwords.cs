@@ -13,7 +13,7 @@ public static class Passwords
     public static bool Verify(string hash, string password) =>
         Hasher.VerifyHashedPassword(null!, hash, password) != PasswordVerificationResult.Failed;
 
-    /// <summary>Random temporary password without ambiguous characters.</summary>
+    /// <summary>Random password without ambiguous characters.</summary>
     public static string Generate(int length = 10)
     {
         const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";

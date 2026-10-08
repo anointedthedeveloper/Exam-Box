@@ -92,7 +92,7 @@
                     </DockPanel>
                     <DockPanel Margin="0,14,0,0">
                         <Border DockPanel.Dock="Left" Width="32" Height="32" CornerRadius="16" Background="{StaticResource BlueLightBrush}" VerticalAlignment="Top"><TextBlock Text="3" FontWeight="ExtraBold" Foreground="{StaticResource BlueDarkBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-                        <StackPanel Margin="14,0,0,0"><TextBlock Text="They sign in with their Student ID" FontWeight="SemiBold"/><TextBlock Text="Temporary passwords are changed at first sign-in." Style="{StaticResource Muted}" FontSize="12.5" TextWrapping="Wrap"/></StackPanel>
+                        <StackPanel Margin="14,0,0,0"><TextBlock Text="They sign in with their Student ID" FontWeight="SemiBold"/><TextBlock Text="The password is the one you set for them on the Students page." Style="{StaticResource Muted}" FontSize="12.5" TextWrapping="Wrap"/></StackPanel>
                     </DockPanel>
                     <DockPanel Margin="0,14,0,0">
                         <Border DockPanel.Dock="Left" Width="32" Height="32" CornerRadius="16" Background="{StaticResource BlueLightBrush}" VerticalAlignment="Top"><TextBlock Text="4" FontWeight="ExtraBold" Foreground="{StaticResource BlueDarkBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>

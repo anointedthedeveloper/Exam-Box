@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using ExamBox.Models;
 using ExamBox.Services;
 using Microsoft.AspNetCore.Authentication;
@@ -37,7 +38,6 @@ public class AccountController(AuthService auth) : Controller
             return View(vm);
         }
         await HttpContext.SignInUserAsync(r.User);
-        if (r.User.MustChangePassword) return RedirectToAction(nameof(ChangePassword));
         if (!string.IsNullOrEmpty(vm.ReturnUrl) && Url.IsLocalUrl(vm.ReturnUrl)) return LocalRedirect(vm.ReturnUrl);
         return RedirectToAction("Index", "Home");
     }
@@ -49,26 +49,19 @@ public class AccountController(AuthService auth) : Controller
         return RedirectToAction(nameof(Login));
     }
 
-    [Authorize, HttpGet("changepassword")]
-    public IActionResult ChangePassword() => View(new ChangePasswordVm());
-
-    [Authorize, HttpPost("changepassword")]
-    public async Task<IActionResult> ChangePassword(ChangePasswordVm vm, [FromServices] ExamBox.Data.DbFactory factory)
+    /// <summary>The student's own profile. Passwords are managed by the teacher/admin, not here.</summary>
+    [Authorize, HttpGet("me")]
+    public IActionResult Me([FromServices] ExamBox.Data.DbFactory factory)
     {
-        if (!ModelState.IsValid) return View(vm);
         var id = User.GetUserId();
         if (id == null) return Forbid();
-        var r = auth.ChangePassword(id.Value, vm.CurrentPassword, vm.NewPassword);
-        if (!r.Ok)
-        {
-            ModelState.AddModelError(r.Error!.Contains("Current") ? nameof(vm.CurrentPassword) : nameof(vm.NewPassword), r.Error);
-            return View(vm);
-        }
-        using (var db = factory.Create())
-            await HttpContext.SignInUserAsync(db.Users.Find(id.Value)!); // refresh claims (drops the must-change flag)
-        TempData["Success"] = "Password updated.";
-        return RedirectToAction("Index", "Home");
+        using var db = factory.Create();
+        var u = db.Users.AsNoTracking().Include(x => x.Attempts).ThenInclude(a => a.Exam).FirstOrDefault(x => x.Id == id.Value);
+        return u == null ? Forbid() : View(u);
     }
+
+    [Authorize, HttpGet("changepassword")]
+    public IActionResult ChangePassword() => RedirectToActionPermanent(nameof(Me));
 
     [HttpGet("denied")]
     public IActionResult Denied() => View();

@@ -17,6 +17,12 @@
         <TextBox x:Name="Department"/>
         <TextBlock Text="Email (optional)" Style="{StaticResource FieldLabel}"/>
         <TextBox x:Name="Email"/>
+        <TextBlock x:Name="PassLabel" Style="{StaticResource FieldLabel}"/>
+        <DockPanel>
+            <Button DockPanel.Dock="Right" Content="Generate" Style="{StaticResource GhostButton}" Click="Generate_Click" Margin="10,0,0,0"/>
+            <TextBox x:Name="Pass" FontFamily="Consolas"/>
+        </DockPanel>
+        <TextBlock x:Name="PassHint" Style="{StaticResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,4,0,0"/>
         <CheckBox x:Name="Active" Content="Account active (can sign in)" IsChecked="True" Margin="0,16,0,0"/>
         <TextBlock x:Name="ErrorText" Style="{StaticResource ErrorText}" Visibility="Collapsed"/>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,22,0,0">

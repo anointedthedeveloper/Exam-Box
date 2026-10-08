@@ -86,8 +86,6 @@ public partial class StudentsView : UserControl
         var dlg = new StudentDialog(null) { Owner = Window.GetWindow(this) };
         if (dlg.ShowDialog() != true) return;
         Reload();
-        if (dlg.Created != null)
-            new TempPasswordDialog(dlg.Created.Student.FullName, dlg.Created.Student.Username, dlg.Created.TempPassword, isNew: true) { Owner = Window.GetWindow(this) }.ShowDialog();
     }
 
     private void Import_Click(object sender, RoutedEventArgs e)
@@ -115,10 +113,7 @@ public partial class StudentsView : UserControl
     private void Reset_Click(object sender, RoutedEventArgs e)
     {
         if (RowOf(sender) is not { } row) return;
-        if (!Ui.Confirm($"Reset the password for {row.Name}?\n\nTheir current password stops working immediately.")) return;
-        var r = App.Students.ResetPassword(row.Id);
-        if (!r.Ok) { Ui.Error(r.Error!); return; }
-        new TempPasswordDialog(row.Name, row.StudentId, r.Value!, isNew: false) { Owner = Window.GetWindow(this) }.ShowDialog();
+        if (new PasswordDialog(row.Id, row.Name, row.StudentId) { Owner = Window.GetWindow(this) }.ShowDialog() == true) Ui.Info($"New password set for {row.Name}.");
     }
 
     private void Delete_Click(object sender, RoutedEventArgs e)

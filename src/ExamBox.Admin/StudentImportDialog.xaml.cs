@@ -17,7 +17,7 @@ public partial class StudentImportDialog : Window
     {
         InitializeComponent();
         Title = Heading.Text = "Import students from Excel";
-        Sub.Text = "List each student's ID and name (and class if you like). ExamBox creates a temporary password for everyone and gives you a sheet with the logins.";
+        Sub.Text = "List each student's ID and name, and a class and password if you like. Leave the password empty and ExamBox generates one. You get a sheet with every login to hand out.";
     }
 
     private void Template_Click(object sender, RoutedEventArgs e) =>
@@ -50,7 +50,7 @@ public partial class StudentImportDialog : Window
         _created = res.Created;
         PreviewTitle.Text = $"{res.Created.Count} student(s) added" + (res.Skipped.Count > 0 ? $", {res.Skipped.Count} skipped" : "");
         PreviewTitle.Foreground = (Brush)FindResource(res.Created.Count > 0 ? "OkBrush" : "WarnBrush");
-        PreviewSub.Text = res.Created.Count > 0 ? "Save the login sheet now: temporary passwords are not shown again." : "";
+        PreviewSub.Text = res.Created.Count > 0 ? "Save the login sheet now: passwords are not shown again." : "";
         IssueList.ItemsSource = res.Skipped.Select(i => new IssueLine($"Row {i.Row}: {i.Message}", (Brush)FindResource("WarnBrush"))).ToList();
         SaveBtn.Visibility = Visibility.Collapsed;
         CloseBtn.Content = "Done"; CloseBtn.IsCancel = false; CloseBtn.Click += (_, _) => DialogResult = _created.Count > 0;

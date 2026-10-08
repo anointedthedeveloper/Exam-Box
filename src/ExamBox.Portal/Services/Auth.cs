@@ -33,30 +33,8 @@ public static class AuthExtensions
             new(ClaimTypes.Role, u.Role.ToString()),
             new("boot", http.RequestServices.GetRequiredService<PortalBoot>().Id),
         };
-        if (u.MustChangePassword) claims.Add(new Claim("mcp", "1"));
         var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme));
         return http.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal,
             new AuthenticationProperties { IsPersistent = persistent });
-    }
-}
-
-/// <summary>Users flagged with a temporary password can only change it (or log out) until they do.</summary>
-public class ForcePasswordChangeMiddleware(RequestDelegate next)
-{
-    public async Task InvokeAsync(HttpContext ctx)
-    {
-        if (ctx.User.Identity?.IsAuthenticated == true && ctx.User.HasClaim("mcp", "1"))
-        {
-            var path = ctx.Request.Path.Value ?? "";
-            var allowed = path.StartsWith("/account/changepassword", StringComparison.OrdinalIgnoreCase)
-                          || path.StartsWith("/account/logout", StringComparison.OrdinalIgnoreCase)
-                          || path.StartsWith("/assets");
-            if (!allowed)
-            {
-                ctx.Response.Redirect("/account/changepassword");
-                return;
-            }
-        }
-        await next(ctx);
     }
 }

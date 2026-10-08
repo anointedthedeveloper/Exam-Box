@@ -64,14 +64,13 @@ public class PortalTests
         var wrong = await c.Post("/account/login", new() { ["Identifier"] = "S001", ["Password"] = "nope" }, "/account/login");
         Assert.Contains("Invalid ID or password", wrong.Html);
 
-        // temp password forces a change
-        var login = await c.Post("/account/login", new() { ["Identifier"] = "s001", ["Password"] = stu.TempPassword }, "/account/login");
-        Assert.Contains("/account/changepassword", login.Url);
-        Assert.Contains("/account/changepassword", (await c.Get("/portal")).Url);
-        var mismatch = await c.Post("/account/changepassword", new() { ["CurrentPassword"] = stu.TempPassword, ["NewPassword"] = "abc", ["ConfirmPassword"] = "abd" });
-        Assert.Contains("do not match", mismatch.Html);
-        var changed = await c.Post("/account/changepassword", new() { ["CurrentPassword"] = stu.TempPassword, ["NewPassword"] = "StudentPass1", ["ConfirmPassword"] = "StudentPass1" });
-        Assert.EndsWith("/portal", changed.Url);
+        // signs in with the password the admin set; no forced change, "My account" shows the profile
+        var login = await c.Post("/account/login", new() { ["Identifier"] = "s001", ["Password"] = stu.Password }, "/account/login");
+        Assert.EndsWith("/portal", login.Url);
+        var me = await c.Get("/account/me");
+        Assert.Contains("Stu Dent", me.Html); Assert.Contains("S001", me.Html); Assert.Contains("Managed by your teacher", me.Html);
+        Assert.EndsWith("/account/me", (await c.Get("/account/changepassword")).Url);
+        var changed = await c.Get("/portal");
         Assert.Contains("Math 101", changed.Html);
         Assert.DoesNotContain("Hidden draft", changed.Html);
 
@@ -99,7 +98,7 @@ public class PortalTests
         using var t = new TempDb();
         t.Auth.CreateAdmin("admin", "pw");
         var stu = t.Students.Create(new StudentInput("Stu", "S9", null, null)).Value!;
-        t.Auth.ChangePassword(stu.Student.Id, stu.TempPassword, "pw2");
+        t.Auth.ChangePassword(stu.Student.Id, stu.Password, "pw2");
         var port = FreePort();
         var c = new Client($"http://127.0.0.1:{port}");
         await using (var host = await PortalHost.StartAsync(t.Factory, port))
@@ -138,7 +137,7 @@ public class PortalTests
         t.Exams.Launch(exam.Id, null, null, null);
         var s1 = t.Students.Create(new StudentInput("One", "P1", null, null)).Value!;
         var s2 = t.Students.Create(new StudentInput("Two", "P2", null, null)).Value!;
-        t.Auth.ChangePassword(s1.Student.Id, s1.TempPassword, "pw"); t.Auth.ChangePassword(s2.Student.Id, s2.TempPassword, "pw");
+        t.Auth.ChangePassword(s1.Student.Id, s1.Password, "pw"); t.Auth.ChangePassword(s2.Student.Id, s2.Password, "pw");
         var port = FreePort();
         await using var host = await PortalHost.StartAsync(t.Factory, port);
         var c = new Client($"http://127.0.0.1:{port}"); var other = new Client($"http://127.0.0.1:{port}");

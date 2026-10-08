@@ -16,21 +16,27 @@ public partial class StudentDialog : Window
         if (existing == null)
         {
             Title = "Add student"; Heading.Text = "Add student"; SaveBtn.Content = "Create student";
-            Sub.Text = "A temporary password is generated. The student sets their own at first sign-in.";
+            Sub.Text = "You choose the password. Give the student their ID and this password to sign in.";
+            PassLabel.Text = "Password"; Pass.Text = ExamBox.Services.Passwords.Generate();
+            PassHint.Text = "Type your own or use the generated one. Write it down: it is not shown again after you save.";
         }
         else
         {
             Title = "Edit student"; Heading.Text = "Edit student"; SaveBtn.Content = "Save changes";
             Sub.Visibility = Visibility.Collapsed;
+            PassLabel.Text = "New password (leave empty to keep the current one)";
+            PassHint.Text = "The student simply uses the new password the next time they sign in.";
             FullName.Text = existing.FullName; StudentId.Text = existing.Username;
             Department.Text = existing.Department; Email.Text = existing.Email; Active.IsChecked = existing.IsActive;
         }
         Loaded += (_, _) => FullName.Focus();
     }
 
+    private void Generate_Click(object sender, RoutedEventArgs e) => Pass.Text = ExamBox.Services.Passwords.Generate();
+
     private void Save_Click(object sender, RoutedEventArgs e)
     {
-        var input = new StudentInput(FullName.Text, StudentId.Text, Email.Text, Department.Text, Active.IsChecked == true);
+        var input = new StudentInput(FullName.Text, StudentId.Text, Email.Text, Department.Text, Active.IsChecked == true, Pass.Text);
         string? error;
         if (_existing == null)
         {

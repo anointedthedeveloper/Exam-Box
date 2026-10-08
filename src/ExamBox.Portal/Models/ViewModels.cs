@@ -10,14 +10,6 @@ public class LoginVm
     public string? ReturnUrl { get; set; }
 }
 
-public class ChangePasswordVm
-{
-    [Required, DataType(DataType.Password)] public string CurrentPassword { get; set; } = "";
-    [Required, DataType(DataType.Password)] public string NewPassword { get; set; } = "";
-    [Required, DataType(DataType.Password), Compare(nameof(NewPassword), ErrorMessage = "Passwords do not match.")]
-    public string ConfirmPassword { get; set; } = "";
-}
-
 public class TakeExamVm
 {
     public Attempt Attempt { get; set; } = null!;
