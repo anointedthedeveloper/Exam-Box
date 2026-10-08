@@ -8,7 +8,7 @@ namespace ExamBox.Data;
 /// </summary>
 public static class SchemaUpgrader
 {
-    public const int Current = 6;
+    public const int Current = 7;
 
     public static void Run(AppDb db)
     {
@@ -31,6 +31,17 @@ public static class SchemaUpgrader
             // v3: temporary passwords no longer exist; nobody is forced to change a password.
             if (v < 3) Exec(conn, "UPDATE Users SET MustChangePassword = 0", tx);
             if (v < 4) Exec(conn, "ALTER TABLE Users ADD COLUMN PasswordCipher TEXT NULL", tx);
+            if (v < 7)
+            {
+                Exec(conn, "ALTER TABLE Users ADD COLUMN LastSeenAt TEXT NULL", tx);
+                Exec(conn, "CREATE TABLE IF NOT EXISTS Classes (Id INTEGER NOT NULL CONSTRAINT PK_Classes PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL COLLATE NOCASE, CreatedAt TEXT NOT NULL)", tx);
+                Exec(conn, "CREATE UNIQUE INDEX IF NOT EXISTS IX_Classes_Name ON Classes (Name)", tx);
+                Exec(conn, "CREATE TABLE IF NOT EXISTS Activity (Id INTEGER NOT NULL CONSTRAINT PK_Activity PRIMARY KEY AUTOINCREMENT, At TEXT NOT NULL, Kind TEXT NOT NULL, Actor TEXT NULL, Subject TEXT NULL, Details TEXT NULL)", tx);
+                Exec(conn, "CREATE INDEX IF NOT EXISTS IX_Activity_At ON Activity (At)", tx);
+                // classes that students and exams already use become real classes
+                Exec(conn, "INSERT OR IGNORE INTO Classes (Name, CreatedAt) SELECT DISTINCT TRIM(Department), datetime('now') FROM Users WHERE Role = 'Student' AND Department IS NOT NULL AND TRIM(Department) <> ''", tx);
+                Exec(conn, "INSERT OR IGNORE INTO Classes (Name, CreatedAt) SELECT DISTINCT TRIM(ForDepartment), datetime('now') FROM Exams WHERE ForDepartment IS NOT NULL AND TRIM(ForDepartment) <> ''", tx);
+            }
             if (v < 6)
             {
                 Exec(conn, "ALTER TABLE Attempts ADD COLUMN PausedAt TEXT NULL", tx);

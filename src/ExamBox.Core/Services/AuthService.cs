@@ -11,6 +11,8 @@ public sealed record AuthResult(User? User, string? Error, int? AttemptsLeft = n
 /// <summary>Sign-in, lockout and account bootstrap, shared by the desktop app and the student portal.</summary>
 public sealed class AuthService(DbFactory factory)
 {
+    private readonly ActivityLog _log = new(factory);
+
     public const int MaxFailures = 10;
     public const int LockMinutes = 5;
     /// <summary>Start warning "N attempts left" once this few remain.</summary>
@@ -55,11 +57,12 @@ public sealed class AuthService(DbFactory factory)
             var mins = (int)Math.Ceiling((user.LockoutEnd!.Value - DateTime.UtcNow).TotalMinutes);
             return new(null, $"Too many failed attempts. Try again in {mins} minute(s).", null, user.LockoutEnd);
         }
-        if (user == null || user.Role != role) return new(null, generic);
+        if (user == null || user.Role != role) { _log.Write("failed", id, role == UserRole.Admin ? "Administrator sign-in" : "Student sign-in", "Unknown ID or wrong account type"); return new(null, generic); }
 
         if (!Passwords.Verify(user.PasswordHash, password))
         {
             user.FailedLogins++;
+            _log.Write("failed", user.Username, role == UserRole.Admin ? "Administrator sign-in" : "Student sign-in", "Wrong password");
             if (user.FailedLogins >= MaxFailures)
             {
                 user.LockoutEnd = DateTime.UtcNow + LockFor;
@@ -75,8 +78,9 @@ public sealed class AuthService(DbFactory factory)
         }
         if (!user.IsActive) return new(null, "This account has been deactivated. Contact your administrator.");
 
-        user.FailedLogins = 0; user.LockoutEnd = null; user.LastLoginAt = DateTime.UtcNow;
+        user.FailedLogins = 0; user.LockoutEnd = null; user.LastLoginAt = DateTime.UtcNow; user.LastSeenAt = DateTime.UtcNow;
         db.SaveChanges();
+        _log.Write("signin", user.Username, role == UserRole.Admin ? "Administrator signed in" : "Student signed in", user.FullName);
         return new(user, null);
     }
 
@@ -106,6 +110,7 @@ public sealed class AuthService(DbFactory factory)
         user.PasswordHash = Passwords.Hash(next!);
         user.MustChangePassword = false; user.PasswordCipher = null;
         db.SaveChanges();
+        _log.Write("admin", user.Username, "Password changed");
         return OpResult.Success();
     }
 }

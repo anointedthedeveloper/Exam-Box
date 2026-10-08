@@ -4,6 +4,26 @@ namespace ExamBox.Models;
 
 public enum UserRole { Admin, Student }
 
+/// <summary>A class students belong to (SS1, JSS2 ...). Students and exams refer to it by name.</summary>
+public class SchoolClass
+{
+    public int Id { get; set; }
+    [Required, StringLength(80)] public string Name { get; set; } = "";
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+}
+
+/// <summary>One line of the activity log.</summary>
+public class ActivityEntry
+{
+    public int Id { get; set; }
+    public DateTime At { get; set; } = DateTime.UtcNow;
+    /// <summary>signin, signout, failed, exam, admin ...</summary>
+    [StringLength(20)] public string Kind { get; set; } = "";
+    [StringLength(120)] public string? Actor { get; set; }
+    [StringLength(160)] public string? Subject { get; set; }
+    [StringLength(400)] public string? Details { get; set; }
+}
+
 public class User
 {
     public int Id { get; set; }
@@ -24,6 +44,8 @@ public class User
     public DateTime? LockoutEnd { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? LastLoginAt { get; set; }
+    /// <summary>Updated while a student has a portal page open; used for "online now".</summary>
+    public DateTime? LastSeenAt { get; set; }
     public List<Attempt> Attempts { get; set; } = new();
 }
 

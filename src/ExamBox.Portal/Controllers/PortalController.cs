@@ -6,16 +6,16 @@ using Microsoft.AspNetCore.Mvc;
 namespace ExamBox.Controllers;
 
 [Authorize(Roles = "Student"), Route("portal")]
-public class PortalController(AttemptService attempts) : Controller
+public class PortalController(AttemptService attempts, PresenceService presence) : Controller
 {
     private int Me => User.GetUserId()!.Value;
 
     [HttpGet("")]
-    public IActionResult Index() => View(attempts.Home(Me));
+    public IActionResult Index() { presence.Touch(Me); return View(attempts.Home(Me)); }
 
     /// <summary>Called every few seconds by open pages; a rejected sign-in redirects, which tells the page to leave.</summary>
     [HttpGet("ping")]
-    public IActionResult Ping() => Ok();
+    public IActionResult Ping() { presence.Touch(Me); return Ok(); }
 
     [HttpGet("exams")]
     public IActionResult Exams() => View(attempts.Home(Me));

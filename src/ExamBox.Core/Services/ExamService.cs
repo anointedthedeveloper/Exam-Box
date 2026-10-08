@@ -6,6 +6,9 @@ namespace ExamBox.Services;
 
 public sealed class ExamService(DbFactory factory)
 {
+    private readonly ActivityLog _log = new(factory);
+    private readonly ClassService _classes = new(factory);
+
     public List<Exam> List()
     {
         using var db = factory.Create();
@@ -53,7 +56,7 @@ public sealed class ExamService(DbFactory factory)
         }
         e.Title = title; e.Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
         e.DurationMinutes = durationMinutes; e.PassMarkPercent = passMarkPercent;
-        e.ForDepartment = string.IsNullOrWhiteSpace(forDepartment) ? null : forDepartment.Trim();
+        e.ForDepartment = _classes.Ensure(forDepartment);
         e.ShuffleQuestions = shuffle; e.ShowCorrectAnswers = showCorrect;
         db.SaveChanges();
         return OpResult<Exam>.Success(e);
@@ -72,8 +75,9 @@ public sealed class ExamService(DbFactory factory)
         if (closesAtUtc != null && closesAtUtc <= DateTime.UtcNow) return OpResult.Fail("The closing time is already in the past.");
         e.IsPublished = true;
         e.OpensAt = opensAtUtc; e.ClosesAt = closesAtUtc;
-        e.ForDepartment = string.IsNullOrWhiteSpace(forDepartment) ? null : forDepartment.Trim();
+        e.ForDepartment = _classes.Ensure(forDepartment);
         db.SaveChanges();
+        _log.Write("exam", "Admin", "Exam launched", $"{e.Title}" + (e.ForDepartment != null ? $", class {e.ForDepartment}" : ", all classes") + (opensAtUtc != null ? ", scheduled" : ", open now"));
         return OpResult.Success();
     }
 
@@ -85,6 +89,7 @@ public sealed class ExamService(DbFactory factory)
         if (e == null) return OpResult.Fail("Exam not found.");
         e.IsPublished = false; e.OpensAt = null; e.ClosesAt = null;
         db.SaveChanges();
+        _log.Write("exam", "Admin", "Exam taken off the portal", e.Title);
         return OpResult.Success();
     }
 
@@ -96,6 +101,7 @@ public sealed class ExamService(DbFactory factory)
         if (e == null || !e.IsPublished) return OpResult.Fail("Exam is not live.");
         e.ClosesAt = DateTime.UtcNow;
         db.SaveChanges();
+        _log.Write("exam", "Admin", "Exam closed", e.Title);
         return OpResult.Success();
     }
 
@@ -132,6 +138,7 @@ public sealed class ExamService(DbFactory factory)
         if (e == null) return OpResult.Fail("Exam not found.");
         db.Exams.Remove(e);
         db.SaveChanges();
+        _log.Write("exam", "Admin", "Exam deleted", e.Title);
         return OpResult.Success();
     }
 

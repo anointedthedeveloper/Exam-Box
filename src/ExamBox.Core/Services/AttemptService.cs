@@ -27,6 +27,8 @@ public sealed class TakeData
 /// <summary>Everything a student does with an exam: see it, start it, answer it, hand it in.</summary>
 public sealed class AttemptService(DbFactory factory)
 {
+    private readonly ActivityLog _log = new(factory);
+
     public const int GraceSeconds = 30;
     public const int MaxTheoryChars = 20000;
 
@@ -90,6 +92,7 @@ public sealed class AttemptService(DbFactory factory)
             db.ChangeTracker.Clear();
             attempt = db.Attempts.First(a => a.ExamId == examId && a.StudentId == studentId);
         }
+        _log.Write("exam", student.Username, "Exam started", exam.Title);
         return OpResult<int>.Success(attempt.Id);
     }
 
@@ -174,6 +177,7 @@ public sealed class AttemptService(DbFactory factory)
         if (a.SubmittedAt != null) return OpResult<bool>.Success(false);
         var late = DateTime.UtcNow > Deadline(a, a.Exam!).AddSeconds(GraceSeconds);
         Finish(db, a, late ? null : answers);
+        _log.Write("exam", db.Users.Where(u => u.Id == studentId).Select(u => u.Username).FirstOrDefault(), late ? "Exam submitted (time was up)" : "Exam submitted", a.Exam!.Title);
         return OpResult<bool>.Success(late);
     }
 
@@ -208,6 +212,7 @@ public sealed class AttemptService(DbFactory factory)
         foreach (var a in q.ToList().Where(a => a.PausedAt == null && DateTime.UtcNow > Deadline(a, a.Exam!)))
         {
             Finish(db, a, null);
+            _log.Write("exam", db.Users.Where(u => u.Id == a.StudentId).Select(u => u.Username).FirstOrDefault(), "Exam collected (time ran out)", a.Exam!.Title);
             n++;
         }
         return n;

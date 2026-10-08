@@ -9,6 +9,10 @@ public sealed record LiveRow(int AttemptId, int StudentId, string Student, strin
 /// <summary>What an admin can do to an exam a student is currently sitting.</summary>
 public sealed class LiveService(DbFactory factory)
 {
+    private readonly ActivityLog _log = new(factory);
+
+    private string Who(AppDb db, Attempt a) => db.Users.Where(u => u.Id == a.StudentId).Select(u => u.Username).FirstOrDefault() + " / " + db.Exams.Where(e => e.Id == a.ExamId).Select(e => e.Title).FirstOrDefault();
+
     public List<LiveRow> List(int examId)
     {
         using var db = factory.Create();
@@ -27,6 +31,7 @@ public sealed class LiveService(DbFactory factory)
         if (a.PausedAt == null) a.PausedAt = DateTime.UtcNow;
         db.Users.Where(u => u.Id == a.StudentId).ExecuteUpdate(s => s.SetProperty(u => u.SessionVersion, u => u.SessionVersion + 1));
         db.SaveChanges();
+        _log.Write("exam", "Admin", "Exam paused for a student", Who(db, a));
         return OpResult.Success();
     }
 
@@ -36,7 +41,7 @@ public sealed class LiveService(DbFactory factory)
         using var db = factory.Create();
         var a = db.Attempts.FirstOrDefault(x => x.Id == attemptId && x.SubmittedAt == null);
         if (a == null) return OpResult.Fail("This exam is not running.");
-        if (a.PausedAt != null) { a.PausedSeconds += (int)(DateTime.UtcNow - a.PausedAt.Value).TotalSeconds; a.PausedAt = null; db.SaveChanges(); }
+        if (a.PausedAt != null) { a.PausedSeconds += (int)(DateTime.UtcNow - a.PausedAt.Value).TotalSeconds; a.PausedAt = null; db.SaveChanges(); _log.Write("exam", "Admin", "Exam resumed by admin", Who(db, a)); }
         return OpResult.Success();
     }
 
@@ -53,6 +58,7 @@ public sealed class LiveService(DbFactory factory)
         if (a.PausedAt != null) current = (int)(AttemptService.Deadline(a, a.Exam!, a.PausedAt.Value) - a.PausedAt.Value).TotalSeconds;
         a.TimeAdjustSeconds += minutes * 60 - current;
         db.SaveChanges();
+        _log.Write("exam", "Admin", $"Time left set to {minutes} min", Who(db, a));
         return OpResult.Success();
     }
 }

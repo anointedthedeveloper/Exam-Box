@@ -39,6 +39,8 @@ public sealed class PortalHost : IAsyncDisposable
 
         builder.Services.AddSingleton(db);
         builder.Services.AddSingleton<PasswordVault>();
+        builder.Services.AddSingleton<PresenceService>();
+        builder.Services.AddSingleton<ActivityLog>();
         builder.Services.AddSingleton(PortalBoot.New());
         builder.Services.AddSingleton(PortalBrand.From(brand));
         builder.Services.AddScoped<AuthService>();

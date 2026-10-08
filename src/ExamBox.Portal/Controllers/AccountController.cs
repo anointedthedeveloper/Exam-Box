@@ -45,8 +45,9 @@ public class AccountController(AuthService auth) : Controller
     }
 
     [HttpPost("logout")]
-    public async Task<IActionResult> Logout()
+    public async Task<IActionResult> Logout([FromServices] ActivityLog log)
     {
+        if (User.Identity?.IsAuthenticated == true) log.Write("signout", User.FindFirst("username")?.Value, "Student signed out", User.Identity.Name);
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return RedirectToAction(nameof(Login));
     }

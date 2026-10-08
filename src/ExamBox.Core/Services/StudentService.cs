@@ -10,6 +10,8 @@ public sealed record CreatedStudent(User Student, string Password);
 public sealed class StudentService(DbFactory factory)
 {
     private readonly PasswordVault _vault = new(factory);
+    private readonly ActivityLog _log = new(factory);
+    private readonly ClassService _classes = new(factory);
 
     /// <summary>The password the admin set for this student, when it is known.</summary>
     public string? RevealPassword(int id)
@@ -68,13 +70,15 @@ public sealed class StudentService(DbFactory factory)
         if (db.Users.Any(u => u.Username == username)) return OpResult<CreatedStudent>.Fail("A user with this ID already exists.");
         if (email != null && db.Users.Any(u => u.Email == email)) return OpResult<CreatedStudent>.Fail("A user with this email already exists.");
         var temp = string.IsNullOrEmpty(i.Password) ? Passwords.Generate() : i.Password;
+        var cls = _classes.Ensure(i.Department);
         var s = new User
         {
-            FullName = i.FullName.Trim(), Username = username, Email = email, Department = Clean(i.Department),
+            FullName = i.FullName.Trim(), Username = username, Email = email, Department = cls,
             IsActive = i.IsActive, Role = UserRole.Student, PasswordHash = Passwords.Hash(temp), PasswordCipher = _vault.Protect(temp),
         };
         db.Users.Add(s);
         db.SaveChanges();
+        _log.Write("admin", "Admin", "Student added", $"{s.FullName} ({s.Username})" + (cls != null ? $", class {cls}" : ""));
         return OpResult<CreatedStudent>.Success(new CreatedStudent(s, temp));
     }
 
@@ -104,9 +108,10 @@ public sealed class StudentService(DbFactory factory)
         var username = i.Username.Trim(); var email = Clean(i.Email);
         if (db.Users.Any(u => u.Id != id && u.Username == username)) return OpResult.Fail("A user with this ID already exists.");
         if (email != null && db.Users.Any(u => u.Id != id && u.Email == email)) return OpResult.Fail("A user with this email already exists.");
-        s.FullName = i.FullName.Trim(); s.Username = username; s.Email = email; s.Department = Clean(i.Department); s.IsActive = i.IsActive;
+        s.FullName = i.FullName.Trim(); s.Username = username; s.Email = email; s.Department = _classes.Ensure(i.Department); s.IsActive = i.IsActive;
         if (!string.IsNullOrEmpty(i.Password)) { s.PasswordHash = Passwords.Hash(i.Password); s.PasswordCipher = _vault.Protect(i.Password); s.FailedLogins = 0; s.LockoutEnd = null; }
         db.SaveChanges();
+        _log.Write("admin", "Admin", "Student edited", $"{s.FullName} ({s.Username})");
         return OpResult.Success();
     }
 
@@ -119,6 +124,7 @@ public sealed class StudentService(DbFactory factory)
         var temp = string.IsNullOrEmpty(newPassword) ? Passwords.Generate() : newPassword;
         s.PasswordHash = Passwords.Hash(temp); s.PasswordCipher = _vault.Protect(temp); s.MustChangePassword = false; s.FailedLogins = 0; s.LockoutEnd = null;
         db.SaveChanges();
+        _log.Write("admin", "Admin", "Password set", $"{s.FullName} ({s.Username})");
         return OpResult<string>.Success(temp);
     }
 
@@ -127,6 +133,7 @@ public sealed class StudentService(DbFactory factory)
     {
         using var db = factory.Create();
         var n = db.Users.Where(u => u.Id == id && u.Role == UserRole.Student).ExecuteUpdate(s => s.SetProperty(u => u.SessionVersion, u => u.SessionVersion + 1));
+        if (n > 0) _log.Write("admin", "Admin", "Student signed out by admin", db.Users.Where(u => u.Id == id).Select(u => u.FullName + " (" + u.Username + ")").FirstOrDefault());
         return n == 0 ? OpResult.Fail("Student not found.") : OpResult.Success();
     }
 
@@ -134,7 +141,9 @@ public sealed class StudentService(DbFactory factory)
     public int ForceLogoutAll()
     {
         using var db = factory.Create();
-        return db.Users.Where(u => u.Role == UserRole.Student).ExecuteUpdate(s => s.SetProperty(u => u.SessionVersion, u => u.SessionVersion + 1));
+        var n = db.Users.Where(u => u.Role == UserRole.Student).ExecuteUpdate(s => s.SetProperty(u => u.SessionVersion, u => u.SessionVersion + 1));
+        _log.Write("admin", "Admin", "All students signed out by admin", $"{n} student(s)");
+        return n;
     }
 
     public OpResult Delete(int id)
@@ -144,6 +153,7 @@ public sealed class StudentService(DbFactory factory)
         if (s == null) return OpResult.Fail("Student not found.");
         db.Users.Remove(s);
         db.SaveChanges();
+        _log.Write("admin", "Admin", "Student deleted", $"{s.FullName} ({s.Username})");
         return OpResult.Success();
     }
 }

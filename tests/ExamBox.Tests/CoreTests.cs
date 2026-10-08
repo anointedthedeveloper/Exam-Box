@@ -564,4 +564,60 @@ public class ProductionTests
         var pdf = ResultsExporter.Pdf("Greenfield", "Maths Mid-term", "All results", new[] { ("Submissions", "1") }, rows, false);
         Assert.True(pdf.Length > 1000); Assert.Equal("%PDF", System.Text.Encoding.ASCII.GetString(pdf, 0, 4));
     }
+
+    [Fact]
+    public void Classes_students_exams_presence_and_log()
+    {
+        using var t = new TempDb();
+        var classes = new ClassService(t.Factory); var log = new ActivityLog(t.Factory); var presence = new PresenceService(t.Factory);
+        Assert.False(classes.Create("  ").Ok);
+        Assert.True(classes.Create("SS1").Ok);
+        Assert.False(classes.Create("ss1").Ok);                                   // names are unique, case-insensitive
+        var s = t.Students.Create(new StudentInput("Ada", "C1", null, "SS1", true, "pw")).Value!.Student;
+        t.Students.Create(new StudentInput("Bola", "C2", null, "JSS2", true, "pw"));            // an unknown class is created on the fly
+        Assert.Equal(new[] { "JSS2", "SS1" }, classes.Names());
+        var e = t.Exams.Save(0, "Class exam", null, 10, 50, "ss1").Value!;
+        Assert.Equal("SS1", t.Exams.Get(e.Id)!.ForDepartment);                     // stored with the class's own spelling
+        var row = classes.List().Single(c => c.Name == "SS1");
+        Assert.Equal(1, row.Students); Assert.Equal(1, row.Exams);
+
+        Assert.False(classes.Delete(row.Id).Ok);                                   // still has a student
+        Assert.True(classes.Rename(row.Id, "SS One").Ok);
+        Assert.Equal("SS One", t.Students.Get(s.Id)!.Department);                  // students and exams follow the rename
+        Assert.Equal("SS One", t.Exams.Get(e.Id)!.ForDepartment);
+        Assert.False(classes.Rename(row.Id, "JSS2").Ok);                           // name taken
+        var empty = classes.Create("Empty").Value!;
+        Assert.True(classes.Delete(empty.Id).Ok);
+
+        Assert.Empty(presence.Online());
+        presence.Touch(s.Id);
+        var on = presence.Online().Single(); Assert.Equal("C1", on.Code); Assert.Equal(1, presence.OnlineCount());
+
+        t.Auth.Authenticate("C1", "wrong", UserRole.Student);
+        t.Auth.Authenticate("C1", "pw", UserRole.Student);
+        var entries = log.List();
+        Assert.Contains(entries, x => x.Kind == "failed" && x.Actor == "C1");
+        Assert.Contains(entries, x => x.Kind == "signin" && x.Actor == "C1");
+        Assert.Contains(entries, x => x.Kind == "admin" && x.Subject == "Student added");
+        Assert.Single(log.List("failed")); Assert.NotEmpty(log.List(search: "Ada"));
+    }
+
+    [Fact]
+    public void Old_database_gets_classes_from_existing_students()
+    {
+        var dir = Path.Combine(Path.GetTempPath(), "exambox-cls-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(dir);
+        try
+        {
+            var f = new ExamBox.Data.DbFactory(dir);
+            f.Initialize();
+            using (var db = f.Create())
+            {
+                db.Database.ExecuteSqlRaw("INSERT INTO Users (FullName, Username, Department, PasswordHash, Role, IsActive, MustChangePassword, FailedLogins, CreatedAt, SessionVersion) VALUES ('Old','O1','SS3','x','Student',1,0,0,'2025-01-01',0)");
+                db.Database.ExecuteSqlRaw("ALTER TABLE Users DROP COLUMN LastSeenAt"); db.Database.ExecuteSqlRaw("DROP TABLE Classes"); db.Database.ExecuteSqlRaw("DROP TABLE Activity"); db.Database.ExecuteSqlRaw("PRAGMA user_version = 6");
+            }
+            f.Initialize();                                                         // upgrade 6 -> 7
+            Assert.Equal(new[] { "SS3" }, new ClassService(f).Names());
+        }
+        finally { Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools(); try { Directory.Delete(dir, true); } catch { } }
+    }
 }
