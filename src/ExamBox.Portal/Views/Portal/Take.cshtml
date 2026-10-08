@@ -23,11 +23,11 @@
     foreach (var q in objective)
     {
         Model.Saved.TryGetValue(q.Id, out var sv);
-        <div class="q" id="qb_@q.Id"><div class="q-h"><span><span class="q-num">@labels[q.Id]</span>@q.Text</span><span class="badge">@q.Marks mark@(q.Marks == 1 ? "" : "s")</span></div>
+        <div class="q" id="qb_@q.Id"><div class="q-h"><span><span class="q-num">@labels[q.Id]</span><span class="qt">@Html.Raw(MathText.Render(q.Text))</span></span><span class="badge">@q.Marks mark@(q.Marks == 1 ? "" : "s")</span></div>
         @if (q.HasImage) { <img class="q-img" loading="lazy" src="/portal/media/@q.Id" alt="Picture for question @labels[q.Id]" /> }
         @foreach (var o in q.Options())
         {
-            <label class="opt"><input type="radio" name="q_@q.Id" value="@o.Key" checked="@(sv?.Selected == o.Key)" /><span><strong>@o.Key.</strong> @o.Text</span></label>
+            <label class="opt"><input type="radio" name="q_@q.Id" value="@o.Key" checked="@(sv?.Selected == o.Key)" /><span><strong>@o.Key.</strong> @Html.Raw(MathText.Render(o.Text))</span></label>
         }</div>
     }
 }
@@ -39,13 +39,14 @@
     {
         if (QLabel.IsPassage(q))
         {
-            <div class="q passage" id="qb_@q.Id"><div class="q-h"><span><span class="q-num">@labels[q.Id]</span>@q.Text</span></div>
+            <div class="q passage" id="qb_@q.Id"><div class="q-h"><span><span class="q-num">@labels[q.Id]</span><span class="qt">@Html.Raw(MathText.Render(q.Text))</span></span></div>
             @if (q.HasImage) { <img class="q-img" loading="lazy" src="/portal/media/@q.Id" alt="" /> }</div>
             continue;
         }
         Model.Saved.TryGetValue(q.Id, out var sv);
-        <div class="q" id="qb_@q.Id"><div class="q-h"><span><span class="q-num">@labels[q.Id]</span>@q.Text</span><span class="badge">@q.Marks mark@(q.Marks == 1 ? "" : "s")</span></div>
+        <div class="q" id="qb_@q.Id"><div class="q-h"><span><span class="q-num">@labels[q.Id]</span><span class="qt">@Html.Raw(MathText.Render(q.Text))</span></span><span class="badge">@q.Marks mark@(q.Marks == 1 ? "" : "s")</span></div>
         @if (q.HasImage) { <img class="q-img" loading="lazy" src="/portal/media/@q.Id" alt="Picture for question @labels[q.Id]" /> }
+        <div class="symbar" data-for="q_@q.Id">@foreach (var sym in new[] { "\u00B2", "\u00B3", "\u221A", "\u03C0", "\u00F7", "\u00D7", "\u00B1", "\u2264", "\u2265", "\u2260", "\u2248", "\u00B0", "\u221E", "\u03B8", "\u0394", "\u00BD", "\u00BC", "\u2211", "\u222B" }) { <button type="button" class="sym" data-ins="@sym" tabindex="-1">@sym</button> }</div>
         <textarea class="theory" name="q_@q.Id" rows="6" maxlength="@AttemptService.MaxTheoryChars" placeholder="Type your answer to @labels[q.Id] here…" spellcheck="true">@sv?.Text</textarea>
         <div class="muted small right wc"></div></div>
     }
@@ -105,13 +106,21 @@
     saving = true; dirty = false; state('Saving…', 'saving');
     fetch(location.pathname + '/save', { method: 'POST', body: new FormData(form), credentials: 'same-origin' })
       .then(function (r) { if (r.redirected || r.status === 401) { sent = true; location.href = '/account/login?ended=1'; throw new Error('ended'); } return r.json(); })
-      .then(function (j) { saving = false; if (j.ok) { state('Saved', 'ok'); end = Date.now() + j.left * 1000; } else { state(j.error || 'Not saved', 'bad'); } })
+      .then(function (j) { saving = false; if (j.ok) { state('Saved', 'ok'); end = Date.now() + j.left * 1000; } else if (j.error === 'paused') { sent = true; location.reload(); } else { state(j.error || 'Not saved', 'bad'); } })
       .catch(function (e) { if (e && e.message === 'ended') return; saving = false; dirty = true; state('Offline, will retry', 'bad'); });
   }
-  function touched() { dirty = true; count(); state('Unsaved changes'); }
+  var debounce = null;
+  function touched() { dirty = true; count(); state('Unsaved changes'); clearTimeout(debounce); debounce = setTimeout(save, 1500); }
   form.addEventListener('change', touched);
   form.addEventListener('input', touched);
-  count(); state('Saved', 'ok'); tick(); setInterval(tick, 500); setInterval(save, 15000);
+  form.addEventListener('mousedown', function (e) { if (e.target.classList && e.target.classList.contains('sym')) e.preventDefault(); });
+  form.addEventListener('click', function (e) {
+    var b = e.target; if (!b.classList || !b.classList.contains('sym')) return;
+    var ta = form.querySelector('textarea[name="' + b.parentNode.dataset.for + '"]'); if (!ta) return;
+    var s = ta.selectionStart, en = ta.selectionEnd, v = b.dataset.ins;
+    ta.value = ta.value.slice(0, s) + v + ta.value.slice(en); ta.selectionStart = ta.selectionEnd = s + v.length; ta.focus(); touched();
+  });
+  count(); state('Saved', 'ok'); tick(); setInterval(tick, 500); setInterval(save, 5000);
   document.addEventListener('visibilitychange', function () { if (document.hidden) save(); });
   var confirmed = false;
   function celebrate(title, text) {

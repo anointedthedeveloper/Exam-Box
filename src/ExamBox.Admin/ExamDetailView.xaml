@@ -69,11 +69,38 @@
                     </Border>
                 </DockPanel>
             </TabItem>
+            <TabItem Header="Live" Padding="14,8" FontSize="14">
+                <DockPanel Margin="0,12,0,0">
+                    <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+                        <Button x:Name="PauseBtn" Content="Pause" Style="{StaticResource GhostButton}" Click="Pause_Click"/>
+                        <Button x:Name="ResumeBtn" Content="Resume" Style="{StaticResource GhostButton}" Click="ResumeLive_Click"/>
+                        <Button x:Name="TimeBtn" Content="Edit time left" Style="{StaticResource GhostButton}" Click="EditTime_Click"/>
+                        <Button x:Name="EndBtn" Content="Submit now" Style="{StaticResource DangerButton}" Click="EndNow_Click"/>
+                        <TextBlock x:Name="LiveSummary" Style="{StaticResource Muted}" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                    </WrapPanel>
+                    <Border Style="{StaticResource GridCard}">
+                        <Grid>
+                            <DataGrid x:Name="LTable" SelectionChanged="LTable_SelectionChanged">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="STUDENT" Binding="{Binding Student}" Width="2*"/>
+                                    <DataGridTextColumn Header="STUDENT ID" Binding="{Binding StudentId}" Width="*"/>
+                                    <DataGridTextColumn Header="STARTED" Binding="{Binding Started}" Width="150"/>
+                                    <DataGridTextColumn Header="TIME LEFT" Binding="{Binding Left}" Width="120"/>
+                                    <DataGridTemplateColumn Header="STATE" Width="110" SortMemberPath="Status" CellTemplate="{StaticResource StatusCell}"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <TextBlock x:Name="LiveEmpty" Text="Nobody is sitting this exam right now." Style="{StaticResource Muted}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+                </DockPanel>
+            </TabItem>
             <TabItem Header="Results" Padding="14,8" FontSize="14">
                 <DockPanel Margin="0,12,0,0">
                     <DockPanel DockPanel.Dock="Bottom" LastChildFill="False" Margin="0,12,0,0">
                         <Button DockPanel.Dock="Left" x:Name="MarkBtn" Content="Mark selected" Style="{StaticResource PrimaryButton}" Click="Mark_Click"/>
                         <Button DockPanel.Dock="Left" Content="Export CSV" Style="{StaticResource GhostButton}" Click="Export_Click"/>
+                        <Button DockPanel.Dock="Left" Content="Export Excel" Style="{StaticResource GhostButton}" Click="ExportXlsx_Click"/>
+                        <Button DockPanel.Dock="Left" Content="Export PDF" Style="{StaticResource GhostButton}" Click="ExportPdf_Click"/>
                         <TextBlock x:Name="ResultSummary" DockPanel.Dock="Left" Style="{StaticResource Muted}" VerticalAlignment="Center" Margin="8,0,0,0"/>
                     </DockPanel>
                     <Border Style="{StaticResource GridCard}">

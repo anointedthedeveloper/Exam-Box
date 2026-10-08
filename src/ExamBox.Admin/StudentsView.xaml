@@ -12,11 +12,16 @@
                 <Button DockPanel.Dock="Right" Style="{StaticResource PrimaryButton}" Click="Add_Click" Margin="0" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE710;" FontFamily="Segoe MDL2 Assets" FontSize="14" Margin="0,0,8,0" VerticalAlignment="Center"/><TextBlock Text="Add student" VerticalAlignment="Center"/></StackPanel>
                 </Button>
-                <Button DockPanel.Dock="Right" Style="{StaticResource DangerButton}" Click="ForceAll_Click" VerticalAlignment="Center" Margin="0,0,10,0">
-                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE7E8;" FontFamily="Segoe MDL2 Assets" FontSize="14" Margin="0,0,8,0" VerticalAlignment="Center"/><TextBlock Text="Sign out all students" VerticalAlignment="Center"/></StackPanel>
-                </Button>
-                <Button DockPanel.Dock="Right" Style="{StaticResource GhostButton}" Click="Import_Click" VerticalAlignment="Center" Margin="0,0,10,0">
-                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE8E5;" FontFamily="Segoe MDL2 Assets" FontSize="14" Margin="0,0,8,0" VerticalAlignment="Center"/><TextBlock Text="Import from Excel" VerticalAlignment="Center"/></StackPanel>
+                <Button x:Name="MoreBtn" DockPanel.Dock="Right" Style="{StaticResource GhostButton}" Click="More_Click" VerticalAlignment="Center" Margin="0,0,10,0">
+                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE712;" FontFamily="Segoe MDL2 Assets" FontSize="14" Margin="0,0,8,0" VerticalAlignment="Center"/><TextBlock Text="More" VerticalAlignment="Center"/></StackPanel>
+                    <Button.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Import students from Excel" Click="Import_Click"/>
+                            <MenuItem Header="Download student template" Click="Template_Click"/>
+                            <Separator/>
+                            <MenuItem Header="Sign out all students" Click="ForceAll_Click"/>
+                        </ContextMenu>
+                    </Button.ContextMenu>
                 </Button>
             </DockPanel>
 
@@ -73,8 +78,9 @@
                     <Grid Width="300" Margin="0,0,14,0">
                         <TextBox x:Name="Search" Padding="40,9,12,9" TextChanged="Search_Changed"/>
                         <TextBlock Text="&#xE721;" Style="{StaticResource IconGlyph}" FontSize="15" Foreground="#8B97B5" HorizontalAlignment="Left" Margin="14,0,0,0" IsHitTestVisible="False"/>
-                        <TextBlock x:Name="SearchHint" Text="Search name, ID or email" Foreground="#A3AECA" VerticalAlignment="Center" Margin="41,0,0,0" IsHitTestVisible="False"/>
+                        <TextBlock x:Name="SearchHint" Text="Search name, ID, class or email" Foreground="#A3AECA" VerticalAlignment="Center" Margin="41,0,0,0" IsHitTestVisible="False"/>
                     </Grid>
+                    <ComboBox x:Name="ClassFilter" Width="150" Margin="0,0,14,0" VerticalAlignment="Center" SelectionChanged="ClassFilter_Changed" ToolTip="Filter by class"/>
                     <Border Background="#1A305AB4" CornerRadius="10" Padding="3" VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal">
                             <RadioButton x:Name="FilterAll" Content="All" GroupName="sf" IsChecked="True" Style="{StaticResource SegmentButton}" Click="Filter_Click"/>
@@ -113,10 +119,17 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="DEPARTMENT" Binding="{Binding Department}" Width="*"/>
+                            <DataGridTemplateColumn Header="CLASS" Width="*" SortMemberPath="Department">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#F1ECFF" CornerRadius="8" Padding="9,3" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Department}" FontWeight="SemiBold" FontSize="12.5" Foreground="#5B3FD1"/>
+                                        </Border>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                             <DataGridTemplateColumn Header="STATUS" Width="110" SortMemberPath="Status" CellTemplate="{StaticResource StatusCell}"/>
                             <DataGridTextColumn Header="EXAMS" Binding="{Binding Exams}" Width="80"/>
-                            <DataGridTextColumn Header="AVG SCORE" Binding="{Binding Avg}" Width="100"/>
                             <DataGridTextColumn Header="LAST SIGN-IN" Binding="{Binding LastLogin}" Width="130"/>
                             <DataGridTemplateColumn Header="" Width="Auto">
                                 <DataGridTemplateColumn.CellTemplate>

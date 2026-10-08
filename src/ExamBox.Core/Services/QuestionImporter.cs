@@ -43,6 +43,8 @@ public static class QuestionImporter
             new object[] { "2", "OBJ", "Study the diagram. Which part makes food for the plant?", "Root", "Stem", "Leaf", "Flower", "", "C", 2, "yes", "" },
             new object[] { "3", "THEORY", "Read the passage and answer the questions below.", "", "", "", "", "", "", 0, "", "" },
             new object[] { "3a", "THEORY", "State the main idea of the passage.", "", "", "", "", "", "", 3, "", "The passage argues that reading daily builds vocabulary." },
+            new object[] { "4", "OBJ", "Solve x^2 - 5x + 6 = 0. Which values of x satisfy it?", "x = 1 or 6", "x = 2 or 3", "x = -2 or -3", "x = 0 or 5", "", "B", 2, "", "" },
+            new object[] { "5", "OBJ", "Simplify \\frac{3}{4} \\times 8 and find \\sqrt{49}.", "6 and 7", "6 and 8", "24 and 7", "3 and 7", "", "A", 2, "", "" },
             new object[] { "3b", "THEORY", "List two examples the writer gives.", "", "", "", "", "", "", 4, "", "" },
         };
         for (var r = 0; r < rows.Length; r++)
@@ -52,8 +54,8 @@ public static class QuestionImporter
                 if (rows[r][c] is int n) cell.Value = n; else cell.Value = rows[r][c].ToString();
             }
         Widths(ex);
-        ex.Cell(8, 1).Value = "This sheet is only an illustration. Type your own questions on the \"Questions\" sheet.";
-        ex.Cell(8, 1).Style.Font.Italic = true;
+        ex.Cell(10, 1).Value = "This sheet is only an illustration. Type your own questions on the \"Questions\" sheet.";
+        ex.Cell(10, 1).Style.Font.Italic = true;
 
         var how = wb.AddWorksheet("How to use");
         string[] lines =
@@ -70,6 +72,8 @@ public static class QuestionImporter
             "Image: leave blank when there is no picture. Type YES when the question needs a picture - you will attach it afterwards in ExamBox, question by question.",
             "       Or type the picture's file name (for example map1.png) and choose the folder that holds your pictures when importing.",
             "Model answer: optional marking guide for THEORY questions. Only teachers see it.",
+            "Maths: type x^2 for a power, x_1 for an index, \\frac{a}{b} for a fraction, \\sqrt{x} for a root. Symbols such as \\pi, \\times, \\div, \\le, \\ge, \\pm, \\theta and \\degree are shown as real symbols to students. You can also paste symbols like \u00B2 \u221A \u00F7 straight in.",
+            "Pictures: you can paste a picture into the Image cell of a question row (Insert > Pictures) and it is imported with that question.",
             "",
             "Save the file as .xlsx and use Import questions in ExamBox. A preview shows any row that needs fixing before anything is added.",
         };
@@ -134,6 +138,25 @@ public static class QuestionImporter
                 return res;
             }
 
+            // pictures pasted into the sheet: each attaches to the question on the row where it sits
+            var pasted = new Dictionary<int, (byte[] Data, string Type)>();
+            foreach (var pic in ws.Pictures)
+            {
+                try
+                {
+                    var row = pic.TopLeftCell?.Address.RowNumber ?? 0;
+                    if (row <= headerRow) continue;
+                    using var ms = new MemoryStream();
+                    pic.ImageStream.Position = 0; pic.ImageStream.CopyTo(ms);
+                    var bytes = ms.ToArray();
+                    var kind = ImageSniffer.Detect(bytes);
+                    if (kind == null) res.Issues.Add(new ImportIssue(row, "A picture on this row is not a PNG, JPG, GIF or WebP image. Attach it after importing.", true));
+                    else if (bytes.Length > ExamService.MaxImageBytes) res.Issues.Add(new ImportIssue(row, "The picture on this row is larger than 3 MB. Attach a smaller one after importing.", true));
+                    else pasted[row] = (bytes, kind);
+                }
+                catch { /* unreadable picture: skip */ }
+            }
+
             string Get(int row, string key) => map.TryGetValue(key, out var c) ? ws.Cell(row, c).GetFormattedString().Trim() : "";
 
             for (var r = headerRow + 1; r <= used.LastRow().RowNumber(); r++)
@@ -165,8 +188,9 @@ public static class QuestionImporter
                 var q = new Question();
                 ExamService.Apply(q, input);
 
+                if (pasted.TryGetValue(r, out var pp)) { q.ImageData = pp.Data; q.ImageType = pp.Type; q.ImageRequired = true; }
                 var img = Get(r, "image");
-                if (img.Length > 0)
+                if (img.Length > 0 && !q.HasImage)
                 {
                     var lower = img.ToLowerInvariant();
                     if (lower is "yes" or "y" or "required" or "true" or "1" or "x") q.ImageRequired = true;

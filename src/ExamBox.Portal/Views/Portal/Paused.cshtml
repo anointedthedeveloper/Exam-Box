@@ -1,0 +1,13 @@
+@model TakeData
+@{ ViewData["Title"] = "Exam paused"; var mins = (int)Math.Ceiling(Model.SecondsLeft / 60.0); }
+<div class="page-head"><div><div class="crumbs"><a asp-action="Exams">Exams</a> / Paused</div><h1>@Model.Exam.Title</h1></div></div>
+<div class="card done-card">
+    <svg class="done-ic paused" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46"/><path d="M38 32v36M62 32v36"/></svg>
+    <h2>Your exam is paused</h2>
+    <p class="muted">Your teacher paused this exam. The clock is stopped, and everything you wrote is saved.</p>
+    <div class="done-meta"><span>@mins minute@(mins == 1 ? "" : "s") left</span><span>Duration @Model.Exam.DurationMinutes min</span></div>
+    <form asp-action="Resume" asp-route-id="@Model.Attempt.Id" method="post" data-loading="Resuming your exam..." data-overlay>
+        <button class="btn lg"><span class="lbl">Resume exam</span><span class="spinner sm"></span></button>
+    </form>
+    <p class="muted small" style="margin-top:14px">The clock starts again the moment you resume.</p>
+</div>

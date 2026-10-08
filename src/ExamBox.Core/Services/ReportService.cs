@@ -87,6 +87,28 @@ public sealed class ReportService(DbFactory factory)
         };
     }
 
+    /// <summary>Everything an export needs for one exam (or all exams): finished results first, then ones still waiting for marking.</summary>
+    public List<ExportRow> ExportRows(int? examId = null, DateTime? sinceUtc = null)
+    {
+        using var db = factory.Create();
+        var q = db.Attempts.AsNoTracking().Where(a => a.SubmittedAt != null);
+        if (examId != null) q = q.Where(a => a.ExamId == examId);
+        if (sinceUtc != null) q = q.Where(a => a.SubmittedAt >= sinceUtc);
+        var list = q.Select(a => new
+        {
+            Name = a.Student!.FullName, Id = a.Student.Username, Class = a.Student.Department, Exam = a.Exam!.Title, a.ObjectiveScore, a.TheoryScore,
+            a.Score, a.TotalMarks, a.PendingMarking, Pass = a.Exam.PassMarkPercent, At = a.SubmittedAt!.Value,
+            HasTheory = a.Exam.Questions.Any(x => x.Type == ExamBox.Models.QuestionType.Theory && x.Marks > 0),
+        }).AsEnumerable().OrderBy(a => a.PendingMarking).ThenBy(a => a.Exam).ThenBy(a => a.Name).ToList();
+        return list.Select(a =>
+        {
+            var pct = a.TotalMarks == 0 ? 0 : Math.Round(a.Score * 100.0 / a.TotalMarks, 1);
+            return new ExportRow(a.Name, a.Id, a.Class ?? "", a.Exam, a.ObjectiveScore.ToString(), a.PendingMarking ? "-" : a.HasTheory ? a.TheoryScore.ToString() : "-",
+                a.PendingMarking ? "-" : $"{a.Score}/{a.TotalMarks}", a.PendingMarking ? "-" : pct + "%", a.PendingMarking ? "-" : ResultsExporter.Grade(pct),
+                a.PendingMarking ? "Awaiting" : pct >= a.Pass ? "Pass" : "Fail", DateTime.SpecifyKind(a.At, DateTimeKind.Utc).ToLocalTime().ToString("g"));
+        }).ToList();
+    }
+
     /// <summary>Every submitted result matching the filters, newest first (for CSV export).</summary>
     public List<ResultRow> Export(int? examId = null, DateTime? sinceUtc = null) =>
         LoadRaw(examId).Select(r => r.Row).Where(r => sinceUtc == null || r.SubmittedUtc >= sinceUtc)

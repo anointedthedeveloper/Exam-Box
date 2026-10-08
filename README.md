@@ -20,12 +20,15 @@ administrator account, and all other data is created in the app.
    - One question per row. `Type` is `OBJ` (multiple choice, options A-E, `Correct` letter) or `THEORY` (typed answer, optional `Model answer` marking guide).
    - Sub-parts: give each its own row and number it `1a`, `1b`, `1c`. A THEORY row with 0 marks is a reading passage students only read.
    - Pictures: put `YES` in the `Image` column (or a file name plus a pictures folder when importing). Questions needing a picture show **Needed**; select each and *Attach picture*. The exam cannot be launched until all are attached.
+   - Maths: type `x^2`, `x_1`, `\frac{3}{4}`, `\sqrt{49}`, `\pi`, `\times`, `\le` (or paste ², √, ÷ directly) and students see proper maths. Students answering theory questions get a symbol bar (² √ π ÷ × ≤ ...).
+   - Pictures can also be pasted straight into the Image cell of a question row in Excel.
    - A preview lists any row that needs fixing before anything is added. Questions can also be added, edited and re-ordered by hand.
 5. **Templates**: an exam that has not been launched is a draft/template. *Duplicate* it for another class or term, and *Launch* it when it is time: for everyone or one class, opening now or at a chosen date/time, closing at a chosen time or when you close it.
 6. **Student portal** page shows the address to give students (same network/Wi-Fi). Allow ExamBox through the
    Windows firewall (Private networks) when prompted. Keep ExamBox open while exams run.
 7. Students see *Available*, *Coming up* and their results. Objective answers are graded instantly; theory answers are typed in the browser (autosaved every few seconds, so a crash or closed tab loses nothing) and wait in **Marking**, where you give marks and comments per question. The final result appears once marking is finished.
-8. Open an exam → **Results** to see scores, or export them as CSV.
+8. **Live** tab on an exam: see who is sitting it, *Pause* a student (their clock stops and they are signed out; when they sign in again the exam waits with the time left), *Resume*, *Edit time left*, or *Submit now*.
+9. Open an exam → **Results** to see scores and export them as CSV, Excel or PDF (also from **Reports**).
 
 Data folder: `%LOCALAPPDATA%\ExamBox` (override with the `EXAMBOX_DATA` environment variable). Back it up by copying it.
 

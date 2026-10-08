@@ -12,6 +12,7 @@ public partial class StudentsView : UserControl
 
     private readonly bool _openAdd;
     private List<User> _all = new();
+    private bool _loading;
 
     public StudentsView(bool openAdd = false)
     {
@@ -31,6 +32,12 @@ public partial class StudentsView : UserControl
     private void Reload()
     {
         _all = App.Students.List();
+        _loading = true;
+        var keep = ClassFilter.SelectedItem as string;
+        ClassFilter.Items.Clear(); ClassFilter.Items.Add("All classes");
+        foreach (var c in _all.Select(s => s.Department).Where(d => !string.IsNullOrWhiteSpace(d)).Distinct().OrderBy(d => d)) ClassFilter.Items.Add(c);
+        ClassFilter.SelectedItem = keep != null && ClassFilter.Items.Contains(keep) ? keep : "All classes";
+        _loading = false;
         StatTotal.Text = _all.Count.ToString();
         StatActive.Text = _all.Count(s => s.IsActive).ToString();
         StatInactive.Text = _all.Count(s => !s.IsActive).ToString();
@@ -44,9 +51,10 @@ public partial class StudentsView : UserControl
         IEnumerable<User> rows = _all;
         if (FilterActive.IsChecked == true) rows = rows.Where(s => s.IsActive);
         else if (FilterInactive.IsChecked == true) rows = rows.Where(s => !s.IsActive);
+        if (ClassFilter.SelectedItem is string cf && cf != "All classes") rows = rows.Where(s => string.Equals(s.Department, cf, StringComparison.OrdinalIgnoreCase));
         if (q.Length > 0)
             rows = rows.Where(s => s.FullName.Contains(q, StringComparison.OrdinalIgnoreCase) || s.Username.Contains(q, StringComparison.OrdinalIgnoreCase)
-                                   || (s.Email ?? "").Contains(q, StringComparison.OrdinalIgnoreCase));
+                                   || (s.Email ?? "").Contains(q, StringComparison.OrdinalIgnoreCase) || (s.Department ?? "").Contains(q, StringComparison.OrdinalIgnoreCase));
         var list = rows.ToList();
 
         Table.ItemsSource = list.Select(s =>
@@ -115,6 +123,19 @@ public partial class StudentsView : UserControl
         if (RowOf(sender) is not { } row) return;
         if (new PasswordDialog(row.Id, row.Name, row.StudentId) { Owner = Window.GetWindow(this) }.ShowDialog() == true) Ui.Info($"New password set for {row.Name}.");
     }
+
+    private void More_Click(object sender, RoutedEventArgs e)
+    {
+        if (MoreBtn.ContextMenu == null) return;
+        MoreBtn.ContextMenu.PlacementTarget = MoreBtn;
+        MoreBtn.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+        MoreBtn.ContextMenu.IsOpen = true;
+    }
+
+    private void Template_Click(object sender, RoutedEventArgs e) =>
+        ExportHelper.Save("ExamBox student template.xlsx", "Excel workbook (*.xlsx)|*.xlsx", ExamBox.Services.StudentImporter.BuildTemplate, Window.GetWindow(this));
+
+    private void ClassFilter_Changed(object sender, SelectionChangedEventArgs e) { if (IsLoaded && !_loading) ApplyFilter(); }
 
     private void ForceOut_Click(object sender, RoutedEventArgs e)
     {

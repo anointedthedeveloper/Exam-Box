@@ -81,6 +81,28 @@ public partial class ReportsView : UserControl
 
     private void Marking_Click(object sender, RoutedEventArgs e) => MainWindow.Current.Go("marking");
 
+    private void ExportXlsx_Click(object sender, RoutedEventArgs e)
+    {
+        var rows = App.Reports.ExportRows(ExamId, Since);
+        if (rows.Count == 0) { Ui.Info("There are no submissions to export for these filters."); return; }
+        ExportHelper.Save($"ExamBox results {DateTime.Now:yyyy-MM-dd}.xlsx", "Excel workbook (*.xlsx)|*.xlsx", () => ExamBox.Services.ResultsExporter.Xlsx("ExamBox results", rows, ExamId == null), Window.GetWindow(this));
+    }
+
+    private void ExportPdf_Click(object sender, RoutedEventArgs e)
+    {
+        var rows = App.Reports.ExportRows(ExamId, Since);
+        if (rows.Count == 0) { Ui.Info("There are no submissions to export for these filters."); return; }
+        var r = App.Reports.Build(ExamId, Since);
+        var title = ExamId == null ? "Results across all exams" : "Results: " + ((ExamFilter.SelectedItem as ComboBoxItem)?.Content ?? "exam");
+        var summary = new List<(string, string)>
+        {
+            ("Submissions", r.Attempts.ToString()), ("Average", r.Attempts == 0 ? "-" : r.AvgPercent + "%"),
+            ("Pass rate", r.Attempts == 0 ? "-" : r.PassRate + "%"), ("Highest", r.Attempts == 0 ? "-" : r.HighPercent + "%"),
+        };
+        ExportHelper.Save($"ExamBox results {DateTime.Now:yyyy-MM-dd}.pdf", "PDF file (*.pdf)|*.pdf",
+            () => ExamBox.Services.ResultsExporter.Pdf(App.Settings.InstitutionName ?? "", title, $"{(PeriodFilter.SelectedItem as ComboBoxItem)?.Content}, exported {DateTime.Now:f}", summary, rows, ExamId == null), Window.GetWindow(this));
+    }
+
     private static string Csv(string s) => "\"" + s.Replace("\"", "\"\"") + "\"";
 
     private void Export_Click(object sender, RoutedEventArgs e)

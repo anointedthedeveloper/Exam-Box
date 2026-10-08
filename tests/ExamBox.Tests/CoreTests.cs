@@ -484,4 +484,84 @@ public class ProductionTests
         ws.Cell(3, 1).Value = "S2"; ws.Cell(3, 2).Value = "Bola"; ws.Cell(3, 3).Value = "Ade";
         using var ms = new MemoryStream(); wb.SaveAs(ms); return ms.ToArray();
     }
+
+    [Fact]
+    public void Admin_can_pause_resume_and_edit_time()
+    {
+        using var t = new TempDb();
+        var att = new AttemptService(t.Factory); var live = new LiveService(t.Factory);
+        var e = t.Exams.Save(0, "Timed", null, 30, 50).Value!;
+        t.Exams.SaveQuestion(e.Id, 0, "Q", "a", "b", null, null, "A", 1);
+        t.Exams.Launch(e.Id, null, null, null);
+        var s = t.Students.Create(new StudentInput("S", "T1", null, null, true, "pw")).Value!.Student;
+        var aid = att.Start(s.Id, e.Id).Value;
+        var before = att.GetTake(s.Id, aid)!.SecondsLeft;
+        Assert.InRange(before, 1790, 1800);
+
+        Assert.True(live.Pause(aid).Ok);
+        Assert.True(live.List(e.Id).Single().Paused);
+        using (var db = t.Factory.Create())   // pretend 10 minutes passed while paused
+            { var row = db.Attempts.Single(a => a.Id == aid); row.PausedAt = row.PausedAt!.Value.AddMinutes(-10); row.StartedAt = row.StartedAt.AddMinutes(-10); db.SaveChanges(); }
+        var frozen = att.GetTake(s.Id, aid)!;
+        Assert.True(frozen.Paused); Assert.InRange(frozen.SecondsLeft, before - 5, before + 1);   // clock did not run
+        Assert.False(att.SaveDraft(s.Id, aid, new Dictionary<int, string>()).Ok);                  // autosave refused while paused
+        Assert.Equal(0, att.CollectExpired());
+
+        Assert.True(att.Resume(s.Id, aid).Ok);                                                   // student resumes
+        var running = att.GetTake(s.Id, aid)!;
+        Assert.False(running.Paused); Assert.InRange(running.SecondsLeft, before - 5, before + 1);
+
+        Assert.True(live.SetMinutesLeft(aid, 5).Ok);                                             // admin edits the time
+        Assert.InRange(att.GetTake(s.Id, aid)!.SecondsLeft, 295, 301);
+        Assert.True(live.SetMinutesLeft(aid, 45).Ok);                                            // and can extend beyond the original
+        Assert.InRange(att.GetTake(s.Id, aid)!.SecondsLeft, 2695, 2701);
+        Assert.False(live.SetMinutesLeft(aid, -1).Ok);
+
+        live.Pause(aid); Assert.True(live.SetMinutesLeft(aid, 10).Ok);                            // editing while paused works too
+        Assert.InRange(att.GetTake(s.Id, aid)!.SecondsLeft, 595, 601);
+        Assert.True(live.Resume(aid).Ok);
+        Assert.False(att.GetTake(s.Id, aid)!.Paused);
+        Assert.Empty(live.List(e.Id).Where(r => r.Paused));
+    }
+
+    [Fact]
+    public void Excel_import_keeps_maths_and_pasted_pictures()
+    {
+        var png = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==");
+        using var wb = new ClosedXML.Excel.XLWorkbook();
+        var ws = wb.AddWorksheet("Questions");
+        string[] h = { "No", "Type", "Question", "A", "B", "Correct", "Marks", "Image" };
+        for (var i = 0; i < h.Length; i++) ws.Cell(1, i + 1).Value = h[i];
+        string[] r2 = { "1", "OBJ", "Find x\u00B2 + \u221A16 \u00F7 2 when x = 3", "11", "9", "A", "1", "" };
+        string[] r3 = { "2", "OBJ", "Study the triangle", "a", "b", "B", "1", "" };
+        for (var i = 0; i < r2.Length; i++) { ws.Cell(2, i + 1).Value = r2[i]; ws.Cell(3, i + 1).Value = r3[i]; }
+        ws.AddPicture(new MemoryStream(png)).MoveTo(ws.Cell(3, 8));          // picture pasted into the Image cell of row 3
+        using var ms = new MemoryStream(); wb.SaveAs(ms); ms.Position = 0;
+        var res = QuestionImporter.Parse(ms);
+        Assert.False(res.HasErrors);
+        Assert.Contains("x\u00B2 + \u221A16 \u00F7 2", res.Questions[0].Text);                  // symbols survive
+        Assert.False(res.Questions[0].HasImage);
+        Assert.True(res.Questions[1].HasImage); Assert.Equal("image/png", res.Questions[1].ImageType);
+        Assert.Equal(0, res.NeedImages);
+    }
+
+    [Fact]
+    public void Results_export_to_excel_and_pdf()
+    {
+        using var t = new TempDb();
+        var att = new AttemptService(t.Factory);
+        var e = t.Exams.Save(0, "Maths Mid-term", null, 30, 50).Value!;
+        t.Exams.SaveQuestion(e.Id, 0, "2+2?", "3", "4", null, null, "B", 2);
+        t.Exams.Launch(e.Id, null, null, null);
+        var s = t.Students.Create(new StudentInput("Ada Okafor", "X1", null, "SS1", true, "pw")).Value!.Student;
+        var aid = att.Start(s.Id, e.Id).Value;
+        att.Submit(s.Id, aid, new Dictionary<int, string> { [t.Exams.Get(e.Id)!.Questions[0].Id] = "B" });
+        var rows = new ReportService(t.Factory).ExportRows(e.Id);
+        Assert.Single(rows); Assert.Equal("Pass", rows[0].Outcome); Assert.Equal("100%", rows[0].Percent); Assert.Equal("A", rows[0].Grade);
+        var xlsx = ResultsExporter.Xlsx("Maths Mid-term", rows, false);
+        using (var wb = new ClosedXML.Excel.XLWorkbook(new MemoryStream(xlsx)))
+            Assert.Equal("Ada Okafor", wb.Worksheet(1).Cell(5, 2).GetString());
+        var pdf = ResultsExporter.Pdf("Greenfield", "Maths Mid-term", "All results", new[] { ("Submissions", "1") }, rows, false);
+        Assert.True(pdf.Length > 1000); Assert.Equal("%PDF", System.Text.Encoding.ASCII.GetString(pdf, 0, 4));
+    }
 }

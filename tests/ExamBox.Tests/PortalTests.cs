@@ -199,4 +199,15 @@ public class PortalTests
         Assert.Contains("/account/login", (await cb.Get("/portal")).Url);
         Assert.Contains("signed out by your administrator", (await ca.Get("/account/login?ended=true")).Html);
     }
+
+    [Fact]
+    public void Maths_text_is_rendered()
+    {
+        Assert.Equal("x<sup>2</sup> + y<sub>1</sub>", MathText.Render("x^2 + y_1"));
+        Assert.Contains("class=\"frac\"", MathText.Render("\\frac{1}{2}"));
+        Assert.Contains("\u221A<span class=\"rad\">49</span>", MathText.Render("\\sqrt{49}"));
+        Assert.Equal("3 \u00D7 4 \u2264 \u03C0", MathText.Render("3 \\times 4 \\le \\pi"));
+        Assert.Equal("a &lt;b&gt; &amp; c", MathText.Render("a <b> & c"));          // everything else stays escaped
+        Assert.Equal("x\u00B2 \u221A \u00F7", MathText.Render("x\u00B2 \u221A \u00F7"));    // typed symbols pass through
+    }
 }

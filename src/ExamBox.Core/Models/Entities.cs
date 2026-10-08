@@ -109,6 +109,13 @@ public class Attempt
     public User? Student { get; set; }
     public DateTime StartedAt { get; set; } = DateTime.UtcNow;
     public DateTime? SubmittedAt { get; set; }
+    /// <summary>Set while an admin has paused this attempt: the clock is frozen.</summary>
+    public DateTime? PausedAt { get; set; }
+    /// <summary>Total seconds this attempt spent paused (they are given back to the student).</summary>
+    public int PausedSeconds { get; set; }
+    /// <summary>Minutes the admin added (or removed) for this student, in seconds.</summary>
+    public int TimeAdjustSeconds { get; set; }
+    public bool IsPaused => PausedAt != null && SubmittedAt == null;
     /// <summary>Total score (objective + marked theory).</summary>
     public int Score { get; set; }
     public int ObjectiveScore { get; set; }

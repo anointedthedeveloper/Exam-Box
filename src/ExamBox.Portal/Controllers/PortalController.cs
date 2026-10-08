@@ -49,6 +49,7 @@ public class PortalController(AttemptService attempts) : Controller
     {
         var t = attempts.GetTake(Me, id);
         if (t == null) return attempts.IsSubmitted(Me, id) ? RedirectToAction(nameof(Result), new { id }) : NotFound();
+        if (t.Paused) return View("Paused", t);
         if (t.SecondsLeft <= 0) return RedirectToAction(nameof(Result), new { id });
         return View(new TakeExamVm { Attempt = t.Attempt, Exam = t.Exam, Questions = t.Questions, Saved = t.Saved, SecondsLeft = t.SecondsLeft });
     }
@@ -68,6 +69,14 @@ public class PortalController(AttemptService attempts) : Controller
         if (!r.Ok) return NotFound();
         TempData["Success"] = r.Value ? "Time was up, your exam was submitted automatically." : "Exam submitted.";
         return RedirectToAction(nameof(Result), new { id });
+    }
+
+    [HttpPost("exam/{id:int}/resume")]
+    public IActionResult Resume(int id)
+    {
+        var r = attempts.Resume(Me, id);
+        if (!r.Ok) return NotFound();
+        return RedirectToAction(nameof(Take), new { id });
     }
 
     /// <summary>Autosave, called by the exam page every few seconds.</summary>

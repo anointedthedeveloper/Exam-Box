@@ -8,5 +8,6 @@
     <PackageReference Include="ClosedXML" Version="0.105.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.*" />
     <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="8.0.*" />
+    <PackageReference Include="QuestPDF" Version="2026.9.1" />
   </ItemGroup>
 </Project>

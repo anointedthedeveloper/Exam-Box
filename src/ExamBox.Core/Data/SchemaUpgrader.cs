@@ -8,7 +8,7 @@ namespace ExamBox.Data;
 /// </summary>
 public static class SchemaUpgrader
 {
-    public const int Current = 5;
+    public const int Current = 6;
 
     public static void Run(AppDb db)
     {
@@ -31,6 +31,12 @@ public static class SchemaUpgrader
             // v3: temporary passwords no longer exist; nobody is forced to change a password.
             if (v < 3) Exec(conn, "UPDATE Users SET MustChangePassword = 0", tx);
             if (v < 4) Exec(conn, "ALTER TABLE Users ADD COLUMN PasswordCipher TEXT NULL", tx);
+            if (v < 6)
+            {
+                Exec(conn, "ALTER TABLE Attempts ADD COLUMN PausedAt TEXT NULL", tx);
+                Exec(conn, "ALTER TABLE Attempts ADD COLUMN PausedSeconds INTEGER NOT NULL DEFAULT 0", tx);
+                Exec(conn, "ALTER TABLE Attempts ADD COLUMN TimeAdjustSeconds INTEGER NOT NULL DEFAULT 0", tx);
+            }
             if (v < 5) Exec(conn, "ALTER TABLE Users ADD COLUMN SessionVersion INTEGER NOT NULL DEFAULT 0", tx);
             Exec(conn, $"PRAGMA user_version = {Current}", tx);
             tx.Commit();

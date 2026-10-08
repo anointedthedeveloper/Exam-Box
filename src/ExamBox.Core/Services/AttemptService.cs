@@ -21,6 +21,7 @@ public sealed class TakeData
     public List<Question> Questions { get; init; } = new();
     public Dictionary<int, Answer> Saved { get; init; } = new();
     public int SecondsLeft { get; init; }
+    public bool Paused { get; init; }
 }
 
 /// <summary>Everything a student does with an exam: see it, start it, answer it, hand it in.</summary>
@@ -29,11 +30,17 @@ public sealed class AttemptService(DbFactory factory)
     public const int GraceSeconds = 30;
     public const int MaxTheoryChars = 20000;
 
-    public static DateTime Deadline(Attempt a, Exam e)
+    /// <summary>When this attempt runs out. Pauses give time back and admins can adjust it per student.</summary>
+    public static DateTime Deadline(Attempt a, Exam e, DateTime? now = null)
     {
-        var end = a.StartedAt.AddMinutes(e.DurationMinutes);
-        return e.ClosesAt is { } c && c < end ? c : end;
+        var end = a.StartedAt.AddMinutes(e.DurationMinutes).AddSeconds(a.PausedSeconds + a.TimeAdjustSeconds);
+        if (a.PausedAt != null) end += (now ?? DateTime.UtcNow) - a.PausedAt.Value;      // clock is frozen while paused
+        // the exam's closing time only caps students who were never given extra or paused time
+        var touched = a.PausedAt != null || a.PausedSeconds != 0 || a.TimeAdjustSeconds != 0;
+        return !touched && e.ClosesAt is { } c && c < end ? c : end;
     }
+
+    public static int SecondsLeft(Attempt a, Exam e) => (int)(Deadline(a, e) - DateTime.UtcNow).TotalSeconds;
 
     private static bool Eligible(Exam e, User s) =>
         string.IsNullOrEmpty(e.ForDepartment) || string.Equals(e.ForDepartment, s.Department, StringComparison.OrdinalIgnoreCase);
@@ -97,9 +104,24 @@ public sealed class AttemptService(DbFactory factory)
         var left = (int)(Deadline(a, a.Exam!) - DateTime.UtcNow).TotalSeconds;
         return new TakeData
         {
-            Attempt = a, Exam = a.Exam!, Questions = Arrange(a.Exam!, a), SecondsLeft = Math.Max(0, left),
+            Attempt = a, Exam = a.Exam!, Questions = Arrange(a.Exam!, a), SecondsLeft = Math.Max(0, left), Paused = a.PausedAt != null,
             Saved = a.Answers.ToDictionary(x => x.QuestionId),
         };
+    }
+
+    /// <summary>The student continues a paused exam; the clock starts again with the time that was left.</summary>
+    public OpResult Resume(int studentId, int attemptId)
+    {
+        using var db = factory.Create();
+        var a = db.Attempts.FirstOrDefault(x => x.Id == attemptId && x.StudentId == studentId && x.SubmittedAt == null);
+        if (a == null) return OpResult.Fail("Attempt not found.");
+        if (a.PausedAt != null)
+        {
+            a.PausedSeconds += (int)(DateTime.UtcNow - a.PausedAt.Value).TotalSeconds;
+            a.PausedAt = null;
+            db.SaveChanges();
+        }
+        return OpResult.Success();
     }
 
     public bool IsSubmitted(int studentId, int attemptId)
@@ -134,6 +156,7 @@ public sealed class AttemptService(DbFactory factory)
             .FirstOrDefault(x => x.Id == attemptId && x.StudentId == studentId);
         if (a == null) return OpResult<int>.Fail("Attempt not found.");
         if (a.SubmittedAt != null) return OpResult<int>.Fail("This exam has already been submitted.");
+        if (a.PausedAt != null) return OpResult<int>.Fail("paused");
         var left = (int)(Deadline(a, a.Exam!) - DateTime.UtcNow).TotalSeconds;
         if (left < -GraceSeconds) { Finish(db, a, null); return OpResult<int>.Fail("Time is up."); }
         ApplyAnswers(a, answers);
@@ -182,7 +205,7 @@ public sealed class AttemptService(DbFactory factory)
             .Where(a => a.SubmittedAt == null);
         if (studentId != null) q = q.Where(a => a.StudentId == studentId);
         var n = 0;
-        foreach (var a in q.ToList().Where(a => DateTime.UtcNow > Deadline(a, a.Exam!)))
+        foreach (var a in q.ToList().Where(a => a.PausedAt == null && DateTime.UtcNow > Deadline(a, a.Exam!)))
         {
             Finish(db, a, null);
             n++;

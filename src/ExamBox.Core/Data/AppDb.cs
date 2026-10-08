@@ -31,6 +31,7 @@ public class AppDb(DbContextOptions<AppDb> options) : DbContext(options)
         {
             // one attempt per student per exam
             e.Ignore(a => a.IsFinal);
+            e.Ignore(a => a.IsPaused);
             e.HasIndex(a => new { a.ExamId, a.StudentId }).IsUnique();
             e.HasOne(a => a.Exam).WithMany(x => x.Attempts).HasForeignKey(a => a.ExamId).OnDelete(DeleteBehavior.Cascade);
             e.HasOne(a => a.Student).WithMany(s => s.Attempts).HasForeignKey(a => a.StudentId).OnDelete(DeleteBehavior.Cascade);

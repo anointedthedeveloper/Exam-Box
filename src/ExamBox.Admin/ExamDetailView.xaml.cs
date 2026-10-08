@@ -13,7 +13,10 @@ public partial class ExamDetailView : UserControl
     public sealed record QuestionRow(int Id, string No, string Kind, string Text, string Details, int Marks, string Picture);
     public sealed record ResultRow(int AttemptId, string Student, string StudentId, string Objective, string Theory, string Score, string Percent, string Outcome, string Submitted);
 
+    public sealed record LiveVm(int AttemptId, int UserId, string Student, string StudentId, string Started, string Left, int Seconds, string Status);
+
     private readonly int _id;
+    private System.Windows.Threading.DispatcherTimer? _timer;
     private Exam? _exam;
     private bool _locked;
 
@@ -21,7 +24,14 @@ public partial class ExamDetailView : UserControl
     {
         _id = id;
         InitializeComponent();
-        Loaded += (_, _) => Reload();
+        Loaded += (_, _) =>
+        {
+            Reload();
+            _timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(10) };
+            _timer.Tick += (_, _) => ReloadLive();
+            _timer.Start();
+        };
+        Unloaded += (_, _) => _timer?.Stop();
     }
 
     private QuestionRow? SelectedQ => QTable.SelectedItem as QuestionRow;
@@ -95,6 +105,64 @@ public partial class ExamDetailView : UserControl
             : $"{done.Count} submission(s)" + (final.Count > 0 ? $" · average {Math.Round(final.Average(a => a.Percent), 1)}% · {final.Count(a => a.Percent >= e.PassMarkPercent)} passed" : "")
               + (waiting > 0 ? $" · {waiting} awaiting marking" : "");
         MarkBtn.IsEnabled = false;
+        ReloadLive();
+    }
+
+    private LiveVm? SelectedL => LTable.SelectedItem as LiveVm;
+
+    private void ReloadLive()
+    {
+        App.Attempts.CollectExpired();
+        var keep = SelectedL?.AttemptId;
+        var rows = App.Live.List(_id);
+        LTable.ItemsSource = rows.Select(r => new LiveVm(r.AttemptId, r.StudentId, r.Student, r.StudentCode, Ui.Local(r.StartedUtc),
+            TimeSpan.FromSeconds(r.SecondsLeft).ToString(r.SecondsLeft >= 3600 ? "h\\:mm\\:ss" : "m\\:ss"), r.SecondsLeft, r.Paused ? "Paused" : "Running")).ToList();
+        if (keep != null) LTable.SelectedItem = (LTable.ItemsSource as IEnumerable<LiveVm>)?.FirstOrDefault(x => x.AttemptId == keep);
+        LiveEmpty.Visibility = rows.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        LiveSummary.Text = rows.Count == 0 ? "" : $"{rows.Count} sitting now, {rows.Count(r => r.Paused)} paused. Updates every 10 seconds.";
+        UpdateLiveButtons();
+    }
+
+    private void UpdateLiveButtons()
+    {
+        var s = SelectedL;
+        PauseBtn.IsEnabled = s is { Status: "Running" };
+        ResumeBtn.IsEnabled = s is { Status: "Paused" };
+        TimeBtn.IsEnabled = EndBtn.IsEnabled = s != null;
+    }
+
+    private void LTable_SelectionChanged(object sender, SelectionChangedEventArgs e) => UpdateLiveButtons();
+
+    private void Pause_Click(object sender, RoutedEventArgs e)
+    {
+        if (SelectedL is not { } s) return;
+        if (!Ui.Confirm($"Pause the exam for {s.Student}?\n\nTheir clock stops and they are signed out. When they sign in again they see the exam waiting with the time they had left.")) return;
+        var r = App.Live.Pause(s.AttemptId);
+        if (!r.Ok) Ui.Error(r.Error!);
+        ReloadLive();
+    }
+
+    private void ResumeLive_Click(object sender, RoutedEventArgs e)
+    {
+        if (SelectedL is not { } s) return;
+        var r = App.Live.Resume(s.AttemptId);
+        if (!r.Ok) Ui.Error(r.Error!);
+        ReloadLive();
+    }
+
+    private void EditTime_Click(object sender, RoutedEventArgs e)
+    {
+        if (SelectedL is not { } s) return;
+        if (new MinutesDialog(s.AttemptId, s.Student, s.Seconds) { Owner = System.Windows.Window.GetWindow(this) }.ShowDialog() == true) ReloadLive();
+    }
+
+    private void EndNow_Click(object sender, RoutedEventArgs e)
+    {
+        if (SelectedL is not { } s) return;
+        if (!Ui.Confirm($"Submit {s.Student}'s exam now with the answers they have saved?\n\nThis cannot be undone.")) return;
+        var r = App.Attempts.Submit(s.UserId, s.AttemptId, new Dictionary<int, string>());
+        if (!r.Ok) Ui.Error(r.Error!);
+        Reload();
     }
 
     private static Dictionary<int, string> QLabel(IEnumerable<Question> qs)
@@ -228,7 +296,38 @@ public partial class ExamDetailView : UserControl
         if (new MarkingDialog(sheet) { Owner = System.Windows.Window.GetWindow(this) }.ShowDialog() == true) Reload();
     }
 
-    private static string Csv(string s) => "\"" + s.Replace("\"", "\"\"") + "\"";
+    private string Subtitle() => $"{_exam!.DurationMinutes} min, pass mark {_exam.PassMarkPercent}%, exported {DateTime.Now:f}";
+
+    private (List<ExamBox.Services.ExportRow> Rows, List<(string, string)> Summary) ExportData()
+    {
+        var rows = App.Reports.ExportRows(_id);
+        var fin = rows.Where(r => r.Outcome is "Pass" or "Fail").ToList();
+        var avg = fin.Count == 0 ? "-" : Math.Round(fin.Average(r => double.Parse(r.Percent.TrimEnd('%'), System.Globalization.CultureInfo.InvariantCulture)), 1) + "%";
+        var summary = new List<(string, string)>
+        {
+            ("Submissions", rows.Count.ToString()), ("Average", avg),
+            ("Passed", fin.Count == 0 ? "-" : $"{fin.Count(r => r.Outcome == "Pass")} of {fin.Count}"),
+            ("Awaiting marking", rows.Count(r => r.Outcome == "Awaiting").ToString()),
+        };
+        return (rows, summary);
+    }
+
+    private void ExportXlsx_Click(object sender, RoutedEventArgs e)
+    {
+        var (rows, _) = ExportData();
+        if (rows.Count == 0) { Ui.Info("There are no submissions to export yet."); return; }
+        ExportHelper.Save($"{_exam!.Title} results.xlsx", "Excel workbook (*.xlsx)|*.xlsx", () => ExamBox.Services.ResultsExporter.Xlsx(_exam.Title + " results", rows, false), System.Windows.Window.GetWindow(this));
+    }
+
+    private void ExportPdf_Click(object sender, RoutedEventArgs e)
+    {
+        var (rows, summary) = ExportData();
+        if (rows.Count == 0) { Ui.Info("There are no submissions to export yet."); return; }
+        ExportHelper.Save($"{_exam!.Title} results.pdf", "PDF file (*.pdf)|*.pdf",
+            () => ExamBox.Services.ResultsExporter.Pdf(App.Settings.InstitutionName ?? "", _exam.Title + " results", Subtitle(), summary, rows, false), System.Windows.Window.GetWindow(this));
+    }
+
+        private static string Csv(string s) => "\"" + s.Replace("\"", "\"\"") + "\"";
 
     private void Export_Click(object sender, RoutedEventArgs e)
     {

@@ -16,9 +16,9 @@
 @foreach (var a in Model.InProgress)
 {
     <div class="exam-card" data-kind="running" data-name="@a.Exam!.Title.ToLowerInvariant()">
-        <div class="ec-top"><span class="ec-ic amber"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span><span class="badge warn">In progress</span></div>
+        <div class="ec-top"><span class="ec-ic amber"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span><span class="badge warn">@(a.IsPaused ? "Paused" : "In progress")</span></div>
         <h3>@a.Exam.Title</h3><p>Started <time datetime="@a.StartedAt.ToString("o")"></time>. Your answers are saved as you go.</p>
-        <div class="meta"><span>@a.Exam.DurationMinutes min</span></div>
+        <div class="meta"><span>@a.Exam.DurationMinutes min</span><span class="cd">@(Math.Max(1, (int)Math.Ceiling(AttemptService.SecondsLeft(a, a.Exam) / 60.0))) min left</span></div>
         <a class="btn block" asp-action="Take" asp-route-id="@a.Id">Resume exam</a>
     </div>
 }

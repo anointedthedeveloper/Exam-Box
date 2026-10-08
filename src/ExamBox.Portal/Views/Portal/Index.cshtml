@@ -14,7 +14,7 @@
                 @if (Model.InProgress.Count > 0)
                 {
                     var r = Model.InProgress[0];
-                    <a class="resume-pill" asp-action="Take" asp-route-id="@r.Id"><i></i>@r.Exam!.Title is in progress · Resume</a>
+                    <a class="resume-pill" asp-action="Take" asp-route-id="@r.Id"><i></i>@r.Exam!.Title @(r.IsPaused ? "is paused" : "is in progress"), @(Math.Max(1, (int)Math.Ceiling(AttemptService.SecondsLeft(r, r.Exam!) / 60.0))) min left. Resume</a>
                 }
                 else if (Model.Available.Count > 0) { <span class="greet-note">You have <b>@Model.Available.Count</b> exam@(Model.Available.Count == 1 ? "" : "s") ready to take.</span> }
                 else if (next != null) { <span class="greet-note">Next up: <b>@next.Title</b> opens in <b data-countdown="@next.OpensAt!.Value.ToString("o")"></b></span> }
