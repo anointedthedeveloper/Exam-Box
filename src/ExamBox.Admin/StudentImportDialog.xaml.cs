@@ -17,7 +17,10 @@ public partial class StudentImportDialog : Window
     {
         InitializeComponent();
         Title = Heading.Text = "Import students from Excel";
-        Sub.Text = "List each student's ID and name, and a class and password if you like. Leave the password empty and ExamBox generates one. You get a sheet with every login to hand out.";
+        DefaultClass.Items.Add("No default class");
+        foreach (var c in App.Classes.Names()) DefaultClass.Items.Add(c);
+        DefaultClass.SelectedIndex = 0;
+        Sub.Text = "List each student's ID and name, and a class and password if you like. Classes that do not exist yet are created for you. Leave the password empty and ExamBox generates one. You get a sheet with every login to hand out.";
     }
 
     private void Template_Click(object sender, RoutedEventArgs e) =>
@@ -46,7 +49,7 @@ public partial class StudentImportDialog : Window
 
     private void Import_Click(object sender, RoutedEventArgs e)
     {
-        var res = App.Students.CreateMany(_rows, string.IsNullOrWhiteSpace(DefaultClass.Text) ? null : DefaultClass.Text.Trim());
+        var res = App.Students.CreateMany(_rows, DefaultClass.SelectedIndex > 0 ? DefaultClass.SelectedItem as string : null);
         _created = res.Created;
         PreviewTitle.Text = $"{res.Created.Count} student(s) added" + (res.Skipped.Count > 0 ? $", {res.Skipped.Count} skipped" : "");
         PreviewTitle.Foreground = (Brush)FindResource(res.Created.Count > 0 ? "OkBrush" : "WarnBrush");

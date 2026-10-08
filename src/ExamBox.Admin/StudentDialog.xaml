@@ -16,8 +16,11 @@
         </Grid>
         <TextBlock Text="Student ID" Style="{StaticResource FieldLabel}"/>
         <TextBox x:Name="StudentId"/>
-        <TextBlock Text="Department / class (optional)" Style="{StaticResource FieldLabel}"/>
-        <TextBox x:Name="Department"/>
+        <TextBlock Text="Class" Style="{StaticResource FieldLabel}"/>
+        <DockPanel>
+            <Button DockPanel.Dock="Right" Content="New class" Style="{StaticResource GhostButton}" Click="NewClass_Click" Margin="10,0,0,0"/>
+            <ComboBox x:Name="ClassBox"/>
+        </DockPanel>
         <TextBlock Text="Email (optional)" Style="{StaticResource FieldLabel}"/>
         <TextBox x:Name="Email"/>
         <TextBlock x:Name="PassLabel" Style="{StaticResource FieldLabel}"/>

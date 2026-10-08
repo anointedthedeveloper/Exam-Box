@@ -1,0 +1,47 @@
+<UserControl x:Class="ExamBox.Admin.OnlineView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <DockPanel>
+        <DockPanel DockPanel.Dock="Top" LastChildFill="False" Margin="0,0,0,16">
+            <StackPanel DockPanel.Dock="Left">
+                <TextBlock Text="Online now" Style="{StaticResource H1}"/>
+                <TextBlock x:Name="Sub" Style="{StaticResource Muted}"/>
+            </StackPanel>
+            <Button DockPanel.Dock="Right" Style="{StaticResource DangerButton}" Click="All_Click" Margin="0" VerticalAlignment="Center" Content="Sign out all students"/>
+        </DockPanel>
+        <Border Style="{StaticResource GridCard}">
+            <Grid>
+                <DataGrid x:Name="Table" RowHeight="58" VerticalAlignment="Top">
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn Header="STUDENT" Width="2*" SortMemberPath="Name">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Ellipse Width="10" Height="10" Fill="{StaticResource OkBrush}" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="STUDENT ID" Binding="{Binding Code}" Width="*"/>
+                        <DataGridTextColumn Header="CLASS" Binding="{Binding Class}" Width="*"/>
+                        <DataGridTextColumn Header="DOING" Binding="{Binding Doing}" Width="2*"/>
+                        <DataGridTextColumn Header="LAST SEEN" Binding="{Binding Seen}" Width="*"/>
+                        <DataGridTemplateColumn Header="" Width="Auto">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="&#xE7E8;" ToolTip="Sign out this student" Style="{StaticResource IconButtonDanger}" Click="Out_Click"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+                <StackPanel x:Name="Empty" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed" Margin="0,40">
+                    <Border Style="{StaticResource IllustrationPanel}" Width="300" HorizontalAlignment="Center"><Image Source="/Assets/slide-devices.png"/></Border>
+                    <TextBlock Text="Nobody is online" Style="{StaticResource H2}" HorizontalAlignment="Center" Margin="0,18,0,4"/>
+                    <TextBlock Text="Students appear here while they have the portal open. Updates every 5 seconds." Style="{StaticResource Muted}" TextAlignment="Center" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </DockPanel>
+</UserControl>

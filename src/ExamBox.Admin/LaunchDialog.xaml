@@ -11,8 +11,8 @@
                 <TextBlock x:Name="Sub" Style="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,8,0,0"/>
                 <TextBlock Text="Who can take it" Style="{StaticResource FieldLabel}"/>
                 <RadioButton x:Name="WhoAll" Content="Every student" IsChecked="True" GroupName="who" Margin="0,2,0,6" Checked="Who_Changed"/>
-                <RadioButton x:Name="WhoClass" Content="Only one class" GroupName="who" Checked="Who_Changed"/>
-                <ComboBox x:Name="ClassBox" IsEditable="True" Margin="22,8,0,0" IsEnabled="False"/>
+                <RadioButton x:Name="WhoClass" Content="One class" GroupName="who" Checked="Who_Changed"/>
+                <ComboBox x:Name="ClassBox" Margin="22,8,0,0" IsEnabled="False"/>
                 <TextBlock Text="Opens" Style="{StaticResource FieldLabel}"/>
                 <RadioButton x:Name="OpenNow" Content="As soon as I launch it" IsChecked="True" GroupName="op" Margin="0,2,0,6" Checked="When_Changed"/>
                 <RadioButton x:Name="OpenAt" Content="On a date and time" GroupName="op" Checked="When_Changed"/>

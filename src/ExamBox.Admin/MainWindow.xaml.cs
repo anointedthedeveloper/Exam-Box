@@ -23,7 +23,7 @@ public partial class MainWindow : Window
         ShowAuth();
     }
 
-    private RadioButton[] NavButtons => new[] { NavDashboard, NavStudents, NavExams, NavMarking, NavReports, NavSettings, NavServer };
+    private RadioButton[] NavButtons => new[] { NavDashboard, NavStudents, NavExams, NavReports, NavSettings };
     private RadioButton? CurrentNav => NavButtons.FirstOrDefault(r => r.IsChecked == true);
 
     /// <summary>Narrow windows: icons only (labels move into tooltips), then hide the brand and profile text too.</summary>
@@ -108,11 +108,14 @@ public partial class MainWindow : Window
         var (radio, view) = page switch
         {
             "students" => ((RadioButton?)NavStudents, (UserControl)new StudentsView(openAdd)),
+            "classes" => (NavStudents, new ClassesView()),
+            "online" => (NavStudents, new OnlineView()),
+            "activity" => (NavReports, new ActivityView()),
             "exams" => (NavExams, new ExamsView(openAdd)),
-            "marking" => (NavMarking, new MarkingView()),
+            "marking" => (NavExams, new MarkingView()),
             "reports" => (NavReports, new ReportsView()),
             "settings" => (NavSettings, new SettingsView()),
-            "server" => (NavServer, new ServerView()),
+            "server" => (NavSettings, new ServerView()),
             "account" => ((RadioButton?)null, new AccountView()),
             _ => (NavDashboard, new DashboardView()),
         };
@@ -129,8 +132,8 @@ public partial class MainWindow : Window
     {
         var n = 0;
         try { n = App.Marking.PendingCount(); } catch { /* database busy: keep the old badge */ }
-        MarkingBadgeText.Text = n > 99 ? "99+" : n.ToString();
-        MarkingBadge.Visibility = n > 0 ? Visibility.Visible : Visibility.Collapsed;
+        MarkingBadgeText.Text = MarkingBadgeText2.Text = n > 99 ? "99+" : n.ToString();
+        MarkingBadge.Visibility = MarkingBadge2.Visibility = n > 0 ? Visibility.Visible : Visibility.Collapsed;
         MovePill(CurrentNav, animate: false);
     }
 
@@ -153,13 +156,62 @@ public partial class MainWindow : Window
         ShowPage(new ExamDetailView(id));
     }
 
-    private void Nav_Click(object sender, RoutedEventArgs e) => Go((string)((RadioButton)sender).Tag);
+    private void Nav_Click(object sender, RoutedEventArgs e)
+    {
+        CloseAllMenus();
+        Go((string)((RadioButton)sender).Tag);
+    }
+
+    // ---- hover menus under the navigation items ----
+    private readonly System.Windows.Threading.DispatcherTimer _menuTimer = new() { Interval = TimeSpan.FromMilliseconds(220) };
+    private System.Windows.Controls.Primitives.Popup? _openMenu;
+    private System.Windows.Controls.Primitives.Popup? _pending;
+    private bool _menuHooked;
+
+    private System.Windows.Controls.Primitives.Popup? PopupFor(RadioButton r) =>
+        r == NavStudents ? PopStudents : r == NavExams ? PopExams : r == NavReports ? PopReports : r == NavSettings ? PopSettings : null;
+
+    private void HookMenuTimer()
+    {
+        if (_menuHooked) return;
+        _menuHooked = true;
+        _menuTimer.Tick += (_, _) => { _menuTimer.Stop(); if (_openMenu != null) { _openMenu.IsOpen = false; _openMenu = null; } };
+    }
+
+    private void CloseAllMenus()
+    {
+        _menuTimer.Stop();
+        foreach (var p in new[] { PopStudents, PopExams, PopReports, PopSettings }) p.IsOpen = false;
+        _openMenu = null;
+    }
+
+    private void Group_Enter(object sender, System.Windows.Input.MouseEventArgs e)
+    {
+        HookMenuTimer();
+        _menuTimer.Stop();
+        var pop = PopupFor((RadioButton)sender);
+        if (pop == null) return;
+        if (_openMenu != null && _openMenu != pop) _openMenu.IsOpen = false;
+        pop.IsOpen = true; _openMenu = pop;
+    }
+
+    private void Group_Leave(object sender, System.Windows.Input.MouseEventArgs e) { HookMenuTimer(); _menuTimer.Stop(); _menuTimer.Start(); }
+    private void Pop_Enter(object sender, System.Windows.Input.MouseEventArgs e) { _menuTimer.Stop(); }
+    private void Pop_Leave(object sender, System.Windows.Input.MouseEventArgs e) { HookMenuTimer(); _menuTimer.Stop(); _menuTimer.Start(); }
+
+    private void Menu_Click(object sender, RoutedEventArgs e)
+    {
+        CloseAllMenus();
+        Go((string)((Button)sender).Tag);
+    }
 
     public void SignOutNow() => SignOut_Click(this, new RoutedEventArgs());
 
     private void SignOut_Click(object sender, RoutedEventArgs e)
     {
         ProfilePopup.IsOpen = false;
+        CloseAllMenus();
+        App.Log.Write("signout", App.CurrentUser?.Username, "Administrator signed out");
         App.CurrentUser = null;
         ShowAuth();
     }

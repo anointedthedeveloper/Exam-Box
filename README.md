@@ -14,6 +14,7 @@ administrator account, and all other data is created in the app.
 ## Using it
 
 1. Run `ExamBox.exe`, create the administrator account.
+1b. **Students → Classes**: create your classes (SS1, JSS2 ...). Students and exams are tied to a class: pick it from the list when adding a student, and when creating or launching an exam so only that class sees it. Renaming a class updates its students and exams.
 2. **Students** → *Add student* (you choose the password, or click *Generate*), or *Import from Excel* (download the template; list ID, name, class and optionally a password, and ExamBox gives you a login sheet). Passwords are only ever changed by the admin: use the key icon on a student's row. Students see their profile and password under *My account*, but cannot change it themselves.
 3. **Exams** → *New exam* (e.g. "SS1 English First Term"). Set the duration, pass mark and, optionally, the class it is for.
 4. **Questions**: open the exam → *Download template*, let the teacher fill it in Excel, then *Import from Excel*.
@@ -28,7 +29,8 @@ administrator account, and all other data is created in the app.
    Windows firewall (Private networks) when prompted. Keep ExamBox open while exams run.
 7. Students see *Available*, *Coming up* and their results. Objective answers are graded instantly; theory answers are typed in the browser (autosaved every few seconds, so a crash or closed tab loses nothing) and wait in **Marking**, where you give marks and comments per question. The final result appears once marking is finished.
 8. **Live** tab on an exam: see who is sitting it, *Pause* a student (their clock stops and they are signed out; when they sign in again the exam waits with the time left), *Resume*, *Edit time left*, or *Submit now*.
-9. Open an exam → **Results** to see scores and export them as CSV, Excel or PDF (also from **Reports**).
+9. **Students → Online now** shows who has the portal open and who is sitting an exam (with a sign-out button). **Reports → Activity log** records sign-ins, failed sign-ins, exam starts and submissions, pauses and every admin change, and can be exported to CSV.
+10. Open an exam → **Results** to see scores and export them as CSV, Excel or PDF (also from **Reports**).
 
 Data folder: `%LOCALAPPDATA%\ExamBox` (override with the `EXAMBOX_DATA` environment variable). Back it up by copying it.
 

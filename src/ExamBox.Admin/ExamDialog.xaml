@@ -27,8 +27,8 @@
                 <TextBox x:Name="PassMark" Text="50"/>
             </StackPanel>
         </Grid>
-        <TextBlock Text="Class (optional)" Style="{StaticResource FieldLabel}"/>
-        <ComboBox x:Name="ClassBox" IsEditable="True" ToolTip="Leave empty for every student. Matches the class set on each student."/>
+        <TextBlock Text="Who can take it" Style="{StaticResource FieldLabel}"/>
+        <ComboBox x:Name="ClassBox" ToolTip="Only students in this class can see and take the exam."/>
         <CheckBox x:Name="Shuffle" Content="Shuffle the order of objective questions for each student" Margin="0,14,0,0"/>
         <TextBlock x:Name="ErrorText" Style="{StaticResource ErrorText}" Visibility="Collapsed"/>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,22,0,0">

@@ -5,6 +5,7 @@ namespace ExamBox.Admin;
 
 public partial class ExamDialog : Window
 {
+    private const string AllClasses = "All classes";
     private readonly Exam? _existing;
     public Exam? Saved { get; private set; }
 
@@ -12,7 +13,9 @@ public partial class ExamDialog : Window
     {
         _existing = existing;
         InitializeComponent();
-        foreach (var cl in App.Students.Classes()) ClassBox.Items.Add(cl);
+        ClassBox.Items.Add(AllClasses);
+        foreach (var cl in App.Classes.Names()) ClassBox.Items.Add(cl);
+        ClassBox.SelectedIndex = 0;
         Title = Heading.Text = existing == null ? "New exam" : "Edit exam";
         if (existing == null) { Duration.Text = App.Settings.DefaultDurationMinutes.ToString(); PassMark.Text = App.Settings.DefaultPassMark.ToString(); }
         SaveBtn.Content = existing == null ? "Create exam" : "Save changes";
@@ -20,7 +23,7 @@ public partial class ExamDialog : Window
         {
             ExamTitle.Text = existing.Title; Description.Text = existing.Description;
             Duration.Text = existing.DurationMinutes.ToString(); PassMark.Text = existing.PassMarkPercent.ToString();
-            ClassBox.Text = existing.ForDepartment; Shuffle.IsChecked = existing.ShuffleQuestions;
+            if (existing.ForDepartment != null) ClassBox.SelectedItem = ClassBox.Items.Cast<string>().FirstOrDefault(c => string.Equals(c, existing.ForDepartment, StringComparison.OrdinalIgnoreCase)) ?? AllClasses; Shuffle.IsChecked = existing.ShuffleQuestions;
         }
         Loaded += (_, _) => ExamTitle.Focus();
     }
@@ -31,7 +34,7 @@ public partial class ExamDialog : Window
     {
         if (!Ui.TryInt(Duration.Text, out var dur)) { Fail("Duration must be a whole number of minutes."); return; }
         if (!Ui.TryInt(PassMark.Text, out var pass)) { Fail("Pass mark must be a whole number between 1 and 100."); return; }
-        var r = App.Exams.Save(_existing?.Id ?? 0, ExamTitle.Text, Description.Text, dur, pass, ClassBox.Text, Shuffle.IsChecked == true, _existing?.ShowCorrectAnswers ?? true);
+        var r = App.Exams.Save(_existing?.Id ?? 0, ExamTitle.Text, Description.Text, dur, pass, ClassBox.SelectedItem is string cs && cs != AllClasses ? cs : null, Shuffle.IsChecked == true, _existing?.ShowCorrectAnswers ?? true);
         if (!r.Ok) { Fail(r.Error!); return; }
         Saved = r.Value;
         DialogResult = true;
