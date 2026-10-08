@@ -13,6 +13,8 @@ public class User
     [StringLength(160)] public string? Email { get; set; }
     [StringLength(80)] public string? Department { get; set; }
     public string PasswordHash { get; set; } = "";
+    /// <summary>Student passwords only: the password the admin set, encrypted, so the student and the admin can look it up. Null when unknown.</summary>
+    public string? PasswordCipher { get; set; }
     public UserRole Role { get; set; }
     public bool IsActive { get; set; } = true;
     public bool MustChangePassword { get; set; }

@@ -26,14 +26,31 @@
             <div><dt>Student ID</dt><dd class="mono">@u.Username</dd></div>
             <div><dt>Class</dt><dd>@(string.IsNullOrWhiteSpace(u.Department) ? "Not set" : u.Department)</dd></div>
             @if (!string.IsNullOrWhiteSpace(u.Email)) { <div><dt>Email</dt><dd>@u.Email</dd></div> }
-            <div><dt>Password</dt><dd><span class="mask">••••••••</span> <span class="muted small">Managed by your teacher</span></dd></div>
+            <div><dt>Password</dt><dd>
+                @if (ViewBag.Password is string pw)
+                {
+                    <span class="pw-reveal"><span class="mono" id="pwText" data-pw="@pw">••••••••</span>
+                    <button type="button" class="eye-inline" id="pwToggle" aria-label="Show or hide password" title="Show or hide password"><svg viewBox="0 0 24 24"><path d="M12 5C7 5 2.7 8.1 1 12c1.7 3.9 6 7 11 7s9.3-3.1 11-7c-1.7-3.9-6-7-11-7zm0 11.5a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9zm0-7a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z"/></svg></button></span>
+                }
+                else { <span class="mask">••••••••</span> <span class="muted small">Ask your teacher</span> }
+            </dd></div>
             <div><dt>Member since</dt><dd><time datetime="@u.CreatedAt.ToString("o")" data-fmt="date"></time></dd></div>
             <div><dt>Last sign-in</dt><dd>@if (u.LastLoginAt != null) { <time datetime="@u.LastLoginAt.Value.ToString("o")"></time> } else { <span>This is your first sign-in</span> }</dd></div>
         </dl>
         <div class="info-note">
             <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-            <span>Need a different password, or something here is wrong? Ask your teacher or school administrator. They can change it for you.</span>
+            <span>Keep your password private. Need a different one, or something here is wrong? Ask your teacher or school administrator.</span>
         </div>
         <form asp-action="Logout" method="post" class="me-signout"><button class="btn ghost">Sign out</button></form>
     </section>
 </div>
+@section Scripts {
+<script>
+(function () {
+  var t = document.getElementById('pwText'), b = document.getElementById('pwToggle');
+  if (!t || !b) return;
+  var shown = false;
+  b.addEventListener('click', function () { shown = !shown; t.textContent = shown ? t.dataset.pw : '••••••••'; b.classList.toggle('on', shown); });
+})();
+</script>
+}

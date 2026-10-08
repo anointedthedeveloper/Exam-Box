@@ -9,8 +9,11 @@
     <StackPanel Margin="26">
         <StackPanel Orientation="Horizontal"><Border Style="{StaticResource IconBadge}"><TextBlock Text="&#xE77B;" Style="{StaticResource IconGlyph}"/></Border><TextBlock x:Name="Heading" Style="{StaticResource H2}" VerticalAlignment="Center" Margin="12,0,0,0"/></StackPanel>
         <TextBlock x:Name="Sub" Style="{StaticResource Muted}" Margin="0,4,0,0"/>
-        <TextBlock Text="Full name" Style="{StaticResource FieldLabel}"/>
-        <TextBox x:Name="FullName"/>
+        <Grid>
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0"><TextBlock Text="First name" Style="{StaticResource FieldLabel}"/><TextBox x:Name="FirstName"/></StackPanel>
+            <StackPanel Grid.Column="2"><TextBlock Text="Last name" Style="{StaticResource FieldLabel}"/><TextBox x:Name="LastName"/></StackPanel>
+        </Grid>
         <TextBlock Text="Student ID" Style="{StaticResource FieldLabel}"/>
         <TextBox x:Name="StudentId"/>
         <TextBlock Text="Department / class (optional)" Style="{StaticResource FieldLabel}"/>

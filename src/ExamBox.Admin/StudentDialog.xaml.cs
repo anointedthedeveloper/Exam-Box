@@ -24,19 +24,21 @@ public partial class StudentDialog : Window
         {
             Title = "Edit student"; Heading.Text = "Edit student"; SaveBtn.Content = "Save changes";
             Sub.Visibility = Visibility.Collapsed;
-            PassLabel.Text = "New password (leave empty to keep the current one)";
-            PassHint.Text = "The student simply uses the new password the next time they sign in.";
-            FullName.Text = existing.FullName; StudentId.Text = existing.Username;
+            var known = App.Students.RevealPassword(existing.Id);
+            PassLabel.Text = "Password"; Pass.Text = known ?? "";
+            PassHint.Text = known != null ? "The student can see this on their My account page. Change it and save to give them a new one." : "Not stored for this older account. Type a new password to set one, or leave empty to keep the current one.";
+            var parts = existing.FullName.Trim().Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+            FirstName.Text = parts.Length > 0 ? parts[0] : ""; LastName.Text = parts.Length > 1 ? parts[1] : ""; StudentId.Text = existing.Username;
             Department.Text = existing.Department; Email.Text = existing.Email; Active.IsChecked = existing.IsActive;
         }
-        Loaded += (_, _) => FullName.Focus();
+        Loaded += (_, _) => FirstName.Focus();
     }
 
     private void Generate_Click(object sender, RoutedEventArgs e) => Pass.Text = ExamBox.Services.Passwords.Generate();
 
     private void Save_Click(object sender, RoutedEventArgs e)
     {
-        var input = new StudentInput(FullName.Text, StudentId.Text, Email.Text, Department.Text, Active.IsChecked == true, Pass.Text);
+        var input = new StudentInput((FirstName.Text.Trim() + " " + LastName.Text.Trim()).Trim(), StudentId.Text, Email.Text, Department.Text, Active.IsChecked == true, Pass.Text);
         string? error;
         if (_existing == null)
         {

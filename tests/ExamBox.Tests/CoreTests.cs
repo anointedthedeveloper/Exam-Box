@@ -456,7 +456,9 @@ public class ProductionTests
         Assert.NotNull(t.Auth.Authenticate("A1", "newer", UserRole.Student).User);
         Assert.True(t.Students.Update(c.Student.Id, new StudentInput("Ada O", "A1", null, "SS1", true, "")).Ok);      // empty = keep
         Assert.NotNull(t.Auth.Authenticate("A1", "newer", UserRole.Student).User);
+        Assert.Equal("newer", t.Students.RevealPassword(c.Student.Id));
         Assert.Equal("typed", t.Students.ResetPassword(c.Student.Id, "typed").Value);
+        Assert.Equal("typed", t.Students.RevealPassword(c.Student.Id));
         Assert.NotNull(t.Auth.Authenticate("A1", "typed", UserRole.Student).User);
     }
 
@@ -468,5 +470,18 @@ public class ProductionTests
         Assert.Equal("pw-one", res.Created[0].Password);
         Assert.NotNull(t.Auth.Authenticate("I1", "pw-one", UserRole.Student).User);
         Assert.False(string.IsNullOrEmpty(res.Created[1].Password));
+        var (rows, issues) = StudentImporter.Parse(new MemoryStream(MakeSheet()));
+        Assert.Empty(issues); Assert.Equal("Ada Okafor", rows[0].FullName); Assert.Equal("Bola Ade", rows[1].FullName);
+    }
+
+    private static byte[] MakeSheet()
+    {
+        using var wb = new ClosedXML.Excel.XLWorkbook();
+        var ws = wb.AddWorksheet("Students");
+        string[] h = { "Student ID", "First name", "Last name", "Class" };
+        for (var i = 0; i < h.Length; i++) ws.Cell(1, i + 1).Value = h[i];
+        ws.Cell(2, 1).Value = "S1"; ws.Cell(2, 2).Value = "Ada"; ws.Cell(2, 3).Value = "Okafor"; ws.Cell(2, 4).Value = "SS1";
+        ws.Cell(3, 1).Value = "S2"; ws.Cell(3, 2).Value = "Bola"; ws.Cell(3, 3).Value = "Ade";
+        using var ms = new MemoryStream(); wb.SaveAs(ms); return ms.ToArray();
     }
 }

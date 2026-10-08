@@ -519,3 +519,6 @@ textarea.theory:focus{min-height:190px}
 .nav-wrap{padding-left:var(--g);padding-right:var(--g)}
 .content{padding-left:0;padding-right:0;width:min(1760px,calc(100% - 2*var(--g)));margin:0 auto}
 @media(max-width:560px){.content{padding-left:0;padding-right:0}}
+.pw-reveal{display:inline-flex;align-items:center;gap:8px}
+.eye-inline{background:var(--blue-l);border:0;border-radius:8px;padding:5px 7px;cursor:pointer;display:grid;place-items:center;transition:background .2s}
+.eye-inline svg{width:18px;height:18px;fill:var(--blue)}.eye-inline:hover{background:#d4e3ff}.eye-inline.on{background:var(--blue)}.eye-inline.on svg{fill:#fff}

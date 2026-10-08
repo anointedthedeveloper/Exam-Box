@@ -68,7 +68,7 @@ public class PortalTests
         var login = await c.Post("/account/login", new() { ["Identifier"] = "s001", ["Password"] = stu.Password }, "/account/login");
         Assert.EndsWith("/portal", login.Url);
         var me = await c.Get("/account/me");
-        Assert.Contains("Stu Dent", me.Html); Assert.Contains("S001", me.Html); Assert.Contains("Managed by your teacher", me.Html);
+        Assert.Contains("Stu Dent", me.Html); Assert.Contains("S001", me.Html); Assert.Contains($"data-pw=\"{stu.Password}\"", me.Html);   // students can look up their own password
         Assert.EndsWith("/account/me", (await c.Get("/account/changepassword")).Url);
         var changed = await c.Get("/portal");
         Assert.Contains("Math 101", changed.Html);

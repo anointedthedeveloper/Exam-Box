@@ -8,7 +8,7 @@ namespace ExamBox.Data;
 /// </summary>
 public static class SchemaUpgrader
 {
-    public const int Current = 3;
+    public const int Current = 4;
 
     public static void Run(AppDb db)
     {
@@ -30,6 +30,7 @@ public static class SchemaUpgrader
             if (v < 2) ToV2(conn, tx);
             // v3: temporary passwords no longer exist; nobody is forced to change a password.
             if (v < 3) Exec(conn, "UPDATE Users SET MustChangePassword = 0", tx);
+            if (v < 4) Exec(conn, "ALTER TABLE Users ADD COLUMN PasswordCipher TEXT NULL", tx);
             Exec(conn, $"PRAGMA user_version = {Current}", tx);
             tx.Commit();
         }

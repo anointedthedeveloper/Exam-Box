@@ -104,7 +104,7 @@ public sealed class AuthService(DbFactory factory)
         if (err != null) return OpResult.Fail(err);
         if (next == current) return OpResult.Fail("Choose a password different from the current one.");
         user.PasswordHash = Passwords.Hash(next!);
-        user.MustChangePassword = false;
+        user.MustChangePassword = false; user.PasswordCipher = null;
         db.SaveChanges();
         return OpResult.Success();
     }

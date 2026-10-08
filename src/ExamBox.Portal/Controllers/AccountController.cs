@@ -51,13 +51,15 @@ public class AccountController(AuthService auth) : Controller
 
     /// <summary>The student's own profile. Passwords are managed by the teacher/admin, not here.</summary>
     [Authorize, HttpGet("me")]
-    public IActionResult Me([FromServices] ExamBox.Data.DbFactory factory)
+    public IActionResult Me([FromServices] ExamBox.Data.DbFactory factory, [FromServices] PasswordVault vault)
     {
         var id = User.GetUserId();
         if (id == null) return Forbid();
         using var db = factory.Create();
         var u = db.Users.AsNoTracking().Include(x => x.Attempts).ThenInclude(a => a.Exam).FirstOrDefault(x => x.Id == id.Value);
-        return u == null ? Forbid() : View(u);
+        if (u == null) return Forbid();
+        ViewBag.Password = vault.Reveal(u.PasswordCipher);
+        return View(u);
     }
 
     [Authorize, HttpGet("changepassword")]

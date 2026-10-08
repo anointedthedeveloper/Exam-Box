@@ -9,6 +9,15 @@ public sealed record CreatedStudent(User Student, string Password);
 
 public sealed class StudentService(DbFactory factory)
 {
+    private readonly PasswordVault _vault = new(factory);
+
+    /// <summary>The password the admin set for this student, when it is known.</summary>
+    public string? RevealPassword(int id)
+    {
+        using var db = factory.Create();
+        return _vault.Reveal(db.Users.Where(u => u.Id == id && u.Role == UserRole.Student).Select(u => u.PasswordCipher).FirstOrDefault());
+    }
+
     public List<User> List(string? search = null)
     {
         using var db = factory.Create();
@@ -62,7 +71,7 @@ public sealed class StudentService(DbFactory factory)
         var s = new User
         {
             FullName = i.FullName.Trim(), Username = username, Email = email, Department = Clean(i.Department),
-            IsActive = i.IsActive, Role = UserRole.Student, PasswordHash = Passwords.Hash(temp),
+            IsActive = i.IsActive, Role = UserRole.Student, PasswordHash = Passwords.Hash(temp), PasswordCipher = _vault.Protect(temp),
         };
         db.Users.Add(s);
         db.SaveChanges();
@@ -96,7 +105,7 @@ public sealed class StudentService(DbFactory factory)
         if (db.Users.Any(u => u.Id != id && u.Username == username)) return OpResult.Fail("A user with this ID already exists.");
         if (email != null && db.Users.Any(u => u.Id != id && u.Email == email)) return OpResult.Fail("A user with this email already exists.");
         s.FullName = i.FullName.Trim(); s.Username = username; s.Email = email; s.Department = Clean(i.Department); s.IsActive = i.IsActive;
-        if (!string.IsNullOrEmpty(i.Password)) { s.PasswordHash = Passwords.Hash(i.Password); s.FailedLogins = 0; s.LockoutEnd = null; }
+        if (!string.IsNullOrEmpty(i.Password)) { s.PasswordHash = Passwords.Hash(i.Password); s.PasswordCipher = _vault.Protect(i.Password); s.FailedLogins = 0; s.LockoutEnd = null; }
         db.SaveChanges();
         return OpResult.Success();
     }
@@ -108,7 +117,7 @@ public sealed class StudentService(DbFactory factory)
         var s = db.Users.FirstOrDefault(u => u.Id == id && u.Role == UserRole.Student);
         if (s == null) return OpResult<string>.Fail("Student not found.");
         var temp = string.IsNullOrEmpty(newPassword) ? Passwords.Generate() : newPassword;
-        s.PasswordHash = Passwords.Hash(temp); s.MustChangePassword = false; s.FailedLogins = 0; s.LockoutEnd = null;
+        s.PasswordHash = Passwords.Hash(temp); s.PasswordCipher = _vault.Protect(temp); s.MustChangePassword = false; s.FailedLogins = 0; s.LockoutEnd = null;
         db.SaveChanges();
         return OpResult<string>.Success(temp);
     }
@@ -133,7 +142,7 @@ public static class StudentImporter
     {
         using var wb = new ClosedXML.Excel.XLWorkbook();
         var ws = wb.AddWorksheet("Students");
-        string[] h = { "Student ID", "Full name", "Class", "Password", "Email" };
+        string[] h = { "Student ID", "First name", "Last name", "Class", "Password", "Email" };
         for (var i = 0; i < h.Length; i++)
         {
             var c = ws.Cell(1, i + 1);
@@ -143,11 +152,11 @@ public static class StudentImporter
         ws.Column(1).Style.NumberFormat.Format = "@";
         var how = wb.AddWorksheet("How to use");
         how.Cell(1, 1).Value = "List one student per row on the \"Students\" sheet, starting directly under the headings.";
-        how.Cell(2, 1).Value = "Student ID and Full name are required. Class (for example SS1), Password and Email are optional.";
+        how.Cell(2, 1).Value = "Student ID, First name and Last name are required (a single Full name column also works). Class (for example SS1), Password and Email are optional.";
         how.Cell(3, 1).Value = "Example: SS1/2025/001 | Ada Okafor | SS1";
         how.Cell(4, 1).Value = "Leave Password empty and ExamBox generates one for the student. You can change any password later from the Students page.";
         how.Column(1).Width = 110;
-        ws.Column(1).Width = 20; ws.Column(2).Width = 30; ws.Column(3).Width = 14; ws.Column(4).Width = 20; ws.Column(5).Width = 30;
+        ws.Column(1).Width = 20; ws.Column(2).Width = 20; ws.Column(3).Width = 20; ws.Column(4).Width = 14; ws.Column(5).Width = 20; ws.Column(6).Width = 30;
         using var ms = new MemoryStream();
         wb.SaveAs(ms);
         return ms.ToArray();
@@ -173,6 +182,8 @@ public static class StudentImporter
                 {
                     "studentid" or "id" or "matric" or "matricno" or "matricnumber" or "admissionno" or "regno" or "username" => "id",
                     "fullname" or "name" or "studentname" => "name",
+                    "firstname" or "first" or "givenname" or "forename" => "first",
+                    "lastname" or "last" or "surname" or "familyname" => "last",
                     "class" or "department" or "dept" or "arm" or "level" => "class",
                     "email" or "emailaddress" => "email",
                     "password" or "pass" or "pin" => "password",
@@ -180,15 +191,16 @@ public static class StudentImporter
                 };
                 if (key != null && !map.ContainsKey(key)) map[key] = c;
             }
-            if (!map.ContainsKey("id") || !map.ContainsKey("name"))
+            if (!map.ContainsKey("id") || !(map.ContainsKey("name") || map.ContainsKey("first") || map.ContainsKey("last")))
             {
-                issues.Add(new ImportIssue(0, "Could not find the \"Student ID\" and \"Full name\" columns. Use the ExamBox student template."));
+                issues.Add(new ImportIssue(0, "Could not find the \"Student ID\" and name columns (First name and Last name). Use the ExamBox student template."));
                 return (rows, issues);
             }
             string Get(int r, string k) => map.TryGetValue(k, out var c) ? ws.Cell(r, c).GetFormattedString().Trim() : "";
             for (var r = hr + 1; r <= used.LastRow().RowNumber(); r++)
             {
                 var id = Get(r, "id"); var name = Get(r, "name");
+                if (name.Length == 0) name = (Get(r, "first") + " " + Get(r, "last")).Trim();
                 if (id.Length == 0 && name.Length == 0) continue;
                 rows.Add(new ImportedStudent(name, id, Get(r, "email"), Get(r, "class"), Get(r, "password")));
                 // row numbers are kept on the issues produced at creation time via index

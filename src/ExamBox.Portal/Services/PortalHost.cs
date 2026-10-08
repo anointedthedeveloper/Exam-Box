@@ -38,6 +38,7 @@ public sealed class PortalHost : IAsyncDisposable
         builder.WebHost.ConfigureKestrel(k => k.ListenAnyIP(port));
 
         builder.Services.AddSingleton(db);
+        builder.Services.AddSingleton<PasswordVault>();
         builder.Services.AddSingleton(PortalBoot.New());
         builder.Services.AddSingleton(PortalBrand.From(brand));
         builder.Services.AddScoped<AuthService>();
