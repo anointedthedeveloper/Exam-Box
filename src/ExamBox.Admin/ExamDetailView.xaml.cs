@@ -47,8 +47,10 @@ public partial class ExamDetailView : UserControl
         var state = e.StateAt(DateTime.UtcNow);
 
         TitleText.Text = e.Title;
-        var total = e.Questions.Sum(q => q.Marks);
-        Meta.Text = $"{e.DurationMinutes} min · pass mark {e.PassMarkPercent}% · {e.Questions.Count(q => q.Marks > 0)} question(s), {total} mark(s)" +
+        var total = e.Questions.Where(q => q.Type == QuestionType.Objective).Sum(q => q.Marks);
+        StatQ.Text = e.Questions.Count.ToString(); StatMarks.Text = total.ToString(); StatDur.Text = e.DurationMinutes + " min";
+        StatDone.Text = e.Attempts.Count(a => a.SubmittedAt != null).ToString();
+        Meta.Text = $"{e.DurationMinutes} min · pass mark {e.PassMarkPercent}% · {e.Questions.Count} question(s), {total} objective mark(s)" +
                     (string.IsNullOrWhiteSpace(e.ForDepartment) ? " · for every student" : $" · for class {e.ForDepartment}");
         WindowInfo.Text = state switch
         {
@@ -123,6 +125,7 @@ public partial class ExamDetailView : UserControl
         LiveEmpty.Visibility = rows.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         LiveSummary.Text = rows.Count == 0 ? "" : $"{rows.Count} sitting now, {rows.Count(r => r.Paused)} paused, {rows.Count(r => !r.Began)} not started. Updates every 10 seconds.";
         SubmitAllBtn.IsEnabled = rows.Count > 0;
+        StatSitting.Text = rows.Count.ToString();
         UpdateLiveButtons();
     }
 

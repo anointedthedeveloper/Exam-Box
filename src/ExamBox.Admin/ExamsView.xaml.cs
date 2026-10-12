@@ -46,10 +46,9 @@ public partial class ExamsView : UserControl
     {
         var obj = e.Questions.Count(q => q.Type == QuestionType.Objective);
         var th = e.Questions.Count(q => q.Type == QuestionType.Theory && q.Marks > 0);
-        if (obj > 0 && th > 0) return $"Objective + theory · {e.Questions.Sum(q => q.Marks)} marks";
-        if (th > 0) return $"Theory · {e.Questions.Sum(q => q.Marks)} marks";
-        if (obj > 0) return $"Objective · {e.Questions.Sum(q => q.Marks)} marks";
-        return "No questions yet";
+        var marks = e.Questions.Where(q => q.Type == QuestionType.Objective).Sum(q => q.Marks);
+        var what = obj > 0 && th > 0 ? $"Objective + essay · {marks} marks" : th > 0 ? "Essay, answered on paper" : obj > 0 ? $"Objective · {marks} marks" : "No questions yet";
+        return string.IsNullOrWhiteSpace(e.Subject) ? what : $"{e.Subject} · {what}";
     }
 
     private void Reload()
@@ -70,7 +69,7 @@ public partial class ExamsView : UserControl
         var q = Search.Text.Trim();
         if (q.Length > 0) rows = rows.Where(e => e.Title.Contains(q, StringComparison.OrdinalIgnoreCase) || (e.ForDepartment ?? "").Contains(q, StringComparison.OrdinalIgnoreCase));
         var list = rows.ToList();
-        Table.ItemsSource = list.Select(e => new ExamRow(e.Id, e.Title, Kind(e), $"{e.Questions.Count(x => x.Marks > 0)}", $"{e.DurationMinutes} min",
+        Table.ItemsSource = list.Select(e => new ExamRow(e.Id, e.Title, Kind(e), $"{e.Questions.Count}", $"{e.DurationMinutes} min",
             e.ForDepartment ?? "Everyone", WindowText(e), e.Attempts.Count(a => a.SubmittedAt != null), StatusOf(e))).ToList();
         Count.Text = _all.Count == 0 ? "" : $"Showing {list.Count} of {_all.Count}";
         var empty = list.Count == 0;
