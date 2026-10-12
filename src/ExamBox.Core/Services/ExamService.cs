@@ -39,7 +39,7 @@ public sealed class ExamService(DbFactory factory)
 
     /// <summary>Creates (Id == 0) or updates an exam's details. Publish state is changed only via <see cref="SetPublished"/>.</summary>
     public OpResult<Exam> Save(int id, string title, string? description, int durationMinutes, int passMarkPercent,
-        string? forDepartment = null, bool shuffle = false, bool showCorrect = true)
+        string? forDepartment = null, bool shuffle = false, bool showCorrect = true, string? subject = null)
     {
         title = title?.Trim() ?? "";
         if (title.Length == 0) return OpResult<Exam>.Fail("Enter a title.");
@@ -57,6 +57,7 @@ public sealed class ExamService(DbFactory factory)
         e.Title = title; e.Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
         e.DurationMinutes = durationMinutes; e.PassMarkPercent = passMarkPercent;
         e.ForDepartment = _classes.Ensure(forDepartment);
+        e.Subject = string.IsNullOrWhiteSpace(subject) ? null : Trunc(subject.Trim(), 100);
         e.ShuffleQuestions = shuffle; e.ShowCorrectAnswers = showCorrect;
         db.SaveChanges();
         return OpResult<Exam>.Success(e);
@@ -116,7 +117,7 @@ public sealed class ExamService(DbFactory factory)
         var copy = new Exam
         {
             Title = string.IsNullOrWhiteSpace(title) ? Trunc(src.Title, 152) + " (copy)" : title.Trim(),
-            Description = src.Description, DurationMinutes = src.DurationMinutes, PassMarkPercent = src.PassMarkPercent,
+            Description = src.Description, Subject = src.Subject, DurationMinutes = src.DurationMinutes, PassMarkPercent = src.PassMarkPercent,
             ForDepartment = src.ForDepartment, ShuffleQuestions = src.ShuffleQuestions, ShowCorrectAnswers = src.ShowCorrectAnswers,
         };
         foreach (var q in src.Questions.OrderBy(q => q.SortOrder).ThenBy(q => q.Id))

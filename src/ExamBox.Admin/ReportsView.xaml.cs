@@ -79,6 +79,8 @@ public partial class ReportsView : UserControl
         TopEmpty.Visibility = r.TopStudents.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
+    private void ExportByClass_Click(object sender, RoutedEventArgs e) => new ExportResultsDialog { Owner = Window.GetWindow(this) }.ShowDialog();
+
     private void Marking_Click(object sender, RoutedEventArgs e) => MainWindow.Current.Go("marking");
 
     private void ExportXlsx_Click(object sender, RoutedEventArgs e)

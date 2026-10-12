@@ -168,6 +168,17 @@ public partial class ExamDetailView : UserControl
         Reload();
     }
 
+    private void RTable_SelectionChanged(object sender, SelectionChangedEventArgs e) => RetakeBtn.IsEnabled = SelectedR != null;
+
+    private void Retake_Click(object sender, RoutedEventArgs e)
+    {
+        if (SelectedR is not { } s) return;
+        if (!Ui.Confirm($"Let {s.Student} take this exam again?\n\nTheir current submission and score are deleted and the exam appears on their dashboard as new. This cannot be undone.")) return;
+        var r = App.Attempts.AllowRetake(s.AttemptId);
+        if (!r.Ok) Ui.Error(r.Error!);
+        Reload();
+    }
+
     private void SubmitAll_Click(object sender, RoutedEventArgs e)
     {
         if (!Ui.Confirm("Submit every exam that is still running for this exam?\n\nEach student's saved answers are scored and the exam ends for them. This cannot be undone.")) return;

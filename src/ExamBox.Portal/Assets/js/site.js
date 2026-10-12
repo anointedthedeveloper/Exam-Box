@@ -207,3 +207,25 @@ document.querySelectorAll('.exam-card,.panel,.stat,.mini,.exam-row').forEach(fun
   setInterval(check, 8000);
   document.addEventListener('visibilitychange', function () { if (!document.hidden) check(); });
 })();
+
+
+// Lists refresh themselves: reload when new exams open, get launched, or a retake is allowed.
+(function () {
+  var p = location.pathname.toLowerCase();
+  if (p !== '/portal' && p !== '/portal/' && p !== '/portal/exams' && p !== '/portal/completed') return;
+  var base = null, busyNow = false;
+  function poll() {
+    if (document.hidden || busyNow) return;
+    busyNow = true;
+    fetch('/portal/state', { credentials: 'same-origin', cache: 'no-store' }).then(function (r) {
+      if (r.redirected || r.status === 401 || r.status === 403) { location.href = '/account/login?ended=1'; return null; }
+      return r.text();
+    }).then(function (t) {
+      busyNow = false;
+      if (t === null || t === undefined) return;
+      if (base === null) base = t; else if (t !== base) location.reload();
+    }).catch(function () { busyNow = false; });
+  }
+  poll(); setInterval(poll, 5000);
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) poll(); });
+})();

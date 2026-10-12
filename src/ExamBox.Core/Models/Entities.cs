@@ -58,6 +58,8 @@ public class Exam
     public int Id { get; set; }
     [Required, StringLength(160)] public string Title { get; set; } = "";
     [StringLength(1000)] public string? Description { get; set; }
+    /// <summary>The subject this exam belongs to (e.g. Geography); lets results be exported per subject across classes.</summary>
+    [StringLength(100)] public string? Subject { get; set; }
     [Range(1, 600)] public int DurationMinutes { get; set; } = 30;
     [Range(1, 100)] public int PassMarkPercent { get; set; } = 50;
     /// <summary>True once the exam has been launched (a draft is a reusable template).</summary>

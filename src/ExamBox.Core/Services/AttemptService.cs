@@ -127,6 +127,19 @@ public sealed class AttemptService(DbFactory factory)
         return OpResult<int>.Success(Math.Max(0, SecondsLeft(a, a.Exam!)));
     }
 
+    /// <summary>Lets a student who has handed in sit the exam again: their old attempt (and answers) is removed.</summary>
+    public OpResult AllowRetake(int attemptId)
+    {
+        using var db = factory.Create();
+        var a = db.Attempts.Include(x => x.Exam).Include(x => x.Student).FirstOrDefault(x => x.Id == attemptId);
+        if (a == null) return OpResult.Fail("That submission no longer exists.");
+        var who = a.Student?.Username ?? "";
+        db.Attempts.Remove(a);
+        db.SaveChanges();
+        _log.Write("exam", who, "Retake allowed", a.Exam?.Title);
+        return OpResult.Success();
+    }
+
     /// <summary>An administrator hands in a student's exam with the answers saved so far.</summary>
     public OpResult AdminSubmit(int attemptId)
     {

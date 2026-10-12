@@ -422,6 +422,34 @@ public class ProductionTests
     }
 
     [Fact]
+    public void Retake_and_export_by_class_and_subject()
+    {
+        using var t = new TempDb();
+        var att = new AttemptService(t.Factory); var rep = new ReportService(t.Factory);
+        var geo1 = t.Exams.Save(0, "SS1 Geography", null, 10, 50, "SS1", false, true, "Geography").Value!;
+        var geo2 = t.Exams.Save(0, "SS2 Geography", null, 10, 50, "SS2", false, true, "Geography").Value!;
+        var eng = t.Exams.Save(0, "SS1 English", null, 10, 50, "SS1").Value!;
+        foreach (var e in new[] { geo1, geo2, eng }) { t.Exams.SaveQuestion(e.Id, 0, "Q", "a", "b", null, null, "A", 1); t.Exams.Launch(e.Id, null, null, null); }
+        var a = t.Students.Create(new StudentInput("Ann", "A1", null, "SS1", true, "pw")).Value!.Student;
+        var b = t.Students.Create(new StudentInput("Ben", "B1", null, "SS2", true, "pw")).Value!.Student;
+        int Do(int sid, int eid) { var id = att.Start(sid, eid).Value; att.Begin(sid, id); att.Submit(sid, id, new Dictionary<int, string>()); return id; }
+        var annGeo = Do(a.Id, geo1.Id); Do(a.Id, eng.Id); Do(b.Id, geo2.Id);
+
+        Assert.Equal(3, rep.ExportRows().Count);
+        Assert.Equal(2, rep.ExportRows(null, null, null, new[] { "Geography" }).Count);                       // one subject, every class
+        var one = rep.ExportRows(null, null, new[] { "ss1" }, new[] { "Geography" });                         // subject within a class
+        Assert.Equal("Ann", Assert.Single(one).Student);
+        Assert.Contains("English", rep.Subjects().Concat(new[] { "English" }));
+        Assert.Contains("Geography", rep.Subjects()); Assert.Contains("SS1 English", rep.Subjects());          // no subject set: title is used
+
+        Assert.Empty(att.Home(a.Id).Available.Where(e => e.Id == geo1.Id));
+        Assert.True(att.AllowRetake(annGeo).Ok);
+        Assert.Contains(att.Home(a.Id).Available, e => e.Id == geo1.Id);                                      // it is on the dashboard again
+        Assert.True(att.Start(a.Id, geo1.Id).Ok);
+        Assert.False(att.AllowRetake(annGeo).Ok);
+    }
+
+    [Fact]
     public void Visibility_by_class_and_schedule_and_expiry()
     {
         using var t = new TempDb();
@@ -636,7 +664,7 @@ public class ProductionTests
             using (var db = f.Create())
             {
                 db.Database.ExecuteSqlRaw("INSERT INTO Users (FullName, Username, Department, PasswordHash, Role, IsActive, MustChangePassword, FailedLogins, CreatedAt, SessionVersion) VALUES ('Old','O1','SS3','x','Student',1,0,0,'2025-01-01',0)");
-                db.Database.ExecuteSqlRaw("ALTER TABLE Attempts DROP COLUMN BeganAt"); db.Database.ExecuteSqlRaw("ALTER TABLE Attempts DROP COLUMN CurrentQuestion"); db.Database.ExecuteSqlRaw("ALTER TABLE Users DROP COLUMN LastSeenAt"); db.Database.ExecuteSqlRaw("DROP TABLE Classes"); db.Database.ExecuteSqlRaw("DROP TABLE Activity"); db.Database.ExecuteSqlRaw("PRAGMA user_version = 6");
+                db.Database.ExecuteSqlRaw("ALTER TABLE Attempts DROP COLUMN BeganAt"); db.Database.ExecuteSqlRaw("ALTER TABLE Attempts DROP COLUMN CurrentQuestion"); db.Database.ExecuteSqlRaw("ALTER TABLE Exams DROP COLUMN Subject"); db.Database.ExecuteSqlRaw("ALTER TABLE Users DROP COLUMN LastSeenAt"); db.Database.ExecuteSqlRaw("DROP TABLE Classes"); db.Database.ExecuteSqlRaw("DROP TABLE Activity"); db.Database.ExecuteSqlRaw("PRAGMA user_version = 6");
             }
             f.Initialize();                                                         // upgrade 6 -> 7
             Assert.Equal(new[] { "SS3" }, new ClassService(f).Names());
@@ -658,7 +686,7 @@ public class ProductionTests
             var qid = exams.Get(e.Id)!.Questions[0].Id;
             using (var db = f.Create())   // recreate the old layout: picture bytes inside the question row
             {
-                db.Database.ExecuteSqlRaw("ALTER TABLE Attempts DROP COLUMN BeganAt"); db.Database.ExecuteSqlRaw("ALTER TABLE Attempts DROP COLUMN CurrentQuestion");
+                db.Database.ExecuteSqlRaw("ALTER TABLE Attempts DROP COLUMN BeganAt"); db.Database.ExecuteSqlRaw("ALTER TABLE Attempts DROP COLUMN CurrentQuestion"); db.Database.ExecuteSqlRaw("ALTER TABLE Exams DROP COLUMN Subject");
                 db.Database.ExecuteSqlRaw("DROP TABLE Images");
                 db.Database.ExecuteSqlRaw("ALTER TABLE Questions ADD COLUMN ImageData BLOB NULL");
                 db.Database.ExecuteSqlRaw("UPDATE Questions SET ImageData = x'89504E470D0A1A0A0000', ImageType = 'image/png'");

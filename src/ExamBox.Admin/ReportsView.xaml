@@ -18,8 +18,9 @@
                         <ComboBoxItem Content="Last 12 months"/>
                         <ComboBoxItem Content="All time"/>
                     </ComboBox>
-                    <Button Style="{StaticResource GhostButton}" Click="Export_Click"><TextBlock Text="CSV" VerticalAlignment="Center"/></Button>
+                    <Button Style="{StaticResource GhostButton}" Click="ExportByClass_Click"><TextBlock Text="By class and subject" VerticalAlignment="Center"/></Button>
                     <Button Style="{StaticResource GhostButton}" Click="ExportXlsx_Click"><TextBlock Text="Excel" VerticalAlignment="Center"/></Button>
+                    <Button Style="{StaticResource GhostButton}" Click="Export_Click"><TextBlock Text="CSV" VerticalAlignment="Center"/></Button>
                     <Button Style="{StaticResource PrimaryButton}" Click="ExportPdf_Click" Margin="0">
                         <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE896;" FontFamily="Segoe MDL2 Assets" FontSize="14" Margin="0,0,8,0" VerticalAlignment="Center"/><TextBlock Text="Export PDF" VerticalAlignment="Center"/></StackPanel>
                     </Button>

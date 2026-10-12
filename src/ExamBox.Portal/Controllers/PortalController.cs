@@ -17,6 +17,17 @@ public class PortalController(AttemptService attempts, PresenceService presence)
     [HttpGet("ping")]
     public IActionResult Ping() { presence.Touch(Me); return Ok(); }
 
+    /// <summary>A short fingerprint of what the student's exam lists contain; pages reload themselves when it changes.</summary>
+    [HttpGet("state")]
+    public IActionResult State()
+    {
+        presence.Touch(Me);
+        var h = attempts.Home(Me);
+        var key = "a" + string.Join(",", h.Available.Select(e => e.Id)) + "|u" + string.Join(",", h.Upcoming.Select(e => e.Id + "@" + e.OpensAt?.Ticks))
+            + "|p" + string.Join(",", h.InProgress.Select(a => a.Id + (a.PausedAt != null ? "P" : ""))) + "|c" + string.Join(",", h.Completed.Select(a => a.Id));
+        return Content(key, "text/plain");
+    }
+
     [HttpGet("exams")]
     public IActionResult Exams() => View(attempts.Home(Me));
 

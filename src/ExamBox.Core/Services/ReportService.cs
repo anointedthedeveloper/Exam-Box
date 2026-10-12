@@ -88,7 +88,7 @@ public sealed class ReportService(DbFactory factory)
     }
 
     /// <summary>Everything an export needs for one exam (or all exams): finished results first, then ones still waiting for marking.</summary>
-    public List<ExportRow> ExportRows(int? examId = null, DateTime? sinceUtc = null)
+    public List<ExportRow> ExportRows(int? examId = null, DateTime? sinceUtc = null, IReadOnlyCollection<string>? classes = null, IReadOnlyCollection<string>? subjects = null)
     {
         using var db = factory.Create();
         var q = db.Attempts.AsNoTracking().Where(a => a.SubmittedAt != null);
@@ -96,10 +96,13 @@ public sealed class ReportService(DbFactory factory)
         if (sinceUtc != null) q = q.Where(a => a.SubmittedAt >= sinceUtc);
         var list = q.Select(a => new
         {
-            Name = a.Student!.FullName, Id = a.Student.Username, Class = a.Student.Department, Exam = a.Exam!.Title, a.ObjectiveScore, a.TheoryScore,
+            Name = a.Student!.FullName, Id = a.Student.Username, Class = a.Student.Department, Exam = a.Exam!.Title, Subject = a.Exam.Subject ?? a.Exam.Title, a.ObjectiveScore, a.TheoryScore,
             a.Score, a.TotalMarks, a.PendingMarking, Pass = a.Exam.PassMarkPercent, At = a.SubmittedAt!.Value,
             HasTheory = a.Exam.Questions.Any(x => x.Type == ExamBox.Models.QuestionType.Theory && x.Marks > 0),
-        }).AsEnumerable().OrderBy(a => a.PendingMarking).ThenBy(a => a.Exam).ThenBy(a => a.Name).ToList();
+        }).AsEnumerable()
+            .Where(a => classes == null || classes.Contains(a.Class ?? "", StringComparer.OrdinalIgnoreCase))
+            .Where(a => subjects == null || subjects.Contains(a.Subject, StringComparer.OrdinalIgnoreCase))
+            .OrderBy(a => a.Class).ThenBy(a => a.Exam).ThenBy(a => a.Name).ToList();
         return list.Select(a =>
         {
             var pct = a.TotalMarks == 0 ? 0 : Math.Round(a.Score * 100.0 / a.TotalMarks, 1);
@@ -107,6 +110,13 @@ public sealed class ReportService(DbFactory factory)
                 a.PendingMarking ? "-" : $"{a.Score}/{a.TotalMarks}", a.PendingMarking ? "-" : pct + "%", a.PendingMarking ? "-" : ResultsExporter.Grade(pct),
                 a.PendingMarking ? "Awaiting" : pct >= a.Pass ? "Pass" : "Fail", DateTime.SpecifyKind(a.At, DateTimeKind.Utc).ToLocalTime().ToString("g"));
         }).ToList();
+    }
+
+    /// <summary>Names to offer in the export picker: subjects (exam subject, or title when none is set).</summary>
+    public List<string> Subjects()
+    {
+        using var db = factory.Create();
+        return db.Exams.AsNoTracking().Select(e => e.Subject ?? e.Title).Distinct().OrderBy(x => x).ToList();
     }
 
     /// <summary>Every submitted result matching the filters, newest first (for CSV export).</summary>

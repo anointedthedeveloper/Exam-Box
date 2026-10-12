@@ -27,6 +27,8 @@
                 <TextBox x:Name="PassMark" Text="50"/>
             </StackPanel>
         </Grid>
+        <TextBlock Text="Subject (optional, used to export results per subject)" Style="{StaticResource FieldLabel}"/>
+        <ComboBox x:Name="SubjectBox" IsEditable="True"/>
         <TextBlock Text="Who can take it" Style="{StaticResource FieldLabel}"/>
         <ComboBox x:Name="ClassBox" ToolTip="Only students in this class can see and take the exam."/>
         <CheckBox x:Name="Shuffle" Content="Shuffle the order of objective questions for each student" Margin="0,14,0,0"/>

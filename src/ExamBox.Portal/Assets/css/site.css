@@ -791,3 +791,10 @@ body.exam-body{background:#eef2fa}
 .ec-ic{background:var(--blue);color:#fff}.ec-ic.soon{background:#7b61ff;color:#fff}.ec-ic.ok{background:#0f9d6a;color:#fff}.ec-ic.amber{background:#d98200;color:#fff}
 .dash-cols{align-items:start}
 .dash-top::after{display:none}.dash{height:auto!important}
+
+/* the completed tick keeps drawing itself */
+@keyframes tick-circle{0%{stroke-dashoffset:300}28%,86%{stroke-dashoffset:0}100%{stroke-dashoffset:0;opacity:0}}
+@keyframes tick-check{0%,20%{stroke-dashoffset:60}38%,86%{stroke-dashoffset:0}100%{stroke-dashoffset:0;opacity:0}}
+.done-ic circle{animation:tick-circle 3.4s ease-in-out infinite}
+.done-ic path{animation:tick-check 3.4s ease-in-out infinite}
+@media(prefers-reduced-motion:reduce){.done-ic circle,.done-ic path{animation:none;stroke-dashoffset:0}}
