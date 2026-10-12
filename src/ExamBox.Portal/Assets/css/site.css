@@ -835,3 +835,15 @@ body.exam-body{background:#eef2fa}
 @media(min-width:1100px){.ex-side{display:block}.ex-foot .ex-pal{display:none}.ex-foot{justify-content:space-between}}
 @media(max-width:700px){.ex-body{padding:0}.ex-body .ex-stage{padding:12px}}
 .keyhelp{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.7}.calc{bottom:72px}
+
+/* page loader: appears only if a page takes more than a moment */
+.page-loader{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:90;display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:99px;padding:8px 18px 8px 12px;box-shadow:0 6px 20px rgba(11,95,240,.16);font-weight:700;color:var(--blue-d);opacity:0;pointer-events:none;transition:opacity .2s}
+.page-loader .spinner{width:20px;height:20px;border-width:3px}
+body.navigating .page-loader{opacity:1;transition-delay:.3s}
+body.navigating .content{opacity:.6;transition:opacity .25s .3s}
+a.btn.is-loading{pointer-events:none;opacity:.85}a.btn.is-loading .spinner.sm{display:inline-block}
+.btn:not(.ghost) .spinner.sm{border-color:rgba(255,255,255,.4);border-top-color:#fff}
+.btn.ghost .spinner.sm{border-color:rgba(11,95,240,.25);border-top-color:var(--blue)}
+/* skeleton shimmer while a list refreshes */
+@keyframes shimmer{to{background-position:-200% 0}}
+.skeleton{background:linear-gradient(90deg,#eef2fa 25%,#f7f9fd 50%,#eef2fa 75%);background-size:200% 100%;animation:shimmer 1.2s linear infinite;border-radius:10px}

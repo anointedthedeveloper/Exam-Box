@@ -229,3 +229,25 @@ document.querySelectorAll('.exam-card,.panel,.stat,.mini,.exam-row').forEach(fun
   poll(); setInterval(poll, 5000);
   document.addEventListener('visibilitychange', function () { if (!document.hidden) poll(); });
 })();
+
+
+// Loaders for every action: forms and button-links show a spinner, and a "Loading" badge appears if a page takes a moment.
+(function () {
+  function spin(btn) {
+    if (!btn || btn.classList.contains('is-loading')) return;
+    if (!btn.querySelector('.spinner')) { var sp = document.createElement('span'); sp.className = 'spinner sm'; btn.appendChild(sp); }
+    btn.classList.add('is-loading');
+  }
+  document.addEventListener('submit', function (e) {
+    var f = e.target;
+    setTimeout(function () {
+      if (e.defaultPrevented || f.hasAttribute('data-loading') || f.dataset.noLoader !== undefined) return;
+      var btn = f.querySelector('button:not([type=button])');
+      spin(btn); busy(true);
+    }, 0);
+  });
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a.btn[href]');
+    if (a && a.origin === location.origin && !a.target && !e.ctrlKey && !e.metaKey && a.getAttribute('href')[0] !== '#') spin(a);
+  });
+})();
