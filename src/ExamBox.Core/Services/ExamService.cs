@@ -182,7 +182,7 @@ public sealed class ExamService(DbFactory factory)
         static string? T(string? s) => string.IsNullOrWhiteSpace(s) ? null : s.Trim();
         if (i.Type == QuestionType.Theory)
         {
-            q.OptionA = ""; q.OptionB = ""; q.OptionC = q.OptionD = q.OptionE = null; q.CorrectOption = null;
+            q.OptionA = ""; q.OptionB = ""; q.OptionC = q.OptionD = q.OptionE = null; q.CorrectOption = "";   // empty, not null: databases created by older versions have this column NOT NULL
         }
         else
         {
@@ -228,8 +228,8 @@ public sealed class ExamService(DbFactory factory)
             q.Id = 0; q.ExamId = examId; q.SortOrder = ++next;
             db.Questions.Add(q);
         }
-        db.SaveChanges();
-        PersistImages(db, questions);
+        try { db.SaveChanges(); PersistImages(db, questions); }
+        catch (DbUpdateException ex) { return OpResult<int>.Fail("The questions could not be saved: " + (ex.InnerException?.Message ?? ex.Message)); }
         return OpResult<int>.Success(questions.Count);
     }
 

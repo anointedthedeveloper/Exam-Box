@@ -275,6 +275,13 @@ public class ProductionTests
             Assert.Equal("B", db.Answers.Single().Selected);
             Assert.False(db.Users.Single().MustChangePassword);   // forced password changes no longer exist
             Assert.True(exams.SaveQuestion(1, 0, new QuestionInput(ExamBox.Models.QuestionType.Theory, "3a", "Explain.", 5)).Ok == false); // locked: attempt exists
+            // a version-1 database has CorrectOption NOT NULL: theory questions must still import into it
+            using (var d2 = f.Create()) d2.Database.ExecuteSqlRaw("INSERT INTO Exams (Title, DurationMinutes, PassMarkPercent, IsPublished, CreatedAt) VALUES ('Fresh', 30, 50, 0, '2025-01-01')");
+            var fresh = exams.List().Single(x => x.Title == "Fresh");
+            var theory = new ExamBox.Models.Question { Type = ExamBox.Models.QuestionType.Theory, Text = "Explain.", Marks = 5 };
+            ExamService.Apply(theory, new QuestionInput(ExamBox.Models.QuestionType.Theory, "1", "Explain.", 5));
+            var added = exams.AddQuestions(fresh.Id, new[] { theory }, false);
+            Assert.True(added.Ok, added.Error);
         }
         finally { Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools(); try { Directory.Delete(dir, true); } catch { } }
     }
