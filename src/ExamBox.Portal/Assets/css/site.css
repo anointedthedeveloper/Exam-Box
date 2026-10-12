@@ -755,3 +755,39 @@ input[type=search]:focus{outline:0;border-color:var(--blue);box-shadow:0 0 0 4px
 .exam-body{background:#eef2fa}
 .ex-foot .btn[hidden],.ex-nav .btn[hidden]{display:none}
 .calc-g .eq{opacity:1}
+
+/* ===================== v17: flat white and blue, nothing looping ===================== */
+body:not(.auth-body){background:#f5f8fd}
+body:not(.auth-body)::before,body:not(.auth-body)::after{display:none}
+.nav-wrap{background:none;padding-bottom:10px}
+.nav-capsule{background:#fff;-webkit-backdrop-filter:none;backdrop-filter:none;border:1px solid var(--line);box-shadow:0 1px 4px rgba(15,27,61,.07)}
+.main-nav{background:#f1f5fc}
+.main-nav .nav-pill{background:#fff;box-shadow:0 1px 3px rgba(15,27,61,.12);border:1px solid var(--line)}
+.main-nav a.active,.nav-capsule nav a.active{background:transparent;color:var(--blue-d);box-shadow:none}
+.me-chip .avatar,.nav-capsule .avatar,.me-avatar{background:var(--blue)}
+.card,.stat,.exam-card,.q,.callout,.panel,.mini,.side-card,.pw-card,.exam-row,.up-row,.done-row{background:#fff;-webkit-backdrop-filter:none;backdrop-filter:none;border:1px solid var(--line);box-shadow:0 1px 3px rgba(15,27,61,.06)}
+.callout{background:#f1f6ff}
+.exam-card:hover,.exam-row:hover,.done-row:hover,.stat:hover,.mini:hover{transform:none;box-shadow:0 4px 14px rgba(11,95,240,.12);border-color:#b9d0fb;background:#fff}
+.exam-row::after,.done-row::after,.exam-card::after,.mini::after,.panel::after{display:none}
+.hero-banner,.dash-top,.res-hero,.res-hero.fail{background:var(--blue);background-size:auto;animation:none;box-shadow:none}
+.res-hero.pass{background:#0f9d6a;box-shadow:none}
+.hero-banner img{animation:none}
+.pw-side{background:var(--blue)}
+.ec-ic,.ec-ic.soon,.ec-ic.ok,.ec-ic.amber{background:var(--blue-l);color:var(--blue-d);box-shadow:none}
+.ec-ic.ok{background:var(--okbg);color:#0c6b47}.ec-ic.amber{background:#fff3d6;color:#8a5a00}.ec-ic.soon{background:#efeaff;color:#5b3fd0}
+.stats .stat::before{background:var(--blue)}.stats .stat:nth-child(n)::before{background:var(--blue)}
+.empty-state img,.illus{background:var(--blue)}
+.tabbar{background:#fff;-webkit-backdrop-filter:none;backdrop-filter:none}
+.tabbar a.active{background:var(--blue-l);color:var(--blue-d);box-shadow:none}
+.btn:not(.ghost):not(.danger){box-shadow:none}.btn:not(.ghost):not(.danger)::after{display:none}
+.portal-pill i,.resume-pill i,.pulse,.timer.low,.timer.low .t,.blob{animation:none}
+.js .q.reveal,.js .feedback.reveal{opacity:1;transform:none}
+.stats>*,.exam-grid>*,.hero-banner,.card,.q{animation-duration:.25s}
+.done-card{background:#fff;max-width:640px;margin:20px auto;text-align:center}
+.page-head h1{font-size:1.5rem}
+body.exam-body{background:#eef2fa}
+.dash-top .mini,.hero-banner .mini{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.32);box-shadow:none;color:#fff}
+.dash-top .mini:hover{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.5);box-shadow:none}
+.ec-ic{background:var(--blue);color:#fff}.ec-ic.soon{background:#7b61ff;color:#fff}.ec-ic.ok{background:#0f9d6a;color:#fff}.ec-ic.amber{background:#d98200;color:#fff}
+.dash-cols{align-items:start}
+.dash-top::after{display:none}.dash{height:auto!important}

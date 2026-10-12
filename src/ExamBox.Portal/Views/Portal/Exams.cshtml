@@ -29,7 +29,7 @@
         <div class="ec-top"><span class="ec-ic"><svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></span><span class="badge ok live"><i></i>Open now</span></div>
         <h3>@e.Title</h3>
         <p>@(string.IsNullOrWhiteSpace(e.Description) ? "No extra instructions." : e.Description)</p>
-        <div class="meta"><span>@q question@(q == 1 ? "" : "s")</span><span>@e.DurationMinutes min</span>@if (e.Questions.Any(x => x.Type == QuestionType.Theory && x.Marks > 0)) { <span>Typed answers</span> }</div>
+        <div class="meta"><span>@q question@(q == 1 ? "" : "s")</span><span>@e.DurationMinutes min</span>@if (e.Questions.Any(x => x.Type == QuestionType.Theory && x.Marks > 0)) { <span>Essay on paper</span> }</div>
         <a class="btn block" asp-action="Instructions" asp-route-examId="@e.Id">View &amp; start</a>
     </div>
 }
