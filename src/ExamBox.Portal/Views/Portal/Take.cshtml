@@ -18,7 +18,7 @@
     </header>
     <div class="ex-bar"><i id="bar" style="width:0%"></i></div>
 
-    <main class="ex-stage" id="stage">
+    <div class="ex-body"><main class="ex-stage" id="stage">
     @for (var i = 0; i < qs.Count; i++)
     {
         var q = qs[i];
@@ -51,6 +51,19 @@
         </section>
     }
     </main>
+    <aside class="ex-side">
+        <h3>Questions</h3>
+        <p class="muted small" id="sideCount"></p>
+        <div class="side-pal" id="sidePal">
+        @for (var i = 0; i < qs.Count; i++)
+        {
+            var q = qs[i];
+            <button type="button" data-go="@i" data-type="@(q.Type == QuestionType.Objective ? "o" : "x")" class="@(i == 0 ? "cur" : "")" aria-label="Question @labels[q.Id]">@labels[q.Id]</button>
+        }
+        </div>
+        <div class="legend"><span><i class="lg cur"></i>Current</span><span><i class="lg done"></i>Answered</span><span><i class="lg"></i>Not yet</span></div>
+        <p class="muted small keyhelp">N next · P previous<br />A to E choose · S submit · Y confirm</p>
+    </aside></div>
 
     <footer class="ex-foot">
         <button type="button" class="btn ghost" id="prevBtn"><span class="k">P</span> Previous</button>
@@ -96,7 +109,7 @@
 (function () {
   var form = document.getElementById('examForm'), clock = document.getElementById('clock'), timer = document.getElementById('timer'),
       savedEl = document.getElementById('saved'), gate = document.getElementById('gate'), gateBtn = document.getElementById('gateBtn'),
-      slides = Array.prototype.slice.call(document.querySelectorAll('.qs')), pal = Array.prototype.slice.call(document.querySelectorAll('#palette button')),
+      slides = Array.prototype.slice.call(document.querySelectorAll('.qs')), pal = Array.prototype.slice.call(document.querySelectorAll('#palette button')), pal2 = Array.prototype.slice.call(document.querySelectorAll('#sidePal button')),
       prevBtn = document.getElementById('prevBtn'), nextBtn = document.getElementById('nextBtn'), submitBtn = document.getElementById('submitBtn'),
       posText = document.getElementById('posText'), bar = document.getElementById('bar'), calc = document.getElementById('calc');
   var began = @(Model.Began ? "true" : "false"), end = Date.now() + @Model.SecondsLeft * 1000, sent = false, dirty = false, saving = false, confirmed = false, cur = 0, total = slides.length;
@@ -145,10 +158,11 @@
   function isAnswered(i) { var s = slides[i]; if (s.dataset.type !== 'o') return false; return !!s.querySelector('input:checked'); }
   function refresh() {
     var done = 0, obj = 0;
-    slides.forEach(function (s, i) { if (s.dataset.type === 'o') { obj++; var a = isAnswered(i); if (a) done++; pal[i].classList.toggle('done', a); } });
+    slides.forEach(function (s, i) { if (s.dataset.type === 'o') { obj++; var a = isAnswered(i); if (a) done++; pal[i].classList.toggle('done', a); pal2[i].classList.toggle('done', a); } });
     bar.style.width = (obj ? Math.round(done * 100 / obj) : 0) + '%';
     posText.textContent = 'Question ' + (cur + 1) + ' of ' + total + (obj ? '  ·  ' + done + ' of ' + obj + ' answered' : '');
-    pal.forEach(function (b, i) { b.classList.toggle('cur', i === cur); });
+    pal.forEach(function (b, i) { b.classList.toggle('cur', i === cur); pal2[i].classList.toggle('cur', i === cur); });
+    document.getElementById('sideCount').textContent = done + ' of ' + obj + ' answered';
     prevBtn.disabled = cur === 0;
     var last = cur === total - 1; nextBtn.hidden = last; submitBtn.hidden = !last;
     var c = pal[cur]; if (c && c.scrollIntoView) { var p = c.parentNode; p.scrollLeft = c.offsetLeft - p.clientWidth / 2 + c.clientWidth / 2; }
@@ -162,7 +176,7 @@
   }
   prevBtn.addEventListener('click', function () { go(cur - 1); });
   nextBtn.addEventListener('click', function () { go(cur + 1); });
-  document.getElementById('palette').addEventListener('click', function (e) { var b = e.target.closest('button[data-go]'); if (b) go(parseInt(b.dataset.go, 10)); });
+  ['palette', 'sidePal'].forEach(function (id) { document.getElementById(id).addEventListener('click', function (e) { var b = e.target.closest('button[data-go]'); if (b) go(parseInt(b.dataset.go, 10)); }); });
 
   /* saving */
   function state(t, cls) { savedEl.textContent = t; savedEl.className = 'saved ' + (cls || ''); }

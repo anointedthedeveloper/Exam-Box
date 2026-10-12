@@ -798,3 +798,40 @@ body.exam-body{background:#eef2fa}
 .done-ic circle{animation:tick-circle 3.4s ease-in-out infinite}
 .done-ic path{animation:tick-check 3.4s ease-in-out infinite}
 @media(prefers-reduced-motion:reduce){.done-ic circle,.done-ic path{animation:none;stroke-dashoffset:0}}
+
+/* exams page: one clean row per exam */
+.ex-list{display:flex;flex-direction:column;gap:10px;margin-bottom:22px}
+.ex-item{display:flex;align-items:center;gap:16px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:0 1px 3px rgba(15,27,61,.05);transition:border-color .15s,box-shadow .15s}
+.ex-item:hover{border-color:#b9d0fb;box-shadow:0 4px 14px rgba(11,95,240,.1)}
+.ex-item[hidden]{display:none}
+.ex-item .ec-ic{width:44px;height:44px;flex:none}
+.ex-body{flex:1;min-width:0}
+.ex-line{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ex-line h3{font-size:1.05rem}
+.ex-body p{margin:3px 0 8px;color:var(--mut);font-size:.92rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ex-body .meta{display:flex;gap:8px;flex-wrap:wrap}
+.ex-item .btn{flex:none;min-width:130px;text-align:center}
+.ex-item.soon{background:#fafbfe}
+.ex-item.soon .btn[disabled]{border-color:transparent;background:#e8edf7;color:#7a86a3;opacity:1}
+@media(max-width:640px){.ex-item{flex-wrap:wrap}.ex-item .btn{width:100%}.ex-body p{white-space:normal}}
+
+/* exam view: question area plus a question map on wide screens */
+.ex-body{flex:1;min-height:0;display:flex;gap:20px;padding:0 24px;max-width:1400px;width:100%;margin:0 auto}
+.ex-body .ex-stage{flex:1;min-width:0;padding:22px 0}
+.qs{width:100%}
+.slide-in{padding:30px 34px;min-height:min(440px,60vh)}
+.qt.big{font-size:1.3rem}
+.ex-side{display:none;flex:none;width:260px;margin:22px 0;align-self:flex-start;background:#fff;border:1px solid #d5def2;border-radius:16px;padding:18px;max-height:calc(100% - 44px);overflow:auto}
+.ex-side h3{font-size:1rem}
+.side-pal{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:12px 0}
+.side-pal button{height:38px;border-radius:9px;border:1.5px solid #cfd9ee;background:#fff;color:var(--mut);font-weight:700;cursor:pointer;padding:0}
+.side-pal button:hover{border-color:var(--blue);color:var(--blue)}
+.side-pal button.done{background:#dff3ea;border-color:#8fd3ac;color:#0c6b47}
+.side-pal button.cur{background:var(--blue);border-color:var(--blue-d);color:#fff}
+.legend{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:.78rem;color:var(--mut);margin-top:4px}
+.legend .lg{display:inline-block;width:11px;height:11px;border-radius:3px;border:1.5px solid #cfd9ee;background:#fff;margin-right:5px;vertical-align:-1px}
+.legend .lg.done{background:#dff3ea;border-color:#8fd3ac}.legend .lg.cur{background:var(--blue);border-color:var(--blue-d)}
+.keyhelp{margin:14px 0 0;border-top:1px solid #e3e8f3;padding-top:12px}
+@media(min-width:1100px){.ex-side{display:block}.ex-foot .ex-pal{display:none}.ex-foot{justify-content:space-between}}
+@media(max-width:700px){.ex-body{padding:0}.ex-body .ex-stage{padding:12px}}
+.keyhelp{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.7}.calc{bottom:72px}

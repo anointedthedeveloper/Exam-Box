@@ -12,35 +12,42 @@
 {
     <div class="card empty-card"><div class="illus"><img src="/assets/img/slide-timer.svg" alt="" /></div><strong>No exams right now</strong><div>When your teacher launches an exam for you it will appear here.</div></div>
 }
-<div class="exam-grid" id="examGrid">
+<div class="ex-list" id="examGrid">
 @foreach (var a in Model.InProgress)
 {
-    <div class="exam-card" data-kind="running" data-name="@a.Exam!.Title.ToLowerInvariant()">
-        <div class="ec-top"><span class="ec-ic amber"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span><span class="badge warn">@(a.IsPaused ? "Paused" : "In progress")</span></div>
-        <h3>@a.Exam.Title</h3><p>Started <time datetime="@a.StartedAt.ToString("o")"></time>. Your answers are saved as you go.</p>
-        <div class="meta"><span>@a.Exam.DurationMinutes min</span><span class="cd">@(Math.Max(1, (int)Math.Ceiling(AttemptService.SecondsLeft(a, a.Exam) / 60.0))) min left</span></div>
-        <a class="btn block" asp-action="Take" asp-route-id="@a.Id">Resume exam</a>
+    <div class="ex-item" data-kind="running" data-name="@a.Exam!.Title.ToLowerInvariant()">
+        <span class="ec-ic amber"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+        <div class="ex-body">
+            <div class="ex-line"><h3>@a.Exam.Title</h3><span class="badge warn">@(a.IsPaused ? "Paused" : "In progress")</span></div>
+            <p>Started <time datetime="@a.StartedAt.ToString("o")"></time>. Your answers are saved as you go.</p>
+            <div class="meta"><span>@a.Exam.DurationMinutes min</span><span class="cd">@(Math.Max(1, (int)Math.Ceiling(AttemptService.SecondsLeft(a, a.Exam) / 60.0))) min left</span></div>
+        </div>
+        <a class="btn" asp-action="Take" asp-route-id="@a.Id">Resume</a>
     </div>
 }
 @foreach (var e in Model.Available)
 {
-    var q = e.Questions.Count(x => x.Marks > 0);
-    <div class="exam-card" data-kind="available" data-name="@e.Title.ToLowerInvariant()">
-        <div class="ec-top"><span class="ec-ic"><svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></span><span class="badge ok live"><i></i>Open now</span></div>
-        <h3>@e.Title</h3>
-        <p>@(string.IsNullOrWhiteSpace(e.Description) ? "No extra instructions." : e.Description)</p>
-        <div class="meta"><span>@q question@(q == 1 ? "" : "s")</span><span>@e.DurationMinutes min</span>@if (e.Questions.Any(x => x.Type == QuestionType.Theory && x.Marks > 0)) { <span>Essay on paper</span> }</div>
-        <a class="btn block" asp-action="Instructions" asp-route-examId="@e.Id">View &amp; start</a>
+    var q = e.Questions.Count(x => x.Marks > 0 || x.Type == QuestionType.Objective);
+    <div class="ex-item" data-kind="available" data-name="@e.Title.ToLowerInvariant()">
+        <span class="ec-ic"><svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></span>
+        <div class="ex-body">
+            <div class="ex-line"><h3>@e.Title</h3><span class="badge ok">Open now</span></div>
+            <p>@(string.IsNullOrWhiteSpace(e.Description) ? "No extra instructions." : e.Description)</p>
+            <div class="meta"><span>@q question@(q == 1 ? "" : "s")</span><span>@e.DurationMinutes min</span>@if (e.Questions.Any(x => x.Type == QuestionType.Theory && x.Marks > 0)) { <span>Essay on paper</span> }</div>
+        </div>
+        <a class="btn" asp-action="Instructions" asp-route-examId="@e.Id">View &amp; start</a>
     </div>
 }
 @foreach (var e in Model.Upcoming)
 {
-    <div class="exam-card soon" data-kind="soon" data-name="@e.Title.ToLowerInvariant()">
-        <div class="ec-top"><span class="ec-ic soon"><svg viewBox="0 0 24 24"><path d="M6 2v6l4 4-4 4v6h12v-6l-4-4 4-4V2H6zm10 14.5V20H8v-3.5l4-4 4 4zm-4-5l-4-4V4h8v3.5l-4 4z"/></svg></span><span class="badge warn">Not open yet</span></div>
-        <h3>@e.Title</h3>
-        <p>Opens <time datetime="@e.OpensAt!.Value.ToString("o")"></time></p>
-        <div class="meta"><span>@e.DurationMinutes min</span><span class="cd">in <b data-countdown="@e.OpensAt!.Value.ToString("o")"></b></span></div>
-        <button class="btn block" disabled>Opens soon</button>
+    <div class="ex-item soon" data-kind="soon" data-name="@e.Title.ToLowerInvariant()">
+        <span class="ec-ic soon"><svg viewBox="0 0 24 24"><path d="M6 2v6l4 4-4 4v6h12v-6l-4-4 4-4V2H6zm10 14.5V20H8v-3.5l4-4 4 4zm-4-5l-4-4V4h8v3.5l-4 4z"/></svg></span>
+        <div class="ex-body">
+            <div class="ex-line"><h3>@e.Title</h3><span class="badge warn">Not open yet</span></div>
+            <p>Opens <time datetime="@e.OpensAt!.Value.ToString("o")"></time></p>
+            <div class="meta"><span>@e.DurationMinutes min</span><span class="cd">in <b data-countdown="@e.OpensAt!.Value.ToString("o")"></b></span></div>
+        </div>
+        <button class="btn" disabled>Opens soon</button>
     </div>
 }
 </div>
@@ -48,7 +55,7 @@
 @section Scripts {
 <script>
 (function () {
-  var cards = Array.from(document.querySelectorAll('#examGrid .exam-card')), f = 'all', q = '';
+  var cards = Array.from(document.querySelectorAll('#examGrid .ex-item')), f = 'all', q = '';
   function apply() {
     var n = 0;
     cards.forEach(function (c) {
