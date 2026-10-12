@@ -13,7 +13,7 @@ public partial class ExamDetailView : UserControl
     public sealed record QuestionRow(int Id, string No, string Kind, string Text, string Details, int Marks, string Picture);
     public sealed record ResultRow(int AttemptId, string Student, string StudentId, string Objective, string Theory, string Score, string Percent, string Outcome, string Submitted);
 
-    public sealed record LiveVm(int AttemptId, int UserId, string Student, string StudentId, string Started, string Left, int Seconds, string Status);
+    public sealed record LiveVm(int AttemptId, int UserId, string Student, string StudentId, string Started, string Left, int Seconds, string Status, string Question, string Answered, string Score);
 
     private readonly int _id;
     private System.Windows.Threading.DispatcherTimer? _timer;
@@ -85,18 +85,18 @@ public partial class ExamDetailView : UserControl
         AddQ.IsEnabled = ImportQ.IsEnabled = !_locked;
 
         var labels = QLabel(e.Questions);
-        QTable.ItemsSource = e.Questions.Select(q => new QuestionRow(q.Id, labels[q.Id], q.Type == QuestionType.Theory ? (q.Marks == 0 ? "Passage" : "Theory") : "Objective",
+        QTable.ItemsSource = e.Questions.Select(q => new QuestionRow(q.Id, labels[q.Id], q.Type == QuestionType.Theory ? (q.Marks == 0 ? "Passage" : "Essay") : "Objective",
             q.Text.Replace("\r", " ").Replace("\n", " "), Details(q), q.Marks, q.HasImage ? "Attached" : q.MissingImage ? "Needed" : "-")).ToList();
         QEmpty.Visibility = e.Questions.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         QTable.Visibility = e.Questions.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
         QSummary.Text = e.Questions.Count == 0 ? "" :
-            $"{e.Questions.Count(q => q.Type == QuestionType.Objective)} objective · {e.Questions.Count(q => q.Type == QuestionType.Theory && q.Marks > 0)} theory · {e.Questions.Count(q => q.HasImage)} with pictures · {total} marks in total";
+            $"{e.Questions.Count(q => q.Type == QuestionType.Objective)} objective · {e.Questions.Count(q => q.Type == QuestionType.Theory && q.Marks > 0)} essay · {e.Questions.Count(q => q.HasImage)} with pictures · {total} objective marks";
         UpdateButtons();
 
         var done = e.Attempts.Where(a => a.SubmittedAt != null).OrderByDescending(a => a.PendingMarking).ThenByDescending(a => a.Score).ToList();
         var hasTheory = e.Questions.Any(q => q.Type == QuestionType.Theory && q.Marks > 0);
         RTable.ItemsSource = done.Select(a => new ResultRow(a.Id, a.Student!.FullName, a.Student.Username,
-            hasTheory ? $"{a.ObjectiveScore}" : $"{a.ObjectiveScore}", a.PendingMarking ? "-" : hasTheory ? $"{a.TheoryScore}" : "-",
+            $"{a.ObjectiveScore}", "-",
             a.PendingMarking ? "-" : $"{a.Score} / {a.TotalMarks}", a.PendingMarking ? "-" : $"{a.Percent}%",
             a.PendingMarking ? "Awaiting" : a.Percent >= e.PassMarkPercent ? "Pass" : "Fail", Ui.Local(a.SubmittedAt))).ToList();
         var final = done.Where(a => !a.PendingMarking).ToList();
@@ -104,7 +104,6 @@ public partial class ExamDetailView : UserControl
         ResultSummary.Text = done.Count == 0 ? "No submissions yet."
             : $"{done.Count} submission(s)" + (final.Count > 0 ? $" · average {Math.Round(final.Average(a => a.Percent), 1)}% · {final.Count(a => a.Percent >= e.PassMarkPercent)} passed" : "")
               + (waiting > 0 ? $" · {waiting} awaiting marking" : "");
-        MarkBtn.IsEnabled = false;
         ReloadLive();
     }
 
@@ -116,17 +115,21 @@ public partial class ExamDetailView : UserControl
         var keep = SelectedL?.AttemptId;
         var rows = App.Live.List(_id);
         LTable.ItemsSource = rows.Select(r => new LiveVm(r.AttemptId, r.StudentId, r.Student, r.StudentCode, Ui.Local(r.StartedUtc),
-            TimeSpan.FromSeconds(r.SecondsLeft).ToString(r.SecondsLeft >= 3600 ? "h\\:mm\\:ss" : "m\\:ss"), r.SecondsLeft, r.Paused ? "Paused" : "Running")).ToList();
+            TimeSpan.FromSeconds(r.SecondsLeft).ToString(r.SecondsLeft >= 3600 ? "h\\:mm\\:ss" : "m\\:ss"), r.SecondsLeft,
+            !r.Began ? "Not started" : r.Paused ? "Paused" : "Running",
+            r.Began && r.Current > 0 ? $"{r.Current} of {r.TotalQuestions}" : r.Began ? "1" : "-",
+            r.ObjectiveQuestions > 0 ? $"{r.Answered} / {r.ObjectiveQuestions}" : "-", r.ObjectiveQuestions > 0 ? $"{r.Score} / {r.MaxScore}" : "-")).ToList();
         if (keep != null) LTable.SelectedItem = (LTable.ItemsSource as IEnumerable<LiveVm>)?.FirstOrDefault(x => x.AttemptId == keep);
         LiveEmpty.Visibility = rows.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
-        LiveSummary.Text = rows.Count == 0 ? "" : $"{rows.Count} sitting now, {rows.Count(r => r.Paused)} paused. Updates every 10 seconds.";
+        LiveSummary.Text = rows.Count == 0 ? "" : $"{rows.Count} sitting now, {rows.Count(r => r.Paused)} paused, {rows.Count(r => !r.Began)} not started. Updates every 10 seconds.";
+        SubmitAllBtn.IsEnabled = rows.Count > 0;
         UpdateLiveButtons();
     }
 
     private void UpdateLiveButtons()
     {
         var s = SelectedL;
-        PauseBtn.IsEnabled = s is { Status: "Running" };
+        PauseBtn.IsEnabled = s is { Status: "Running" or "Not started" };
         ResumeBtn.IsEnabled = s is { Status: "Paused" };
         TimeBtn.IsEnabled = EndBtn.IsEnabled = s != null;
     }
@@ -160,8 +163,16 @@ public partial class ExamDetailView : UserControl
     {
         if (SelectedL is not { } s) return;
         if (!Ui.Confirm($"Submit {s.Student}'s exam now with the answers they have saved?\n\nThis cannot be undone.")) return;
-        var r = App.Attempts.Submit(s.UserId, s.AttemptId, new Dictionary<int, string>());
+        var r = App.Attempts.AdminSubmit(s.AttemptId);
         if (!r.Ok) Ui.Error(r.Error!);
+        Reload();
+    }
+
+    private void SubmitAll_Click(object sender, RoutedEventArgs e)
+    {
+        if (!Ui.Confirm("Submit every exam that is still running for this exam?\n\nEach student's saved answers are scored and the exam ends for them. This cannot be undone.")) return;
+        var n = App.Live.SubmitAll(_id);
+        Ui.Info($"{n} exam(s) submitted.");
         Reload();
     }
 
@@ -173,7 +184,7 @@ public partial class ExamDetailView : UserControl
     }
 
     private static string Details(Question q) => q.Type == QuestionType.Theory
-        ? (q.Marks == 0 ? "Reading passage, not scored" : string.IsNullOrWhiteSpace(q.ModelAnswer) ? "Typed answer, marked by you" : "Typed answer, marking guide added")
+        ? (q.Marks == 0 ? "Reading passage" : "Essay, answered on paper, not scored here")
         : $"{q.Options().Count()} options · correct {q.CorrectOption}";
 
     private void UpdateButtons()
@@ -186,10 +197,8 @@ public partial class ExamDetailView : UserControl
     }
 
     private void QTable_SelectionChanged(object sender, SelectionChangedEventArgs e) => UpdateButtons();
-    private void RTable_SelectionChanged(object sender, SelectionChangedEventArgs e) => MarkBtn.IsEnabled = SelectedR != null && _exam!.Questions.Any(q => q.Type == QuestionType.Theory && q.Marks > 0);
     private void Back_Click(object sender, RoutedEventArgs e) => MainWindow.Current.Go("exams");
     private void QTable_DoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e) { if (SelectedQ != null && !_locked) EditQ_Click(sender, e); }
-    private void RTable_DoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e) { if (MarkBtn.IsEnabled) Mark_Click(sender, e); }
 
     private void Launch_Click(object sender, RoutedEventArgs e)
     {
@@ -288,14 +297,6 @@ public partial class ExamDetailView : UserControl
         Reload();
     }
 
-    private void Mark_Click(object sender, RoutedEventArgs e)
-    {
-        if (SelectedR == null) return;
-        var sheet = App.Marking.Sheet(SelectedR.AttemptId);
-        if (sheet == null) { Reload(); return; }
-        if (new MarkingDialog(sheet) { Owner = System.Windows.Window.GetWindow(this) }.ShowDialog() == true) Reload();
-    }
-
     private string Subtitle() => $"{_exam!.DurationMinutes} min, pass mark {_exam.PassMarkPercent}%, exported {DateTime.Now:f}";
 
     private (List<ExamBox.Services.ExportRow> Rows, List<(string, string)> Summary) ExportData()
@@ -336,8 +337,8 @@ public partial class ExamDetailView : UserControl
         var safe = string.Concat(_exam!.Title.Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c));
         var dlg = new SaveFileDialog { Filter = "CSV file (*.csv)|*.csv", FileName = $"{safe} results.csv" };
         if (dlg.ShowDialog() != true) return;
-        var sb = new StringBuilder("Student,Student ID,Objective,Theory,Total,Percent,Outcome,Submitted\r\n");
-        foreach (var r in rows) sb.Append(string.Join(",", new[] { r.Student, r.StudentId, r.Objective, r.Theory, r.Score, r.Percent, r.Outcome, r.Submitted }.Select(Csv))).Append("\r\n");
+        var sb = new StringBuilder("Student,Student ID,Score,Percent,Outcome,Submitted\r\n");
+        foreach (var r in rows) sb.Append(string.Join(",", new[] { r.Student, r.StudentId, r.Score, r.Percent, r.Outcome, r.Submitted }.Select(Csv))).Append("\r\n");
         try { File.WriteAllText(dlg.FileName, sb.ToString(), new UTF8Encoding(true)); Ui.Info("Results exported."); }
         catch (Exception ex) { Ui.Error("Could not save the file:\n" + ex.Message); }
     }

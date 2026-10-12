@@ -1,150 +1,244 @@
 @model TakeExamVm
 @{
+    Layout = "_ExamLayout";
     ViewData["Title"] = Model.Exam.Title;
     var labels = QLabel.Build(Model.Questions);
-    var objective = Model.Questions.Where(q => q.Type == QuestionType.Objective).ToList();
-    var theory = Model.Questions.Where(q => q.Type == QuestionType.Theory).ToList();
-    var gradable = Model.Questions.Count(q => !QLabel.IsPassage(q));
+    var qs = Model.Questions;
+    var gradable = qs.Count(q => q.Type == QuestionType.Objective);
 }
-<div class="timer" id="timer">
-    <div><strong>@Model.Exam.Title</strong> <span class="livepill"><i></i>LIVE</span><div class="prog"><span id="answered">0</span> of @gradable answered · <span id="saved" class="saved">Saved</span></div></div>
-    <div class="t" id="clock">--:--</div>
-</div>
-<div class="exam-layout">
-<div class="exam-main">
-<form method="post" id="examForm" asp-action="Submit" asp-route-id="@Model.Attempt.Id" >
-@if (!string.IsNullOrWhiteSpace(Model.Exam.Description))
-{
-    <div class="callout">@Model.Exam.Description</div>
-}
-@if (objective.Count > 0)
-{
-    @if (theory.Count > 0) { <h2 class="section-title">Section A · Objective</h2><p class="muted">Choose the best answer for each question.</p> }
-    foreach (var q in objective)
+<div class="exam-shell" id="shell">
+  <form method="post" id="examForm" asp-action="Submit" asp-route-id="@Model.Attempt.Id" class="exam-form">
+    <header class="ex-top" id="timer">
+        <div class="ex-title"><strong>@Model.Exam.Title</strong><span class="livepill"><i></i>LIVE</span></div>
+        <div class="ex-mid"><span id="posText">Question 1 of @qs.Count</span><span class="dot-sep"></span><span id="saved" class="saved ok">Saved</span></div>
+        <div class="ex-right">
+            <button type="button" class="ex-btn" id="calcBtn" title="Calculator" aria-label="Calculator"><svg viewBox="0 0 24 24"><path d="M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm0 2v4h10V4H7zm1.5 6a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4zm3.5 0a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4zm3.5 0a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4zM8.5 14a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4zm3.5 0a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4zm3.5 0a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4z"/></svg><span>Calculator</span></button>
+            <div class="t" id="clock">@(Model.Exam.DurationMinutes):00</div>
+        </div>
+    </header>
+    <div class="ex-bar"><i id="bar" style="width:0%"></i></div>
+
+    <main class="ex-stage" id="stage">
+    @for (var i = 0; i < qs.Count; i++)
     {
+        var q = qs[i];
+        var passage = QLabel.IsPassage(q);
         Model.Saved.TryGetValue(q.Id, out var sv);
-        <div class="q" id="qb_@q.Id"><div class="q-h"><span><span class="q-num">@labels[q.Id]</span><span class="qt">@Html.Raw(MathText.Render(q.Text))</span></span><span class="badge">@q.Marks mark@(q.Marks == 1 ? "" : "s")</span></div>
-        @if (q.HasImage) { <img class="q-img" loading="lazy" src="/portal/media/@q.Id" alt="Picture for question @labels[q.Id]" /> }
-        @foreach (var o in q.Options())
-        {
-            <label class="opt"><input type="radio" name="q_@q.Id" value="@o.Key" checked="@(sv?.Selected == o.Key)" /><span><strong>@o.Key.</strong> @Html.Raw(MathText.Render(o.Text))</span></label>
-        }</div>
+        <section class="qs @(i == 0 ? "on" : "")" data-slide="@i" data-qid="@q.Id" data-type="@(q.Type == QuestionType.Objective ? "o" : passage ? "p" : "t")" aria-hidden="@(i == 0 ? "false" : "true")">
+            <div class="slide-in">
+                <div class="q-head">
+                    <span class="q-num">@labels[q.Id]</span>
+                    @if (q.Type == QuestionType.Objective) { <span class="tag">Objective</span><span class="badge">@q.Marks mark@(q.Marks == 1 ? "" : "s")</span> }
+                    else if (passage) { <span class="tag">Read this</span> }
+                    else { <span class="tag essay">Essay</span> }
+                </div>
+                <div class="qt big">@Html.Raw(MathText.Render(q.Text))</div>
+                @if (q.HasImage) { <img class="q-img" src="/portal/media/@q.Id" alt="Picture for question @labels[q.Id]" /> }
+                @if (q.Type == QuestionType.Objective)
+                {
+                    <div class="opts">
+                    @foreach (var o in q.Options())
+                    {
+                        <label class="opt"><input type="radio" name="q_@q.Id" value="@o.Key" checked="@(sv?.Selected == o.Key)" /><b class="ok-key">@o.Key</b><span class="ot">@Html.Raw(MathText.Render(o.Text))</span></label>
+                    }
+                    </div>
+                }
+                else if (!passage)
+                {
+                    <div class="sheet-note"><svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg><div><b>Answer this on your answer sheet.</b><span>Nothing is typed here. Write your working and answer on paper, then move on.</span></div></div>
+                }
+            </div>
+        </section>
     }
-}
-@if (theory.Count > 0)
-{
-    <h2 class="section-title">@(objective.Count > 0 ? "Section B · Theory" : "Theory")</h2>
-    <p class="muted">Type your answers in the boxes. Your work is saved automatically as you write; no pen and paper needed.</p>
-    foreach (var q in theory)
-    {
-        if (QLabel.IsPassage(q))
+    </main>
+
+    <footer class="ex-foot">
+        <button type="button" class="btn ghost" id="prevBtn"><span class="k">P</span> Previous</button>
+        <div class="ex-pal" id="palette" role="tablist" aria-label="Questions">
+        @for (var i = 0; i < qs.Count; i++)
         {
-            <div class="q passage" id="qb_@q.Id"><div class="q-h"><span><span class="q-num">@labels[q.Id]</span><span class="qt">@Html.Raw(MathText.Render(q.Text))</span></span></div>
-            @if (q.HasImage) { <img class="q-img" loading="lazy" src="/portal/media/@q.Id" alt="" /> }</div>
-            continue;
-        }
-        Model.Saved.TryGetValue(q.Id, out var sv);
-        <div class="q" id="qb_@q.Id"><div class="q-h"><span><span class="q-num">@labels[q.Id]</span><span class="qt">@Html.Raw(MathText.Render(q.Text))</span></span><span class="badge">@q.Marks mark@(q.Marks == 1 ? "" : "s")</span></div>
-        @if (q.HasImage) { <img class="q-img" loading="lazy" src="/portal/media/@q.Id" alt="Picture for question @labels[q.Id]" /> }
-        <div class="symbar" data-for="q_@q.Id">@foreach (var sym in new[] { "\u00B2", "\u00B3", "\u221A", "\u03C0", "\u00F7", "\u00D7", "\u00B1", "\u2264", "\u2265", "\u2260", "\u2248", "\u00B0", "\u221E", "\u03B8", "\u0394", "\u00BD", "\u00BC", "\u2211", "\u222B" }) { <button type="button" class="sym" data-ins="@sym" tabindex="-1">@sym</button> }</div>
-        <textarea class="theory" name="q_@q.Id" rows="6" maxlength="@AttemptService.MaxTheoryChars" placeholder="Type your answer to @labels[q.Id] here…" spellcheck="true">@sv?.Text</textarea>
-        <div class="muted small right wc"></div></div>
-    }
-}
-<div class="actions"><button class="btn lg" id="submitBtn"><span class="lbl">Submit exam</span><span class="spinner sm"></span></button></div>
-</form>
-</div>
-<aside class="exam-side">
-    <div class="side-card">
-        <h3>Questions</h3>
-        <div class="progress"><i id="bar" style="width:0%"></i></div>
-        <p class="muted small" id="barText"></p>
-        <div class="palette">
-        @foreach (var q in Model.Questions.Where(q => !QLabel.IsPassage(q)))
-        {
-            <a href="#qb_@q.Id" data-q="@q.Id" data-type="@(q.Type == QuestionType.Theory ? "t" : "o")">@labels[q.Id]</a>
+            var q = qs[i];
+            <button type="button" data-go="@i" data-qid="@q.Id" data-type="@(q.Type == QuestionType.Objective ? "o" : "x")" class="@(i == 0 ? "cur" : "")" aria-label="Question @labels[q.Id]">@labels[q.Id]</button>
         }
         </div>
-        <p class="muted small legend"><i class="lgd done"></i> answered <i class="lgd"></i> not yet</p>
+        <div class="ex-nav">
+            <button type="button" class="btn" id="nextBtn">Next <span class="k">N</span></button>
+            <button type="submit" class="btn good" id="submitBtn" hidden>Submit <span class="k">S</span></button>
+        </div>
+    </footer>
+  </form>
+
+  <aside class="calc" id="calc" hidden aria-label="Calculator">
+    <div class="calc-h"><b>Calculator</b><button type="button" id="calcX" aria-label="Close">&times;</button></div>
+    <div class="calc-d" id="calcD">0</div>
+    <div class="calc-g">
+        <button type="button" data-c="C" class="fn">C</button><button type="button" data-c="B" class="fn">&#9003;</button><button type="button" data-c="/" class="op">&divide;</button><button type="button" data-c="*" class="op">&times;</button>
+        <button type="button" data-c="7">7</button><button type="button" data-c="8">8</button><button type="button" data-c="9">9</button><button type="button" data-c="-" class="op">&minus;</button>
+        <button type="button" data-c="4">4</button><button type="button" data-c="5">5</button><button type="button" data-c="6">6</button><button type="button" data-c="+" class="op">+</button>
+        <button type="button" data-c="1">1</button><button type="button" data-c="2">2</button><button type="button" data-c="3">3</button><button type="button" data-c="=" class="eq tall">=</button>
+        <button type="button" data-c="0" class="w2">0</button><button type="button" data-c=".">.</button>
     </div>
-</aside>
+  </aside>
+
+  <div class="gate" id="gate">
+    <div class="gate-box">
+        <img src="/assets/img/logo.png" alt="" class="gate-logo" />
+        <h2 id="gateTitle">@Model.Exam.Title</h2>
+        <p class="muted" id="gateText">@(Model.Began ? "Your exam is open. Return to full screen to continue." : "The exam opens full screen, one question at a time. Your clock starts when you press the button.")</p>
+        <div class="gate-meta"><span>@qs.Count questions</span><span>@Model.Exam.DurationMinutes minutes</span></div>
+        <button type="button" class="btn lg" id="gateBtn"><span class="lbl">@(Model.Began ? "Continue exam" : "Start exam")</span><span class="spinner sm"></span></button>
+        <p class="muted small keys">N next &middot; P previous &middot; A B C D choose &middot; S submit &middot; Y confirm</p>
+    </div>
+  </div>
 </div>
 @section Scripts {
 <script>
 (function () {
-  var left = @Model.SecondsLeft, form = document.getElementById('examForm'), clock = document.getElementById('clock'),
-      timer = document.getElementById('timer'), answered = document.getElementById('answered'), savedEl = document.getElementById('saved'),
-      end = Date.now() + left * 1000, sent = false, dirty = false, saving = false;
+  var form = document.getElementById('examForm'), clock = document.getElementById('clock'), timer = document.getElementById('timer'),
+      savedEl = document.getElementById('saved'), gate = document.getElementById('gate'), gateBtn = document.getElementById('gateBtn'),
+      slides = Array.prototype.slice.call(document.querySelectorAll('.qs')), pal = Array.prototype.slice.call(document.querySelectorAll('#palette button')),
+      prevBtn = document.getElementById('prevBtn'), nextBtn = document.getElementById('nextBtn'), submitBtn = document.getElementById('submitBtn'),
+      posText = document.getElementById('posText'), bar = document.getElementById('bar'), calc = document.getElementById('calc');
+  var began = @(Model.Began ? "true" : "false"), end = Date.now() + @Model.SecondsLeft * 1000, sent = false, dirty = false, saving = false, confirmed = false, cur = 0, total = slides.length;
+  var root = document.documentElement, fsOk = !!(root.requestFullscreen || root.webkitRequestFullscreen);
+  function inFs() { return !!(document.fullscreenElement || document.webkitFullscreenElement); }
   function pad(n) { return String(n).padStart(2, '0'); }
+  function show(t) { clock.textContent = Math.floor(t / 3600) > 0 ? Math.floor(t / 3600) + ':' + pad(Math.floor(t / 60) % 60) + ':' + pad(t % 60) : pad(Math.floor(t / 60)) + ':' + pad(t % 60); }
   function tick() {
+    if (!began) return;
     var s = Math.max(0, Math.round((end - Date.now()) / 1000));
-    clock.textContent = Math.floor(s / 3600) > 0 ? Math.floor(s / 3600) + ':' + pad(Math.floor(s / 60) % 60) + ':' + pad(s % 60) : pad(Math.floor(s / 60)) + ':' + pad(s % 60);
-    timer.classList.toggle('low', s <= 60);
-    if (s <= 0 && !sent) { sent = true; confirmed = true; celebrate("Time's up", 'Submitting what you have written…'); setTimeout(function () { form.submit(); }, 900); }
+    show(s); timer.classList.toggle('low', s <= 60);
+    if (s <= 0 && !sent) { sent = true; confirmed = true; celebrate("Time's up", 'Submitting your answers…'); setTimeout(function () { form.submit(); }, 900); }
   }
-  function count() {
-    var n = new Set(Array.from(form.querySelectorAll('input[type=radio]:checked')).map(function (r) { return r.name; })).size;
-    form.querySelectorAll('textarea.theory').forEach(function (t) {
-      if (t.value.trim()) n++;
-      t.parentNode.querySelector('.wc').textContent = t.value.trim() ? t.value.trim().split(/\s+/).length + ' words' : '';
-    });
-    answered.textContent = n;
-    var pal = document.querySelectorAll('.palette a'), done = 0;
-    pal.forEach(function (a) {
-      var id = a.dataset.q, ok;
-      if (a.dataset.type === 'o') ok = !!form.querySelector('input[name="q_' + id + '"]:checked');
-      else { var t = form.querySelector('textarea[name="q_' + id + '"]'); ok = !!(t && t.value.trim()); }
-      a.classList.toggle('done', ok); if (ok) done++;
-    });
-    var pct = pal.length ? Math.round(done * 100 / pal.length) : 0;
-    document.getElementById('bar').style.width = pct + '%';
-    document.getElementById('barText').textContent = done + ' of ' + pal.length + ' answered';
-  }
-  function state(t, cls) { savedEl.textContent = t; savedEl.className = 'saved ' + (cls || ''); }
-  function save() {
-    if (sent || saving || !dirty) return;
-    saving = true; dirty = false; state('Saving…', 'saving');
-    fetch(location.pathname + '/save', { method: 'POST', body: new FormData(form), credentials: 'same-origin' })
-      .then(function (r) { if (r.redirected || r.status === 401) { sent = true; location.href = '/account/login?ended=1'; throw new Error('ended'); } return r.json(); })
-      .then(function (j) { saving = false; if (j.ok) { state('Saved', 'ok'); end = Date.now() + j.left * 1000; } else if (j.error === 'paused') { sent = true; location.reload(); } else { state(j.error || 'Not saved', 'bad'); } })
-      .catch(function (e) { if (e && e.message === 'ended') return; saving = false; dirty = true; state('Offline, will retry', 'bad'); });
-  }
-  var debounce = null;
-  function touched() { dirty = true; count(); state('Unsaved changes'); clearTimeout(debounce); debounce = setTimeout(save, 1500); }
-  form.addEventListener('change', touched);
-  form.addEventListener('input', touched);
-  form.addEventListener('mousedown', function (e) { if (e.target.classList && e.target.classList.contains('sym')) e.preventDefault(); });
-  form.addEventListener('click', function (e) {
-    var b = e.target; if (!b.classList || !b.classList.contains('sym')) return;
-    var ta = form.querySelector('textarea[name="' + b.parentNode.dataset.for + '"]'); if (!ta) return;
-    var s = ta.selectionStart, en = ta.selectionEnd, v = b.dataset.ins;
-    ta.value = ta.value.slice(0, s) + v + ta.value.slice(en); ta.selectionStart = ta.selectionEnd = s + v.length; ta.focus(); touched();
-  });
-  count(); state('Saved', 'ok'); tick(); setInterval(tick, 500); setInterval(save, 5000);
-  document.addEventListener('visibilitychange', function () { if (document.hidden) save(); });
-  var confirmed = false;
   function celebrate(title, text) {
     var o = document.getElementById('submitOverlay');
     document.getElementById('soTitle').textContent = title; document.getElementById('soText').textContent = text;
     o.classList.add('show'); o.setAttribute('aria-hidden', 'false');
   }
-  form.addEventListener('submit', function (e) {
-    if (confirmed) return;
-    e.preventDefault();
-    var total = document.querySelectorAll('.palette a').length, done = document.querySelectorAll('.palette a.done').length;
-    var left = total - done;
+
+  /* gate: fullscreen + begin */
+  function enterFs() {
+    try { var p = root.requestFullscreen ? root.requestFullscreen() : root.webkitRequestFullscreen(); if (p && p.catch) p.catch(function () { }); } catch (e) { }
+  }
+  function openGate(title, text, btn) {
+    document.getElementById('gateTitle').textContent = title; document.getElementById('gateText').textContent = text;
+    gateBtn.querySelector('.lbl').textContent = btn; gate.classList.add('show');
+  }
+  function closeGate() { gate.classList.remove('show'); }
+  gate.classList.add('show');
+  gateBtn.addEventListener('click', function () {
+    if (fsOk) enterFs();
+    if (began) { closeGate(); return; }
+    gateBtn.classList.add('is-loading');
+    fetch(location.pathname + '/begin', { method: 'POST', body: new FormData(form), credentials: 'same-origin' })
+      .then(function (r) { if (r.redirected || r.status === 401) { sent = true; location.href = '/account/login?ended=1'; throw new Error('ended'); } return r.json(); })
+      .then(function (j) { gateBtn.classList.remove('is-loading'); if (!j.ok) { savedEl.textContent = j.error || 'Could not start'; return; } began = true; end = Date.now() + j.left * 1000; tick(); closeGate(); })
+      .catch(function (e) { gateBtn.classList.remove('is-loading'); if (!e || e.message !== 'ended') savedEl.textContent = 'Could not start, try again'; });
+  });
+  function fsChange() {
+    if (!fsOk || !began || sent) return;
+    if (!inFs()) openGate('Return to full screen', 'The exam must stay in full screen. Your clock is still running.', 'Return to exam');
+  }
+  document.addEventListener('fullscreenchange', fsChange); document.addEventListener('webkitfullscreenchange', fsChange);
+
+  /* slides */
+  function isAnswered(i) { var s = slides[i]; if (s.dataset.type !== 'o') return false; return !!s.querySelector('input:checked'); }
+  function refresh() {
+    var done = 0, obj = 0;
+    slides.forEach(function (s, i) { if (s.dataset.type === 'o') { obj++; var a = isAnswered(i); if (a) done++; pal[i].classList.toggle('done', a); } });
+    bar.style.width = (obj ? Math.round(done * 100 / obj) : 0) + '%';
+    posText.textContent = 'Question ' + (cur + 1) + ' of ' + total + (obj ? '  ·  ' + done + ' of ' + obj + ' answered' : '');
+    pal.forEach(function (b, i) { b.classList.toggle('cur', i === cur); });
+    prevBtn.disabled = cur === 0;
+    var last = cur === total - 1; nextBtn.hidden = last; submitBtn.hidden = !last;
+    var c = pal[cur]; if (c && c.scrollIntoView) { var p = c.parentNode; p.scrollLeft = c.offsetLeft - p.clientWidth / 2 + c.clientWidth / 2; }
+  }
+  function go(i, quiet) {
+    if (i < 0 || i >= total || i === cur) return;
+    slides[cur].classList.remove('on'); slides[cur].setAttribute('aria-hidden', 'true');
+    cur = i; slides[cur].classList.add('on'); slides[cur].setAttribute('aria-hidden', 'false');
+    document.getElementById('stage').scrollTop = 0; refresh();
+    if (!quiet) { dirty = true; schedule(120); }
+  }
+  prevBtn.addEventListener('click', function () { go(cur - 1); });
+  nextBtn.addEventListener('click', function () { go(cur + 1); });
+  document.getElementById('palette').addEventListener('click', function (e) { var b = e.target.closest('button[data-go]'); if (b) go(parseInt(b.dataset.go, 10)); });
+
+  /* saving */
+  function state(t, cls) { savedEl.textContent = t; savedEl.className = 'saved ' + (cls || ''); }
+  function save() {
+    if (sent || saving || !dirty || !began) return;
+    saving = true; dirty = false; state('Saving…', 'saving');
+    var fd = new FormData(form); fd.append('cur', cur + 1);
+    fetch(location.pathname + '/save', { method: 'POST', body: fd, credentials: 'same-origin' })
+      .then(function (r) { if (r.redirected || r.status === 401) { sent = true; location.href = '/account/login?ended=1'; throw new Error('ended'); } return r.json(); })
+      .then(function (j) { saving = false; if (j.ok) { state('Saved', 'ok'); end = Date.now() + j.left * 1000; } else if (j.error === 'paused') { sent = true; location.reload(); } else { state(j.error || 'Not saved', 'bad'); } })
+      .catch(function (e) { if (e && e.message === 'ended') return; saving = false; dirty = true; state('Offline, will retry', 'bad'); });
+  }
+  var deb = null;
+  function schedule(ms) { clearTimeout(deb); deb = setTimeout(save, ms); }
+  form.addEventListener('change', function () { dirty = true; refresh(); state('Saving…', 'saving'); schedule(250); });
+
+  /* submit */
+  function ask() {
+    if (!began || sent) return;
+    var left = 0; slides.forEach(function (s, i) { if (s.dataset.type === 'o' && !isAnswered(i)) left++; });
     window.exConfirm({
       title: 'Submit your exam?',
-      text: left > 0 ? 'You still have ' + left + ' unanswered question' + (left === 1 ? '' : 's') + '. You cannot change answers after submitting.' : 'All ' + total + ' questions are answered. You cannot change answers after submitting.',
-      yes: 'Submit now', no: 'Keep working'
+      text: (left > 0 ? 'You still have ' + left + ' unanswered question' + (left === 1 ? '' : 's') + '. ' : 'All objective questions are answered. ') + 'You cannot change answers after submitting. Press Y to confirm.',
+      yes: 'Yes, submit', no: 'Keep working'
     }).then(function (ok) {
       if (!ok) return;
       confirmed = true; sent = true;
       celebrate('Submitting your exam…', "Saving your answers. Please don't close this page.");
-      setTimeout(function () { form.submit(); }, 1100);
+      setTimeout(function () { form.submit(); }, 900);
     });
+  }
+  form.addEventListener('submit', function (e) { if (confirmed) return; e.preventDefault(); ask(); });
+
+  /* keyboard */
+  document.addEventListener('keydown', function (e) {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    var k = e.key.length === 1 ? e.key.toUpperCase() : e.key, modal = document.getElementById('confirmModal');
+    if (modal.classList.contains('show')) { if (k === 'Y') { e.preventDefault(); document.getElementById('modalYes').click(); } return; }
+    if (gate.classList.contains('show') || sent) { if (k === 'Enter' && gate.classList.contains('show')) { e.preventDefault(); gateBtn.click(); } return; }
+    if (!calc.hidden && /^[0-9.+\-*\/]$|^Enter$|^Backspace$|^Escape$|^=$/.test(k)) { e.preventDefault(); calcKey(k); return; }
+    if (k === 'N' || k === 'ArrowRight') { e.preventDefault(); go(cur + 1); }
+    else if (k === 'P' || k === 'ArrowLeft') { e.preventDefault(); go(cur - 1); }
+    else if (k === 'S') { e.preventDefault(); ask(); }
+    else if (/^[A-E]$/.test(k)) {
+      var r = slides[cur].querySelector('input[value="' + k + '"]');
+      if (r) { e.preventDefault(); r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); }
+    }
   });
-  window.addEventListener('beforeunload', function (e) { if (!sent) { save(); e.preventDefault(); e.returnValue = ''; } });
+
+  /* calculator: add, subtract, multiply, divide only */
+  var disp = document.getElementById('calcD'), cv = '0', acc = null, op = null, fresh = true;
+  function fmt(n) { var s = String(parseFloat(n.toPrecision(12))); return s.length > 14 ? n.toExponential(6) : s; }
+  function apply() {
+    var b = parseFloat(cv); if (acc === null || !op) return b;
+    if (op === '+') return acc + b; if (op === '-') return acc - b; if (op === '*') return acc * b;
+    return b === 0 ? NaN : acc / b;
+  }
+  function calcKey(c) {
+    if (c === 'Enter') c = '=';
+    if (c === 'Escape') { calc.hidden = true; return; }
+    if (/^[0-9]$/.test(c)) { cv = (fresh || cv === '0') ? c : cv + c; fresh = false; }
+    else if (c === '.') { if (fresh) { cv = '0.'; fresh = false; } else if (cv.indexOf('.') < 0) cv += '.'; }
+    else if (c === 'C') { cv = '0'; acc = null; op = null; fresh = true; }
+    else if (c === 'B' || c === 'Backspace') { if (!fresh) cv = cv.length > 1 ? cv.slice(0, -1) : '0'; }
+    else if (c === '=') { if (op) { var r = apply(); cv = isNaN(r) || !isFinite(r) ? 'Error' : fmt(r); acc = null; op = null; fresh = true; if (cv === 'Error') { cv = '0'; disp.textContent = 'Error'; return; } } }
+    else { if (op && !fresh) { var r2 = apply(); cv = isNaN(r2) || !isFinite(r2) ? '0' : fmt(r2); } acc = parseFloat(cv); op = c; fresh = true; }
+    disp.textContent = cv;
+  }
+  document.getElementById('calcBtn').addEventListener('click', function () { calc.hidden = !calc.hidden; });
+  document.getElementById('calcX').addEventListener('click', function () { calc.hidden = true; });
+  calc.addEventListener('click', function (e) { var b = e.target.closest('button[data-c]'); if (b) calcKey(b.dataset.c); });
+
+  refresh(); show(@Model.SecondsLeft); tick(); setInterval(tick, 500); setInterval(save, 5000);
+  if (!fsOk && began) closeGate();
+  document.addEventListener('visibilitychange', function () { if (document.hidden) { dirty = true; save(); } });
+  window.addEventListener('beforeunload', function (e) { if (!sent) { e.preventDefault(); e.returnValue = ''; } });
 })();
 </script>
 }

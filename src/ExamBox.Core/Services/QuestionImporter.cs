@@ -64,14 +64,13 @@ public static class QuestionImporter
             "",
             "One question per row. Do not change the heading row.",
             "No: the number students see. Use 1, 2, 3 ... or 3a, 3b for sub-parts. Leave blank to number automatically.",
-            "Type: OBJ for multiple choice, THEORY for a question the student types an answer to.",
+            "Type: OBJ for multiple choice, THEORY for an essay. Essays are shown on screen and students answer them on their own answer sheets; they are not typed or scored in ExamBox.",
             "Question: the question text (for sub-parts, write only that part).",
             "A to E: the options. A and B are required for OBJ; C, D and E are optional. Leave blank for THEORY.",
             "Correct: the letter of the right option (OBJ only).",
-            "Marks: marks for the question. A THEORY row with 0 marks is treated as a heading and not scored when it is just a passage.",
-            "Image: leave blank when there is no picture. Type YES when the question needs a picture - you will attach it afterwards in ExamBox, question by question.",
-            "       Or type the picture's file name (for example map1.png) and choose the folder that holds your pictures when importing.",
-            "Model answer: optional marking guide for THEORY questions. Only teachers see it.",
+            "Marks: marks for the question (counted for OBJ rows). A THEORY row with 0 marks is treated as a heading or reading passage.",
+            "Image: type YES if the question has a picture, NO or leave blank if not. After importing, ExamBox asks for the picture of the first YES question, then the next one automatically.",
+            "Model answer: optional note for teachers about a THEORY question. Students never see it.",
             "Maths: type x^2 for a power, x_1 for an index, \\frac{a}{b} for a fraction, \\sqrt{x} for a root. Symbols such as \\pi, \\times, \\div, \\le, \\ge, \\pm, \\theta and \\degree are shown as real symbols to students. You can also paste symbols like \u00B2 \u221A \u00F7 straight in.",
             "Pictures: you can paste a picture into the Image cell of a question row (Insert > Pictures) and it is imported with that question.",
             "",
@@ -181,8 +180,6 @@ public static class QuestionImporter
                 var input = new QuestionInput(type, Get(r, "no"), text, marks,
                     Get(r, "a"), Get(r, "b"), Get(r, "c"), Get(r, "d"), Get(r, "e"), Get(r, "correct"), Get(r, "model"));
 
-                if (type == QuestionType.Theory && marks == 0)
-                    res.Issues.Add(new ImportIssue(r, "Theory row has no marks, so it is shown as a reading passage and is not scored.", true));
                 var err = ExamService.Validate(input);
                 if (err != null) { Err(err); continue; }
                 var q = new Question();

@@ -145,6 +145,10 @@ public class Attempt
     public int PausedSeconds { get; set; }
     /// <summary>Minutes the admin added (or removed) for this student, in seconds.</summary>
     public int TimeAdjustSeconds { get; set; }
+    /// <summary>When the student actually pressed Start inside the exam (entered fullscreen); the clock runs from here.</summary>
+    public DateTime? BeganAt { get; set; }
+    /// <summary>Position (1-based) of the question the student is on, reported while they work. 0 before they begin.</summary>
+    public int CurrentQuestion { get; set; }
     public bool IsPaused => PausedAt != null && SubmittedAt == null;
     /// <summary>Total score (objective + marked theory).</summary>
     public int Score { get; set; }

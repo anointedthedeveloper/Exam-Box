@@ -8,7 +8,7 @@ namespace ExamBox.Data;
 /// </summary>
 public static class SchemaUpgrader
 {
-    public const int Current = 8;
+    public const int Current = 9;
 
     public static void Run(AppDb db)
     {
@@ -31,6 +31,12 @@ public static class SchemaUpgrader
             // v3: temporary passwords no longer exist; nobody is forced to change a password.
             if (v < 3) Exec(conn, "UPDATE Users SET MustChangePassword = 0", tx);
             if (v < 4) Exec(conn, "ALTER TABLE Users ADD COLUMN PasswordCipher TEXT NULL", tx);
+            if (v < 9)
+            {
+                Exec(conn, "ALTER TABLE Attempts ADD COLUMN BeganAt TEXT NULL", tx);
+                Exec(conn, "ALTER TABLE Attempts ADD COLUMN CurrentQuestion INTEGER NOT NULL DEFAULT 0", tx);
+                Exec(conn, "UPDATE Attempts SET BeganAt = StartedAt", tx);
+            }
             if (v < 8)
             {
                 Exec(conn, "CREATE TABLE IF NOT EXISTS Images (QuestionId INTEGER NOT NULL CONSTRAINT PK_Images PRIMARY KEY, Data BLOB NOT NULL, CONSTRAINT FK_Images_Questions_QuestionId FOREIGN KEY (QuestionId) REFERENCES Questions (Id) ON DELETE CASCADE)", tx);

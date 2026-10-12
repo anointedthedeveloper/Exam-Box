@@ -127,15 +127,8 @@ public partial class MainWindow : Window
         ShowPage(view);
     }
 
-    /// <summary>Shows how many submissions wait for theory marking on the Marking tab.</summary>
-    public void RefreshMarkingBadge()
-    {
-        var n = 0;
-        try { n = App.Marking.PendingCount(); } catch { /* database busy: keep the old badge */ }
-        MarkingBadgeText.Text = MarkingBadgeText2.Text = n > 99 ? "99+" : n.ToString();
-        MarkingBadge.Visibility = MarkingBadge2.Visibility = n > 0 ? Visibility.Visible : Visibility.Collapsed;
-        MovePill(CurrentNav, animate: false);
-    }
+    /// <summary>Essays are answered on paper and never marked in the app, so nothing waits for marking.</summary>
+    public void RefreshMarkingBadge() { }
 
     /// <summary>Swap the page with a short fade/slide-in.</summary>
     private void ShowPage(UserControl view)

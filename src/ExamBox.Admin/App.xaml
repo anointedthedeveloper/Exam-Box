@@ -684,6 +684,7 @@
                             <DataTrigger Binding="{Binding Status}" Value="Live"><Setter Property="Background" Value="{StaticResource OkBgBrush}"/></DataTrigger>
                             <DataTrigger Binding="{Binding Status}" Value="Running"><Setter Property="Background" Value="{StaticResource OkBgBrush}"/></DataTrigger>
                             <DataTrigger Binding="{Binding Status}" Value="Paused"><Setter Property="Background" Value="{StaticResource WarnBgBrush}"/></DataTrigger>
+                            <DataTrigger Binding="{Binding Status}" Value="Not started"><Setter Property="Background" Value="{StaticResource WarnBgBrush}"/></DataTrigger>
                             <DataTrigger Binding="{Binding Status}" Value="Closed"><Setter Property="Background" Value="{StaticResource ErrBgBrush}"/></DataTrigger>
                             <DataTrigger Binding="{Binding Status}" Value="Awaiting marking"><Setter Property="Background" Value="{StaticResource WarnBgBrush}"/></DataTrigger>
                         </Style.Triggers>

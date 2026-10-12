@@ -18,14 +18,15 @@
         <h2>What is in this exam</h2>
         <ul class="ticks">
             @if (obj > 0) { <li><b>Objective</b>: @obj multiple-choice question@(obj == 1 ? "" : "s"). Pick one answer for each.</li> }
-            @if (th > 0) { <li><b>Theory</b>: @th question@(th == 1 ? "" : "s") answered by typing. No pen and paper needed.</li> }
+            @if (th > 0) { <li><b>Theory</b>: @th question@(th == 1 ? "" : "s") shown on screen. Answer these on your own answer sheet; they are not typed or scored here.</li> }
             @if (pics > 0) { <li>@pics question@(pics == 1 ? " has" : "s have") a picture or diagram to look at.</li> }
         </ul>
     </section>
     <aside class="card ins-side">
         <h2>Before you begin</h2>
         <ul class="ticks">
-            <li>The timer starts the moment you click <b>Begin</b> and does not stop.</li>
+            <li>The exam opens <b>full screen</b>, one question at a time. The timer starts when you press <b>Start exam</b> and does not stop.</li>
+            <li>Keys: <b>N</b> next, <b>P</b> previous, <b>A to E</b> choose an option, <b>S</b> submit then <b>Y</b> to confirm.</li>
             <li>You get <b>one attempt</b>. You can't retake it.</li>
             <li>Your answers are <b>saved automatically</b>. If your connection drops, reopen this page to continue.</li>
             <li>When time runs out, what you have written is submitted for you.</li>

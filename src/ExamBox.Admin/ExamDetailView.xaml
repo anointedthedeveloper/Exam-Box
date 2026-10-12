@@ -76,6 +76,7 @@
                         <Button x:Name="ResumeBtn" Content="Resume" Style="{StaticResource GhostButton}" Click="ResumeLive_Click"/>
                         <Button x:Name="TimeBtn" Content="Edit time left" Style="{StaticResource GhostButton}" Click="EditTime_Click"/>
                         <Button x:Name="EndBtn" Content="Submit now" Style="{StaticResource DangerButton}" Click="EndNow_Click"/>
+                        <Button x:Name="SubmitAllBtn" Content="Submit all" Style="{StaticResource DangerButton}" Click="SubmitAll_Click"/>
                         <TextBlock x:Name="LiveSummary" Style="{StaticResource Muted}" VerticalAlignment="Center" Margin="8,0,0,0"/>
                     </WrapPanel>
                     <Border Style="{StaticResource GridCard}">
@@ -84,8 +85,11 @@
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="STUDENT" Binding="{Binding Student}" Width="2*"/>
                                     <DataGridTextColumn Header="STUDENT ID" Binding="{Binding StudentId}" Width="*"/>
-                                    <DataGridTextColumn Header="STARTED" Binding="{Binding Started}" Width="150"/>
-                                    <DataGridTextColumn Header="TIME LEFT" Binding="{Binding Left}" Width="120"/>
+                                    <DataGridTextColumn Header="ON QUESTION" Binding="{Binding Question}" Width="115"/>
+                                    <DataGridTextColumn Header="ANSWERED" Binding="{Binding Answered}" Width="100"/>
+                                    <DataGridTextColumn Header="LIVE SCORE" Binding="{Binding Score}" Width="105"/>
+                                    <DataGridTextColumn Header="STARTED" Binding="{Binding Started}" Width="140"/>
+                                    <DataGridTextColumn Header="TIME LEFT" Binding="{Binding Left}" Width="95"/>
                                     <DataGridTemplateColumn Header="STATE" Width="110" SortMemberPath="Status" CellTemplate="{StaticResource StatusCell}"/>
                                 </DataGrid.Columns>
                             </DataGrid>
@@ -97,19 +101,17 @@
             <TabItem Header="Results" Padding="14,8" FontSize="14">
                 <DockPanel Margin="0,12,0,0">
                     <DockPanel DockPanel.Dock="Bottom" LastChildFill="False" Margin="0,12,0,0">
-                        <Button DockPanel.Dock="Left" x:Name="MarkBtn" Content="Mark selected" Style="{StaticResource PrimaryButton}" Click="Mark_Click"/>
                         <Button DockPanel.Dock="Left" Content="Export CSV" Style="{StaticResource GhostButton}" Click="Export_Click"/>
                         <Button DockPanel.Dock="Left" Content="Export Excel" Style="{StaticResource GhostButton}" Click="ExportXlsx_Click"/>
                         <Button DockPanel.Dock="Left" Content="Export PDF" Style="{StaticResource GhostButton}" Click="ExportPdf_Click"/>
                         <TextBlock x:Name="ResultSummary" DockPanel.Dock="Left" Style="{StaticResource Muted}" VerticalAlignment="Center" Margin="8,0,0,0"/>
                     </DockPanel>
                     <Border Style="{StaticResource GridCard}">
-                        <DataGrid x:Name="RTable" SelectionChanged="RTable_SelectionChanged" MouseDoubleClick="RTable_DoubleClick">
+                        <DataGrid x:Name="RTable">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="STUDENT" Binding="{Binding Student}" Width="2*"/>
                                 <DataGridTextColumn Header="STUDENT ID" Binding="{Binding StudentId}" Width="*"/>
-                                <DataGridTextColumn Header="OBJECTIVE" Binding="{Binding Objective}" Width="95"/>
-                                <DataGridTextColumn Header="THEORY" Binding="{Binding Theory}" Width="85"/>
+                                <DataGridTextColumn Header="OBJECTIVE" Binding="{Binding Objective}" Width="105"/>
                                 <DataGridTextColumn Header="TOTAL" Binding="{Binding Score}" Width="100"/>
                                 <DataGridTextColumn Header="PERCENT" Binding="{Binding Percent}" Width="90"/>
                                 <DataGridTemplateColumn Header="OUTCOME" Width="120" SortMemberPath="Outcome" CellTemplate="{StaticResource OutcomeCell}"/>

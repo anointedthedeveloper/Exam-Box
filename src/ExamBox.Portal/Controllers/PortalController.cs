@@ -51,7 +51,7 @@ public class PortalController(AttemptService attempts, PresenceService presence)
         if (t == null) return attempts.IsSubmitted(Me, id) ? RedirectToAction(nameof(Result), new { id }) : NotFound();
         if (t.Paused) return View("Paused", t);
         if (t.SecondsLeft <= 0) return RedirectToAction(nameof(Result), new { id });
-        return View(new TakeExamVm { Attempt = t.Attempt, Exam = t.Exam, Questions = t.Questions, Saved = t.Saved, SecondsLeft = t.SecondsLeft });
+        return View(new TakeExamVm { Attempt = t.Attempt, Exam = t.Exam, Questions = t.Questions, Saved = t.Saved, SecondsLeft = t.SecondsLeft, Began = t.Began });
     }
 
     private Dictionary<int, string> ReadAnswers()
@@ -83,7 +83,16 @@ public class PortalController(AttemptService attempts, PresenceService presence)
     [HttpPost("exam/{id:int}/save")]
     public IActionResult Save(int id)
     {
-        var r = attempts.SaveDraft(Me, id, ReadAnswers());
+        int? cur = int.TryParse(Request.Form["cur"].FirstOrDefault(), out var c) ? c : null;
+        var r = attempts.SaveDraft(Me, id, ReadAnswers(), cur);
+        return Json(new { ok = r.Ok, left = r.Value, error = r.Error });
+    }
+
+    /// <summary>The student pressed "Start exam" (and went fullscreen); this is when the clock starts.</summary>
+    [HttpPost("exam/{id:int}/begin")]
+    public IActionResult Begin(int id)
+    {
+        var r = attempts.Begin(Me, id);
         return Json(new { ok = r.Ok, left = r.Value, error = r.Error });
     }
 

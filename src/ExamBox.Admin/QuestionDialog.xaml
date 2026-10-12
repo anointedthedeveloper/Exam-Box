@@ -15,7 +15,7 @@
                     <TextBlock Text="Type" Style="{StaticResource FieldLabel}"/>
                     <ComboBox x:Name="TypeBox" SelectedIndex="0" SelectionChanged="Type_Changed">
                         <ComboBoxItem Content="Objective (multiple choice)"/>
-                        <ComboBoxItem Content="Theory (typed answer)"/>
+                        <ComboBoxItem Content="Essay (answered on paper)"/>
                     </ComboBox>
                 </StackPanel>
                 <StackPanel Grid.Column="2">
@@ -46,7 +46,7 @@
                 </ComboBox>
             </StackPanel>
             <StackPanel x:Name="TheoryPanel" Visibility="Collapsed">
-                <TextBlock Text="Marking guide / model answer (optional, shown to you while marking)" Style="{StaticResource FieldLabel}"/>
+                <TextBlock Text="Note for teachers (optional). Essays are shown to students on screen; they write the answer on their own answer sheet and it is not scored here." Style="{StaticResource FieldLabel}"/>
                 <TextBox x:Name="ModelAnswer" Style="{StaticResource MultiLineTextBox}" Height="90"/>
                 <TextBlock Text="Tip: for sub-parts, add each as its own question and number them 1a, 1b, 1c. Set marks to 0 for a reading passage that students only read." Style="{StaticResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,6,0,0"/>
             </StackPanel>

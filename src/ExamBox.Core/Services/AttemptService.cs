@@ -22,6 +22,7 @@ public sealed class TakeData
     public Dictionary<int, Answer> Saved { get; init; } = new();
     public int SecondsLeft { get; init; }
     public bool Paused { get; init; }
+    public bool Began { get; init; }
 }
 
 /// <summary>Everything a student does with an exam: see it, start it, answer it, hand it in.</summary>
@@ -42,7 +43,7 @@ public sealed class AttemptService(DbFactory factory)
         return !touched && e.ClosesAt is { } c && c < end ? c : end;
     }
 
-    public static int SecondsLeft(Attempt a, Exam e) => (int)(Deadline(a, e) - DateTime.UtcNow).TotalSeconds;
+    public static int SecondsLeft(Attempt a, Exam e) => a.BeganAt == null ? e.DurationMinutes * 60 : (int)(Deadline(a, e) - DateTime.UtcNow).TotalSeconds;
 
     private static bool Eligible(Exam e, User s) =>
         string.IsNullOrEmpty(e.ForDepartment) || string.Equals(e.ForDepartment, s.Department, StringComparison.OrdinalIgnoreCase);
@@ -84,7 +85,7 @@ public sealed class AttemptService(DbFactory factory)
             case ExamState.Scheduled: return OpResult<int>.Fail($"This exam opens {exam.OpensAt:f} UTC.");
             case ExamState.Closed: return OpResult<int>.Fail("This exam has closed.");
         }
-        var attempt = new Attempt { ExamId = examId, StudentId = studentId, StartedAt = now, TotalMarks = exam.Questions.Sum(q => q.Marks) };
+        var attempt = new Attempt { ExamId = examId, StudentId = studentId, StartedAt = now, TotalMarks = exam.Questions.Where(q => q.Type == QuestionType.Objective).Sum(q => q.Marks) };
         db.Attempts.Add(attempt);
         try { db.SaveChanges(); }
         catch (DbUpdateException) // double-click race on the unique (exam, student) index
@@ -104,12 +105,40 @@ public sealed class AttemptService(DbFactory factory)
         var a = db.Attempts.AsNoTracking().Include(x => x.Exam).ThenInclude(e => e!.Questions).Include(x => x.Answers)
             .FirstOrDefault(x => x.Id == attemptId && x.StudentId == studentId);
         if (a == null || a.SubmittedAt != null) return null;
-        var left = (int)(Deadline(a, a.Exam!) - DateTime.UtcNow).TotalSeconds;
+        var left = SecondsLeft(a, a.Exam!);
         return new TakeData
         {
-            Attempt = a, Exam = a.Exam!, Questions = Arrange(a.Exam!, a), SecondsLeft = Math.Max(0, left), Paused = a.PausedAt != null,
+            Attempt = a, Exam = a.Exam!, Questions = Arrange(a.Exam!, a), SecondsLeft = Math.Max(0, left), Paused = a.PausedAt != null, Began = a.BeganAt != null,
             Saved = a.Answers.ToDictionary(x => x.QuestionId),
         };
+    }
+
+    /// <summary>The student pressed Start inside the exam: the clock starts now (only the first time).</summary>
+    public OpResult<int> Begin(int studentId, int attemptId)
+    {
+        using var db = factory.Create();
+        var a = db.Attempts.Include(x => x.Exam).FirstOrDefault(x => x.Id == attemptId && x.StudentId == studentId && x.SubmittedAt == null);
+        if (a == null) return OpResult<int>.Fail("Attempt not found.");
+        if (a.BeganAt == null)
+        {
+            a.BeganAt = DateTime.UtcNow; a.StartedAt = a.BeganAt.Value;
+            db.SaveChanges();
+        }
+        return OpResult<int>.Success(Math.Max(0, SecondsLeft(a, a.Exam!)));
+    }
+
+    /// <summary>An administrator hands in a student's exam with the answers saved so far.</summary>
+    public OpResult AdminSubmit(int attemptId)
+    {
+        using var db = factory.Create();
+        var a = db.Attempts.Include(x => x.Exam).ThenInclude(e => e!.Questions).Include(x => x.Answers)
+            .FirstOrDefault(x => x.Id == attemptId);
+        if (a == null) return OpResult.Fail("Attempt not found.");
+        if (a.SubmittedAt != null) return OpResult.Success();
+        a.PausedAt = null;
+        Finish(db, a, null);
+        _log.Write("exam", "Admin", "Exam submitted by admin", db.Users.Where(u => u.Id == a.StudentId).Select(u => u.Username).FirstOrDefault() + " / " + a.Exam!.Title);
+        return OpResult.Success();
     }
 
     /// <summary>The student continues a paused exam; the clock starts again with the time that was left.</summary>
@@ -136,8 +165,8 @@ public sealed class AttemptService(DbFactory factory)
     public static List<Question> Arrange(Exam e, Attempt a)
     {
         var qs = e.Questions.OrderBy(q => q.SortOrder).ThenBy(q => q.Id).ToList();
-        IEnumerable<Question> obj = qs.Where(q => q.Type == QuestionType.Objective);
-        if (e.ShuffleQuestions) obj = obj.OrderBy(q => Mix(a.Id, q.Id));
+        if (!e.ShuffleQuestions) return qs;                      // the teacher's own order, passages and essays in place
+        var obj = qs.Where(q => q.Type == QuestionType.Objective).OrderBy(q => Mix(a.Id, q.Id));
         return obj.Concat(qs.Where(q => q.Type == QuestionType.Theory)).ToList();
     }
 
@@ -152,7 +181,7 @@ public sealed class AttemptService(DbFactory factory)
     }
 
     /// <summary>Autosave. Returns seconds left, or an error when the attempt is gone or finished.</summary>
-    public OpResult<int> SaveDraft(int studentId, int attemptId, IReadOnlyDictionary<int, string> answers)
+    public OpResult<int> SaveDraft(int studentId, int attemptId, IReadOnlyDictionary<int, string> answers, int? currentQuestion = null)
     {
         using var db = factory.Create();
         var a = db.Attempts.Include(x => x.Exam).ThenInclude(e => e!.Questions).Include(x => x.Answers)
@@ -160,9 +189,11 @@ public sealed class AttemptService(DbFactory factory)
         if (a == null) return OpResult<int>.Fail("Attempt not found.");
         if (a.SubmittedAt != null) return OpResult<int>.Fail("This exam has already been submitted.");
         if (a.PausedAt != null) return OpResult<int>.Fail("paused");
+        if (a.BeganAt == null) return OpResult<int>.Success(a.Exam!.DurationMinutes * 60);
         var left = (int)(Deadline(a, a.Exam!) - DateTime.UtcNow).TotalSeconds;
         if (left < -GraceSeconds) { Finish(db, a, null); return OpResult<int>.Fail("Time is up."); }
         ApplyAnswers(a, answers);
+        if (currentQuestion is > 0) a.CurrentQuestion = currentQuestion.Value;
         db.SaveChanges();
         return OpResult<int>.Success(Math.Max(0, left));
     }
@@ -210,7 +241,7 @@ public sealed class AttemptService(DbFactory factory)
             .Where(a => a.SubmittedAt == null);
         if (studentId != null) q = q.Where(a => a.StudentId == studentId);
         var n = 0;
-        foreach (var a in q.ToList().Where(a => a.PausedAt == null && DateTime.UtcNow > Deadline(a, a.Exam!)))
+        foreach (var a in q.ToList().Where(a => a.PausedAt == null && a.BeganAt != null && DateTime.UtcNow > Deadline(a, a.Exam!)))
         {
             Finish(db, a, null);
             _log.Write("exam", db.Users.Where(u => u.Id == a.StudentId).Select(u => u.Username).FirstOrDefault(), "Exam collected (time ran out)", a.Exam!.Title);
@@ -238,27 +269,20 @@ public sealed class AttemptService(DbFactory factory)
         }
     }
 
+    /// <summary>Essay (theory) questions are answered on paper and not scored here; only objective answers count.</summary>
     private static void Finish(AppDb db, Attempt a, IReadOnlyDictionary<int, string>? answers)
     {
         if (answers != null) ApplyAnswers(a, answers);
-        var obj = 0; var anyToMark = false;
-        foreach (var q in a.Exam!.Questions)
+        var obj = 0;
+        foreach (var q in a.Exam!.Questions.Where(q => q.Type == QuestionType.Objective))
         {
             var row = a.Answers.FirstOrDefault(x => x.QuestionId == q.Id);
             if (row == null) { row = new Answer { QuestionId = q.Id }; a.Answers.Add(row); }
-            if (q.Type == QuestionType.Objective)
-            {
-                if (row.Selected != null && row.Selected == q.CorrectOption) obj += q.Marks;
-            }
-            else if (q.Marks > 0)
-            {
-                if (string.IsNullOrWhiteSpace(row.Text)) row.Marks = 0; // nothing typed: nothing to mark
-                else { anyToMark = true; row.Marks = null; }
-            }
+            if (row.Selected != null && row.Selected == q.CorrectOption) obj += q.Marks;
         }
         a.ObjectiveScore = obj; a.TheoryScore = 0; a.Score = obj;
-        a.TotalMarks = a.Exam.Questions.Sum(q => q.Marks);
-        a.PendingMarking = anyToMark;
+        a.TotalMarks = a.Exam.Questions.Where(q => q.Type == QuestionType.Objective).Sum(q => q.Marks);
+        a.PendingMarking = false;
         a.SubmittedAt = DateTime.UtcNow;
         db.SaveChanges();
     }

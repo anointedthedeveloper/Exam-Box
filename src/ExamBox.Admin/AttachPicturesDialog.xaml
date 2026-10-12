@@ -1,0 +1,27 @@
+<Window UseLayoutRounding="True" SnapsToDevicePixels="True" x:Class="ExamBox.Admin.AttachPicturesDialog" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Width="560" SizeToContent="Height" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" ShowInTaskbar="False" Background="{StaticResource PageBackgroundBrush}" FontFamily="Segoe UI">
+    <Grid>
+        <Canvas IsHitTestVisible="False" ClipToBounds="True">
+            <Ellipse Width="340" Height="340" Fill="{StaticResource OrbBlueBrush}" Canvas.Right="-120" Canvas.Top="-130"/>
+            <Ellipse Width="300" Height="300" Fill="{StaticResource OrbPurpleBrush}" Canvas.Left="-110" Canvas.Bottom="-120"/>
+        </Canvas>
+        <Border Background="{StaticResource FrostBrush}" CornerRadius="16" Margin="12" BorderBrush="#B3FFFFFF" BorderThickness="1.5">
+            <StackPanel Margin="26">
+                <StackPanel Orientation="Horizontal"><Border Style="{StaticResource IconBadge}"><TextBlock Text="&#xEB9F;" Style="{StaticResource IconGlyph}"/></Border><TextBlock x:Name="Heading" Style="{StaticResource H2}" VerticalAlignment="Center" Margin="12,0,0,0"/></StackPanel>
+                <TextBlock x:Name="Progress" Style="{StaticResource Muted}" Margin="0,8,0,0"/>
+                <ProgressBar x:Name="Bar" Style="{StaticResource SlimProgress}" Height="6" Margin="0,8,0,0" Minimum="0"/>
+                <Border Margin="0,16,0,0" Padding="14" CornerRadius="12" Background="#80FFFFFF" BorderBrush="{StaticResource LineBrush}" BorderThickness="1">
+                    <TextBlock x:Name="QuestionText" TextWrapping="Wrap" FontSize="14" MaxHeight="120"/>
+                </Border>
+                <Border x:Name="Thumb" Visibility="Collapsed" Margin="0,12,0,0" CornerRadius="10" Background="White" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" Padding="6">
+                    <Image x:Name="Preview" MaxHeight="150" Stretch="Uniform"/>
+                </Border>
+                <TextBlock x:Name="ErrorText" Style="{StaticResource ErrorText}" Visibility="Collapsed"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,22,0,0">
+                    <Button Content="Finish later" Style="{StaticResource GhostButton}" IsCancel="True"/>
+                    <Button Content="Skip this one" Style="{StaticResource GhostButton}" Click="Skip_Click"/>
+                    <Button Content="Choose picture…" Style="{StaticResource PrimaryButton}" IsDefault="True" Click="Choose_Click" Margin="0"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

@@ -18,16 +18,16 @@ administrator account, and all other data is created in the app.
 2. **Students** → *Add student* (you choose the password, or click *Generate*), or *Import from Excel* (download the template; list ID, name, class and optionally a password, and ExamBox gives you a login sheet). Passwords are only ever changed by the admin: use the key icon on a student's row. Students see their profile and password under *My account*, but cannot change it themselves.
 3. **Exams** → *New exam* (e.g. "SS1 English First Term"). Set the duration, pass mark and, optionally, the class it is for.
 4. **Questions**: open the exam → *Download template*, let the teacher fill it in Excel, then *Import from Excel*.
-   - One question per row. `Type` is `OBJ` (multiple choice, options A-E, `Correct` letter) or `THEORY` (typed answer, optional `Model answer` marking guide).
+   - One question per row. `Type` is `OBJ` (multiple choice, options A-E, `Correct` letter) or `THEORY` (an essay: shown on screen, answered by students on their own answer sheets, not typed or scored in ExamBox).
    - Sub-parts: give each its own row and number it `1a`, `1b`, `1c`. A THEORY row with 0 marks is a reading passage students only read.
-   - Pictures: put `YES` in the `Image` column (or a file name plus a pictures folder when importing). Questions needing a picture show **Needed**; select each and *Attach picture*. The exam cannot be launched until all are attached.
-   - Maths: type `x^2`, `x_1`, `\frac{3}{4}`, `\sqrt{49}`, `\pi`, `\times`, `\le` (or paste ², √, ÷ directly) and students see proper maths. Students answering theory questions get a symbol bar (² √ π ÷ × ≤ ...).
+   - Pictures: put `YES` in the `Image` column or `NO`. After importing, ExamBox says *Select question N image*; pick the picture and the next question that needs one appears automatically (you can skip and use *Attach picture* later). The exam cannot be launched until all are attached.
+   - Maths: type `x^2`, `x_1`, `\frac{3}{4}`, `\sqrt{49}`, `\pi`, `\times`, `\le` (or paste ², √, ÷ directly) and students see proper maths.
    - Pictures can also be pasted straight into the Image cell of a question row in Excel.
    - A preview lists any row that needs fixing before anything is added. Questions can also be added, edited and re-ordered by hand.
 5. **Templates**: an exam that has not been launched is a draft/template. *Duplicate* it for another class or term, and *Launch* it when it is time: for everyone or one class, opening now or at a chosen date/time, closing at a chosen time or when you close it.
 6. **Student portal** page shows the address to give students (same network/Wi-Fi). Allow ExamBox through the
    Windows firewall (Private networks) when prompted. Keep ExamBox open while exams run.
-7. Students see *Available*, *Coming up* and their results. Objective answers are graded instantly; theory answers are typed in the browser (autosaved every few seconds, so a crash or closed tab loses nothing) and wait in **Marking**, where you give marks and comments per question. The final result appears once marking is finished.
+7. Students see *Available*, *Coming up* and their completed exams (never scores). Starting an exam opens it full screen, one question per view: **N** next, **P** previous, **A-E** choose an option, **S** submit then **Y** confirm, plus a basic calculator. Leaving full screen asks them to return. Answers autosave instantly. Objective questions are scored instantly and the teacher watches it live (current question, answered, live score) on the exam's **Live** tab, where an exam can also be paused, given more time, or submitted for one student or all.
 8. **Live** tab on an exam: see who is sitting it, *Pause* a student (their clock stops and they are signed out; when they sign in again the exam waits with the time left), *Resume*, *Edit time left*, or *Submit now*.
 9. **Students → Online now** shows who has the portal open and who is sitting an exam (with a sign-out button). **Reports → Activity log** records sign-ins, failed sign-ins, exam starts and submissions, pauses and every admin change, and can be exported to CSV.
 10. Open an exam → **Results** to see scores and export them as CSV, Excel or PDF (also from **Reports**).
@@ -42,8 +42,8 @@ Data folder: `%LOCALAPPDATA%\ExamBox` (override with the `EXAMBOX_DATA` environm
 - The student site never reveals whether an ID belongs to an administrator (same generic error for every failure).
 - Slideshow sign-in screens, illustrations, loaders and page transitions in both the desktop app and the student portal.
 - Student management: add, edit, search, deactivate, delete, reset password, exam history.
-- Exams: objective (A-E) and theory questions in one exam, question pictures, shuffle, show/hide correct answers, pass mark, reusable templates, scheduled launch with class targeting. Questions lock once a student starts.
-- Students: one attempt per exam, server-enforced deadline (also when a window closes), autosaved typed answers, instant objective grading, teacher-marked theory with feedback, answer review.
+- Exams: objective (A-E) and essay questions in one exam, question pictures, shuffle, show/hide correct answers, pass mark, reusable templates, scheduled launch with class targeting. Questions lock once a student starts.
+- Students: one attempt per exam, server-enforced deadline (also when a window closes), autosaved answers, instant objective grading, live teacher view, full-screen one-question exam view with keyboard shortcuts.
 - Dashboard: live stats, enrolment sparkline, monthly growth, grade-distribution donut, pass/fail trend, searchable recent submissions, getting-started checklist.
 - Reports: filter by exam and period, KPIs, per-exam pass rates, top students, CSV export.
 - Settings: institution name (also shown on the student site), exam defaults, one-click database backup, security notes.

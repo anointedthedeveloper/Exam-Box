@@ -371,42 +371,54 @@ public class ProductionTests
     }
 
     [Fact]
-    public void Mixed_exam_flow_with_theory_marking()
+    public void Mixed_exam_flow_essays_are_displayed_not_scored()
     {
         using var t = new TempDb();
-        var att = new AttemptService(t.Factory); var mark = new MarkingService(t.Factory);
+        var att = new AttemptService(t.Factory); var live = new LiveService(t.Factory);
         var e = t.Exams.Save(0, "Mixed", null, 30, 50).Value!;
         t.Exams.SaveQuestion(e.Id, 0, "2+2?", "3", "4", null, null, "B", 2);
         t.Exams.Theory(e.Id, "Passage", 0, "3");
-        t.Exams.Theory(e.Id, "Explain A", 5, "3a");
-        t.Exams.Theory(e.Id, "Explain B", 5, "3b");
+        t.Exams.Theory(e.Id, "Explain A (on paper)", 5, "3a");
+        t.Exams.SaveQuestion(e.Id, 0, "3+3?", "5", "6", null, null, "B", 3);
         Assert.True(t.Exams.Launch(e.Id, null, null, null).Ok);
         var s = t.Students.Create(new StudentInput("Stu", "S9", null, null)).Value!.Student;
         var aid = att.Start(s.Id, e.Id).Value;
-        var take = att.GetTake(s.Id, aid)!;
-        Assert.Equal(QuestionType.Objective, take.Questions[0].Type);
-        var qs = take.Questions;
-        var draft = new Dictionary<int, string> { [qs[2].Id] = "my answer a" };
-        Assert.True(att.SaveDraft(s.Id, aid, draft).Ok);
-        Assert.Equal("my answer a", att.GetTake(s.Id, aid)!.Saved[qs[2].Id].Text);
-        var final = new Dictionary<int, string> { [qs[0].Id] = "B", [qs[2].Id] = "my answer a", [qs[3].Id] = "my answer b" };
-        Assert.True(att.Submit(s.Id, aid, final).Ok);
+        att.Begin(s.Id, aid);
+        var qs = att.GetTake(s.Id, aid)!.Questions;
+        Assert.Equal(new[] { "2+2?", "Passage", "Explain A (on paper)", "3+3?" }, qs.Select(q => q.Text));      // the teacher's own order
+        // live view while the student works
+        Assert.True(att.SaveDraft(s.Id, aid, new Dictionary<int, string> { [qs[0].Id] = "B" }, 4).Ok);
+        var row = live.List(e.Id).Single();
+        Assert.Equal(4, row.Current); Assert.Equal(1, row.Answered); Assert.Equal(2, row.Score); Assert.Equal(5, row.MaxScore); Assert.Equal(2, row.ObjectiveQuestions);
+        Assert.True(att.Submit(s.Id, aid, new Dictionary<int, string> { [qs[0].Id] = "B", [qs[3].Id] = "A" }).Ok);
         var r = att.GetResult(s.Id, aid)!;
-        Assert.True(r.PendingMarking); Assert.Equal(2, r.ObjectiveScore); Assert.Equal(12, r.TotalMarks);
-        Assert.Equal(0, new ReportService(t.Factory).Build().Attempts);                  // not final yet
-        Assert.Equal(1, new DashboardService(t.Factory).Get().AwaitingMarking);
-        Assert.Single(mark.Pending());
-        var sheet = mark.Sheet(aid)!;
-        Assert.Equal(2, sheet.Items.Count);
-        var a1 = sheet.Items[0].Question.Id; var a2 = sheet.Items[1].Question.Id;
-        Assert.False(mark.Save(aid, new[] { new MarkEntry(a1, 6, null) }, false).Ok);      // above max
-        Assert.True(mark.Save(aid, new[] { new MarkEntry(a1, 4, "good") }, false).Ok);
-        Assert.False(mark.Save(aid, Array.Empty<MarkEntry>(), true).Ok);                 // b unmarked
-        Assert.True(mark.Save(aid, new[] { new MarkEntry(a2, 3, null) }, true).Ok);
-        r = att.GetResult(s.Id, aid)!;
-        Assert.False(r.PendingMarking); Assert.Equal(9, r.Score); Assert.Equal(7, r.TheoryScore);
-        Assert.Equal(1, new ReportService(t.Factory).Build().Attempts);
-        Assert.Equal(0, mark.PendingCount());
+        Assert.False(r.PendingMarking); Assert.Equal(2, r.Score); Assert.Equal(5, r.TotalMarks);                // essay marks are not part of the total
+        Assert.Equal(1, new ReportService(t.Factory).Build().Attempts);                                         // counted straight away
+        Assert.Equal(0, new MarkingService(t.Factory).PendingCount());
+    }
+
+    [Fact]
+    public void Admin_can_submit_one_or_all_running_exams()
+    {
+        using var t = new TempDb();
+        var att = new AttemptService(t.Factory); var live = new LiveService(t.Factory);
+        var e = t.Exams.Save(0, "Submit", null, 30, 50).Value!;
+        t.Exams.SaveQuestion(e.Id, 0, "Q", "a", "b", null, null, "A", 2);
+        t.Exams.Launch(e.Id, null, null, null);
+        var ids = new List<int>();
+        foreach (var code in new[] { "U1", "U2", "U3" })
+        {
+            var st = t.Students.Create(new StudentInput(code, code, null, null, true, "pw")).Value!.Student;
+            var aid = att.Start(st.Id, e.Id).Value; att.Begin(st.Id, aid); ids.Add(aid);
+            att.SaveDraft(st.Id, aid, new Dictionary<int, string> { [t.Exams.Get(e.Id)!.Questions[0].Id] = "A" });
+        }
+        live.Pause(ids[2]);                                                    // a paused one can be submitted too
+        Assert.True(att.AdminSubmit(ids[0]).Ok);
+        Assert.Equal(2, live.List(e.Id).Count);
+        Assert.Equal(2, live.SubmitAll(e.Id));
+        Assert.Empty(live.List(e.Id));
+        using var db = t.Factory.Create();
+        Assert.All(db.Attempts.ToList(), a => { Assert.NotNull(a.SubmittedAt); Assert.Equal(2, a.Score); });
     }
 
     [Fact]
@@ -429,6 +441,7 @@ public class ProductionTests
         Assert.Single(home.Upcoming); Assert.False(att.Start(ss1.Id, later.Id).Ok);
         // an attempt whose window shut is collected on its own, using saved answers
         var aid = att.Start(ss1.Id, e.Id).Value;
+        att.Begin(ss1.Id, aid);
         using (var db = t.Factory.Create()) db.Exams.Where(x => x.Id == e.Id).ExecuteUpdate(s => s.SetProperty(x => x.ClosesAt, DateTime.UtcNow.AddSeconds(-1)));
         Assert.Equal(1, att.CollectExpired());
         Assert.NotNull(att.GetResult(ss1.Id, aid));
@@ -502,6 +515,9 @@ public class ProductionTests
         t.Exams.Launch(e.Id, null, null, null);
         var s = t.Students.Create(new StudentInput("S", "T1", null, null, true, "pw")).Value!.Student;
         var aid = att.Start(s.Id, e.Id).Value;
+        Assert.InRange(att.GetTake(s.Id, aid)!.SecondsLeft, 1799, 1800);       // the clock has not started yet
+        Assert.False(att.GetTake(s.Id, aid)!.Began);
+        att.Begin(s.Id, aid);
         var before = att.GetTake(s.Id, aid)!.SecondsLeft;
         Assert.InRange(before, 1790, 1800);
 
@@ -620,7 +636,7 @@ public class ProductionTests
             using (var db = f.Create())
             {
                 db.Database.ExecuteSqlRaw("INSERT INTO Users (FullName, Username, Department, PasswordHash, Role, IsActive, MustChangePassword, FailedLogins, CreatedAt, SessionVersion) VALUES ('Old','O1','SS3','x','Student',1,0,0,'2025-01-01',0)");
-                db.Database.ExecuteSqlRaw("ALTER TABLE Users DROP COLUMN LastSeenAt"); db.Database.ExecuteSqlRaw("DROP TABLE Classes"); db.Database.ExecuteSqlRaw("DROP TABLE Activity"); db.Database.ExecuteSqlRaw("PRAGMA user_version = 6");
+                db.Database.ExecuteSqlRaw("ALTER TABLE Attempts DROP COLUMN BeganAt"); db.Database.ExecuteSqlRaw("ALTER TABLE Attempts DROP COLUMN CurrentQuestion"); db.Database.ExecuteSqlRaw("ALTER TABLE Users DROP COLUMN LastSeenAt"); db.Database.ExecuteSqlRaw("DROP TABLE Classes"); db.Database.ExecuteSqlRaw("DROP TABLE Activity"); db.Database.ExecuteSqlRaw("PRAGMA user_version = 6");
             }
             f.Initialize();                                                         // upgrade 6 -> 7
             Assert.Equal(new[] { "SS3" }, new ClassService(f).Names());
@@ -642,6 +658,7 @@ public class ProductionTests
             var qid = exams.Get(e.Id)!.Questions[0].Id;
             using (var db = f.Create())   // recreate the old layout: picture bytes inside the question row
             {
+                db.Database.ExecuteSqlRaw("ALTER TABLE Attempts DROP COLUMN BeganAt"); db.Database.ExecuteSqlRaw("ALTER TABLE Attempts DROP COLUMN CurrentQuestion");
                 db.Database.ExecuteSqlRaw("DROP TABLE Images");
                 db.Database.ExecuteSqlRaw("ALTER TABLE Questions ADD COLUMN ImageData BLOB NULL");
                 db.Database.ExecuteSqlRaw("UPDATE Questions SET ImageData = x'89504E470D0A1A0A0000', ImageType = 'image/png'");

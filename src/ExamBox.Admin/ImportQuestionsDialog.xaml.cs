@@ -33,14 +33,6 @@ public partial class ImportQuestionsDialog : Window
         Preview();
     }
 
-    private void Folder_Click(object sender, RoutedEventArgs e)
-    {
-        var dlg = new OpenFolderDialog { Title = "Folder that holds the question pictures" };
-        if (dlg.ShowDialog(this) != true) return;
-        FolderPath.Text = dlg.FolderName;
-        if (FilePath.Text.Length > 0) Preview();
-    }
-
     private void Preview()
     {
         ErrorText.Visibility = Visibility.Collapsed;
@@ -48,7 +40,7 @@ public partial class ImportQuestionsDialog : Window
         try
         {
             using var fs = new FileStream(FilePath.Text, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            _result = QuestionImporter.Parse(fs, FolderPath.Text.Length > 0 ? FolderPath.Text : null);
+            _result = QuestionImporter.Parse(fs, null);
         }
         catch (Exception ex)
         {
@@ -59,10 +51,10 @@ public partial class ImportQuestionsDialog : Window
         var errors = r.Issues.Count(i => !i.IsWarning);
         PreviewTitle.Text = errors > 0
             ? $"{errors} row(s) need fixing before you can import"
-            : $"{r.Questions.Count} question(s) ready: {r.Objective} objective, {r.Theory} theory";
+            : $"{r.Questions.Count} question(s) ready: {r.Objective} objective, {r.Theory} essay";
         PreviewTitle.Foreground = (Brush)FindResource(errors > 0 ? "ErrBrush" : "OkBrush");
         PreviewSub.Text = errors > 0 ? "Fix the rows in Excel, save, and choose the file again." :
-            r.NeedImages > 0 ? $"{r.NeedImages} question(s) still need a picture. You will attach them one by one after importing." : "Everything looks good.";
+            r.NeedImages > 0 ? $"{r.NeedImages} question(s) still need a picture. After importing you will be asked for each picture in turn." : "Everything looks good.";
         IssueList.ItemsSource = r.Issues.OrderBy(i => i.IsWarning).ThenBy(i => i.Row)
             .Select(i => new IssueLine((i.Row > 0 ? $"Row {i.Row}: " : "") + i.Message, (Brush)FindResource(i.IsWarning ? "WarnBrush" : "ErrBrush"))).ToList();
         SaveBtn.IsEnabled = errors == 0 && r.Questions.Count > 0;
@@ -75,6 +67,7 @@ public partial class ImportQuestionsDialog : Window
         if (replace && !Ui.Confirm("Replace all current questions in this exam with the imported ones?")) return;
         var r = App.Exams.AddQuestions(_examId, _result.Questions, replace);
         if (!r.Ok) { ErrorText.Text = r.Error; ErrorText.Visibility = Visibility.Visible; return; }
+        if (r.Value > 0) AttachPicturesDialog.RunFor(_examId, this);
         DialogResult = true;
     }
 }

@@ -17,6 +17,7 @@ public class TakeExamVm
     public List<Question> Questions { get; set; } = new();
     public Dictionary<int, Answer> Saved { get; set; } = new();
     public int SecondsLeft { get; set; }
+    public bool Began { get; set; }
 }
 
 public static class QLabel

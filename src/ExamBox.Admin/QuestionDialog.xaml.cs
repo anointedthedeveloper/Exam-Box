@@ -42,7 +42,7 @@ public partial class QuestionDialog : Window
         var theory = TypeBox.SelectedIndex == 1;
         ObjPanel.Visibility = theory ? Visibility.Collapsed : Visibility.Visible;
         TheoryPanel.Visibility = theory ? Visibility.Visible : Visibility.Collapsed;
-        if (_existing == null && Marks.Text == (theory ? "1" : "5")) Marks.Text = theory ? "5" : "1";
+        if (_existing == null && Marks.Text == (theory ? "1" : "0")) Marks.Text = theory ? "0" : "1";
     }
 
     private void Show(byte[] data)
